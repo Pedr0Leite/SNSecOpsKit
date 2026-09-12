@@ -1,0 +1,7 @@
+{
+    "scope": "x_335329_secops",
+    "scopeId": "299d8aa83da2430497b6334a51359205",
+    "name": "SecOps Universal Connector Framework",
+    "tsconfigPath": "./src/server/tsconfig.json",
+    "packageSourceCodeOnInstance": true
+}

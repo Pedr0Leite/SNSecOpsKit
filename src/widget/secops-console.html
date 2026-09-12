@@ -1,0 +1,111 @@
+
+<div class="secops-console">
+  <div class="alert alert-danger" role="alert" ng-if="c.data.error">
+    {{c.data.error}}
+  </div>
+
+  <div ng-if="!c.data.error">
+    <h2 class="secops-console__title">SecOps connector status</h2>
+
+    <div class="secops-console__summary">
+      <div class="secops-tile secops-tile--healthy">
+        <span class="secops-tile__value">{{c.data.summary.healthy}}</span>
+        <span class="secops-tile__label">Healthy</span>
+      </div>
+      <div class="secops-tile secops-tile--degraded">
+        <span class="secops-tile__value">{{c.data.summary.degraded}}</span>
+        <span class="secops-tile__label">Degraded</span>
+      </div>
+      <div class="secops-tile secops-tile--down">
+        <span class="secops-tile__value">{{c.data.summary.down}}</span>
+        <span class="secops-tile__label">Down</span>
+      </div>
+      <div class="secops-tile secops-tile--unknown">
+        <span class="secops-tile__value">{{c.data.summary.unknown}}</span>
+        <span class="secops-tile__label">Unknown</span>
+      </div>
+    </div>
+
+    <div class="alert" ng-class="c.data.testResult.ok ? 'alert-success' : 'alert-warning'" ng-if="c.data.testResult">
+      <strong>{{c.data.testResult.connector_name}}</strong>: {{c.data.testResult.message}}
+      <span ng-if="c.data.testResult.duration_ms"> ({{c.data.testResult.duration_ms}} ms)</span>
+    </div>
+
+    <table class="table secops-console__table" ng-if="c.data.connectors.length">
+      <thead>
+        <tr>
+          <th>Connector</th>
+          <th>Vendor</th>
+          <th>Category</th>
+          <th>Health</th>
+          <th>Last checked</th>
+          <th ng-if="c.data.canOperate">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="connector in c.data.connectors">
+          <td>
+            {{connector.name}}
+            <span class="secops-badge secops-badge--muted" ng-if="!connector.active">inactive</span>
+          </td>
+          <td>{{connector.vendor}}</td>
+          <td>{{connector.category}}</td>
+          <td>
+            <span class="secops-badge" ng-class="'secops-badge--' + connector.health_status">
+              {{connector.health_status}}
+            </span>
+            <div class="secops-console__hint" ng-if="connector.last_health_message">
+              {{connector.last_health_message}}
+            </div>
+          </td>
+          <td>{{connector.last_health_check || '-'}}</td>
+          <td ng-if="c.data.canOperate">
+            <button type="button"
+                    class="btn btn-default btn-sm"
+                    ng-disabled="c.testing"
+                    ng-click="c.testConnection(connector)">
+              {{c.testing === connector.sys_id ? 'Testing...' : 'Test'}}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="secops-console__empty" ng-if="!c.data.connectors.length">
+      No connectors are configured yet.
+    </p>
+
+    <h3 class="secops-console__title">Recent activity</h3>
+
+    <table class="table secops-console__table" ng-if="c.data.transactions.length">
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>Connector</th>
+          <th>Capability</th>
+          <th>State</th>
+          <th>HTTP</th>
+          <th>Duration</th>
+          <th>Error</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="txn in c.data.transactions">
+          <td>{{txn.created}}</td>
+          <td>{{txn.connector}}</td>
+          <td>{{txn.capability}}</td>
+          <td>
+            <span class="secops-badge" ng-class="'secops-badge--state-' + txn.state">{{txn.state}}</span>
+          </td>
+          <td>{{txn.http_status || '-'}}</td>
+          <td>{{txn.duration_ms ? txn.duration_ms + ' ms' : '-'}}</td>
+          <td class="secops-console__error">{{txn.error_message}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="secops-console__empty" ng-if="!c.data.transactions.length">
+      No connector activity has been recorded yet.
+    </p>
+  </div>
+</div>

@@ -1,0 +1,1256 @@
+/*
+ * SecOps console.
+ *
+ * One stylesheet on purpose: the cascade is easier to reason about in a single place than across
+ * eight co-located files, and it keeps section spacing from silently cancelling out.
+ *
+ * Three themes, switched by [data-theme] on <html>. Every colour is a token; no component hardcodes
+ * a hex value. That is what makes the Matrix theme a data change rather than a rewrite.
+ */
+
+/* ---------------------------------------------------------------- Daylight */
+:root,
+[data-theme='daylight'] {
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --surface-2: #f0f2f6;
+    --surface-hover: #eef1f7;
+    --ink: #1b2030;
+    --ink-2: #5a6478;
+    --ink-3: #838da3;
+    --line: #dde1e9;
+    --line-strong: #c3cad8;
+    --accent: #2f5bd7;
+    --accent-ink: #ffffff;
+    --accent-soft: #e7ecfb;
+
+    --sev-critical: #d4183d;
+    --sev-high: #e8632a;
+    --sev-medium: #d9a21b;
+    --sev-low: #3e8e5a;
+    --sev-info: #6b7688;
+
+    --glow: none;
+    --scanlines: none;
+    --shadow: 0 1px 2px rgba(27, 32, 48, 0.08);
+}
+
+/* ------------------------------------------------------------- Night watch */
+[data-theme='night'] {
+    --bg: #12161f;
+    --surface: #1a2030;
+    --surface-2: #222a3d;
+    --surface-hover: #26304a;
+    --ink: #e4e8f1;
+    --ink-2: #8b95aa;
+    --ink-3: #6d7789;
+    --line: #2a3244;
+    --line-strong: #3a4459;
+    --accent: #5b8cff;
+    --accent-ink: #0b0e15;
+    --accent-soft: #1e2947;
+
+    --sev-critical: #ff5470;
+    --sev-high: #ff8c4a;
+    --sev-medium: #e8bc3e;
+    --sev-low: #4fb37a;
+    --sev-info: #7d879c;
+
+    --glow: none;
+    --scanlines: none;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* ------------------------------------------------------------------ Matrix */
+[data-theme='matrix'] {
+    --bg: #000000;
+    --surface: #04120a;
+    --surface-2: #071b0e;
+    --surface-hover: #0b2714;
+    --ink: #33ff66;
+    --ink-2: #1f9940;
+    --ink-3: #17722f;
+    --line: #0c3d1c;
+    --line-strong: #13592a;
+    --accent: #5cff8f;
+    --accent-ink: #001206;
+    --accent-soft: #06240f;
+
+    /* Collapses to green intensities, with one alarm red - a critical must still break the palette. */
+    --sev-critical: #ff3b3b;
+    --sev-high: #a8ff6b;
+    --sev-medium: #5cff8f;
+    --sev-low: #2ecc5e;
+    --sev-info: #1f9940;
+
+    --glow: 0 0 6px rgba(92, 255, 143, 0.45);
+    --scanlines: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0px,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 40, 12, 0.28) 3px,
+        rgba(0, 0, 0, 0) 4px
+    );
+    --shadow: none;
+}
+
+/* ------------------------------------------------------------------- base */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Machine data only - hashes, CVEs, IPs, correlation ids. Never for labels: monospace here is
+   functional (it makes near-identical strings comparable), not a style. */
+.mono {
+    font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Consolas, monospace;
+    font-size: 0.92em;
+    letter-spacing: -0.01em;
+}
+
+button,
+input {
+    font: inherit;
+    color: inherit;
+}
+
+:focus-visible,
+[data-focus-visible] {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ------------------------------------------------------------------ shell */
+.app {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    position: relative;
+}
+
+[data-theme='matrix'] .app::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: var(--scanlines);
+    pointer-events: none;
+    z-index: 50;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 16px;
+    height: 48px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+}
+
+.topbar__name {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-shadow: var(--glow);
+}
+
+.topbar__spacer {
+    flex: 1;
+}
+
+.topbar__user {
+    color: var(--ink-2);
+    font-size: 13px;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 232px 1fr;
+    min-height: 0;
+}
+
+.rail {
+    border-right: 1px solid var(--line);
+    background: var(--surface);
+    padding: 16px 14px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.main {
+    min-width: 0;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* ------------------------------------------------------------ rail groups */
+.group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Sentence case, quiet: a group label is a signpost, not a headline. */
+.group__label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-2);
+}
+
+.react-aria-RadioGroup,
+.react-aria-CheckboxGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.react-aria-Radio,
+.react-aria-Checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 3px 4px;
+    border-radius: 4px;
+    color: var(--ink-2);
+}
+
+.react-aria-Radio:hover,
+.react-aria-Checkbox:hover {
+    background: var(--surface-hover);
+    color: var(--ink);
+}
+
+.react-aria-Radio[data-selected],
+.react-aria-Checkbox[data-selected] {
+    color: var(--ink);
+    font-weight: 500;
+}
+
+.radio__dot {
+    width: 13px;
+    height: 13px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 50%;
+    flex: none;
+    position: relative;
+}
+
+.react-aria-Radio[data-selected] .radio__dot {
+    border-color: var(--accent);
+}
+
+.react-aria-Radio[data-selected] .radio__dot::after {
+    content: '';
+    position: absolute;
+    inset: 2.5px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: var(--glow);
+}
+
+.check__box {
+    width: 13px;
+    height: 13px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 3px;
+    flex: none;
+    display: grid;
+    place-items: center;
+}
+
+.react-aria-Checkbox[data-selected] .check__box {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: var(--glow);
+}
+
+.check__box svg {
+    width: 9px;
+    height: 9px;
+    stroke: var(--accent-ink);
+    stroke-width: 3;
+    fill: none;
+    opacity: 0;
+}
+
+.react-aria-Checkbox[data-selected] .check__box svg {
+    opacity: 1;
+}
+
+/* Severity checkboxes carry their own colour, so the filter reads like the data. */
+.sev-option .check__box {
+    border-color: var(--sev);
+}
+
+.sev-option[data-selected] .check__box {
+    background: var(--sev);
+    border-color: var(--sev);
+}
+
+/* ------------------------------------------------------------------ search */
+.react-aria-SearchField {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.react-aria-SearchField .react-aria-Input {
+    width: 100%;
+    padding: 7px 9px;
+    background: var(--bg);
+    border: 1px solid var(--line-strong);
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+.react-aria-SearchField .react-aria-Input::placeholder {
+    color: var(--ink-3);
+}
+
+.react-aria-SearchField .react-aria-Input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: var(--glow);
+}
+
+/* ------------------------------------------------------------ theme switch */
+.themeswitch {
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+}
+
+.themeswitch .react-aria-Radio {
+    padding: 3px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+    color: var(--ink-2);
+}
+
+.themeswitch .react-aria-Radio[data-selected] {
+    background: var(--accent);
+    color: var(--accent-ink);
+    box-shadow: var(--glow);
+}
+
+/* ----------------------------------------------------------- summary strip */
+.summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    align-items: baseline;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+}
+
+.summary__stat {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.summary__count {
+    font-size: 19px;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+.summary__count[data-sev='critical'] {
+    color: var(--sev-critical);
+    text-shadow: var(--glow);
+}
+.summary__count[data-sev='high'] {
+    color: var(--sev-high);
+}
+.summary__count[data-sev='medium'] {
+    color: var(--sev-medium);
+}
+
+.summary__label {
+    font-size: 12px;
+    color: var(--ink-2);
+}
+
+.summary__divider {
+    width: 1px;
+    align-self: stretch;
+    background: var(--line);
+}
+
+/* ------------------------------------------------------------ work list */
+/*
+ * The severity spine. Rows sit flush with no gap so their left borders form one continuous
+ * stripe - the shape of the queue is readable before any text is.
+ */
+.worklist {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.react-aria-GridList {
+    outline: none;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr) 150px 92px;
+    gap: 12px;
+    align-items: center;
+    padding: 9px 14px 9px 11px;
+    border-left: 3px solid var(--sev);
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    outline: none;
+}
+
+.row:last-child {
+    border-bottom: 0;
+}
+
+.row[data-hovered],
+.row[data-focus-visible] {
+    background: var(--surface-hover);
+}
+
+.row[data-focus-visible] {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+.row__id {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.row__number {
+    font-size: 12px;
+    color: var(--ink-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.row__sev {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--sev);
+    letter-spacing: 0.02em;
+}
+
+.row__title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.row__owner {
+    font-size: 12px;
+    color: var(--ink-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.row__dwell {
+    font-size: 12px;
+    color: var(--ink-2);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.row__dwell[data-stale='true'] {
+    color: var(--sev-high);
+    font-weight: 600;
+}
+
+.tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    margin-left: 6px;
+    vertical-align: 1px;
+}
+
+/* ------------------------------------------------- split (list + record) */
+/*
+ * Selecting a row splits the surface: queue on the left, record on the right. The list drops its
+ * middle columns rather than shrinking them, so rows stay readable instead of turning into
+ * ellipses - at this width, severity, number and title are what a triaging analyst needs.
+ */
+.split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    align-items: start;
+    min-height: 0;
+}
+
+.split[data-open='true'] {
+    grid-template-columns: minmax(300px, 4fr) minmax(360px, 5fr);
+}
+
+.worklist[data-compact='true'] .row {
+    grid-template-columns: 84px minmax(0, 1fr);
+}
+
+.worklist[data-compact='true'] .row__owner,
+.worklist[data-compact='true'] .row__dwell {
+    display: none;
+}
+
+.row[data-selected] {
+    background: var(--accent-soft);
+}
+
+.pane {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    max-height: calc(100vh - 140px);
+}
+
+.pane__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+}
+
+.pane__ident {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+}
+
+.pane__actions {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+}
+
+.pane__close {
+    padding: 6px 9px;
+    line-height: 1;
+}
+
+.pane__body {
+    padding: 12px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pane__foot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-top: 1px solid var(--line);
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.field__label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-2);
+}
+
+.field__static {
+    color: var(--ink);
+    padding: 6px 0;
+}
+
+.field__input {
+    width: 100%;
+    padding: 7px 9px;
+    background: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    border-radius: 5px;
+    font-size: 13px;
+    resize: vertical;
+}
+
+.field__input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: var(--glow);
+}
+
+/* -------------------------------------------------------- connector strip */
+.connectors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.connector {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 10px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.connector__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex: none;
+}
+
+.connector__dot[data-health='healthy'] {
+    background: var(--sev-low);
+}
+.connector__dot[data-health='degraded'] {
+    background: var(--sev-medium);
+}
+.connector__dot[data-health='down'] {
+    background: var(--sev-critical);
+    box-shadow: var(--glow);
+}
+.connector__dot[data-health='unknown'] {
+    background: var(--ink-3);
+}
+
+.connector[data-inactive='true'] {
+    opacity: 0.5;
+}
+
+/* -------------------------------------------------------------------- tabs */
+.tabs {
+    display: flex;
+    gap: 2px;
+    margin-left: 18px;
+}
+
+.tab {
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 14px 10px;
+    color: var(--ink-2);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.tab:hover {
+    color: var(--ink);
+}
+
+.tab[aria-selected='true'] {
+    color: var(--ink);
+    font-weight: 600;
+    border-bottom-color: var(--accent);
+    text-shadow: var(--glow);
+}
+
+/* ------------------------------------------------------------------ charts */
+.main--wide {
+    padding: 18px;
+}
+
+.band {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+}
+
+.metric {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 108px;
+    flex: 1 1 108px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+}
+
+.band .metric {
+    flex: 1 1 150px;
+}
+
+.metric__value {
+    font-size: 26px;
+    font-weight: 650;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.metric__label {
+    font-size: 12px;
+    color: var(--ink-2);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+    gap: 12px;
+    align-items: start;
+}
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 132px;
+}
+
+.panel__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.panel__title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.chart-empty {
+    margin: 0;
+    color: var(--ink-3);
+    font-size: 13px;
+    font-style: italic;
+}
+
+.bars {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.bar {
+    display: grid;
+    grid-template-columns: minmax(66px, 34%) 1fr 38px;
+    gap: 9px;
+    align-items: center;
+    font-size: 12px;
+}
+
+.bar__label {
+    color: var(--ink-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bar__track {
+    height: 8px;
+    background: var(--surface-2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bar__fill {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+    box-shadow: var(--glow);
+}
+
+.bar__value {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+.stacked {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stacked__track {
+    display: flex;
+    height: 14px;
+    border-radius: 7px;
+    overflow: hidden;
+    background: var(--surface-2);
+}
+
+.stacked__seg {
+    height: 100%;
+}
+
+.legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    font-size: 12px;
+    color: var(--ink-2);
+}
+
+.legend li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend__swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    flex: none;
+}
+
+.legend__value {
+    color: var(--ink);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.donut {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.donut__svg {
+    width: 124px;
+    height: 124px;
+    flex: none;
+}
+
+.donut__rail {
+    fill: none;
+    stroke: var(--surface-2);
+    stroke-width: 16;
+}
+
+.donut__value {
+    fill: var(--ink);
+    font-size: 22px;
+    font-weight: 650;
+    text-anchor: middle;
+}
+
+.donut__caption {
+    fill: var(--ink-2);
+    font-size: 9px;
+    text-anchor: middle;
+}
+
+.trend__svg {
+    width: 100%;
+    height: 72px;
+    display: block;
+}
+
+.trend__axis {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 2px;
+}
+
+/* ----------------------------------------------- drillable chart elements */
+.bar--drill,
+.metric--drill,
+.legend__button {
+    background: none;
+    border: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+    padding: 0;
+}
+
+.bar--drill {
+    display: grid;
+    grid-template-columns: minmax(66px, 34%) 1fr 38px;
+    gap: 9px;
+    align-items: center;
+    font-size: 12px;
+    width: 100%;
+    border-radius: 4px;
+}
+
+.bar--drill:hover .bar__track,
+.bar--drill:focus-visible .bar__track {
+    background: var(--line-strong);
+}
+
+.bar--drill:hover .bar__label {
+    color: var(--ink);
+}
+
+.legend__button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 3px;
+    padding: 1px 3px;
+}
+
+.legend__button:hover {
+    background: var(--surface-hover);
+    color: var(--ink);
+}
+
+.metric--drill {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 108px;
+    flex: 1 1 150px;
+}
+
+.metric--drill:hover {
+    border-color: var(--accent);
+}
+
+.donut__arc--drill {
+    cursor: pointer;
+}
+
+.donut__arc--drill:hover {
+    opacity: 0.82;
+}
+
+/* ------------------------------------------------------------- drill pane */
+.drill {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.drill__row {
+    display: grid;
+    gap: 2px;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 8px 4px;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+
+.drill__row:hover {
+    background: var(--surface-hover);
+}
+
+.drill__primary {
+    font-size: 12px;
+    color: var(--ink-2);
+}
+
+.drill__secondary {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.notice {
+    margin: 0;
+    padding: 8px 10px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+/* An action that reads as part of a sentence, not a control bolted onto it. */
+.linkish {
+    border: 0;
+    padding: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.linkish:hover {
+    text-decoration: none;
+}
+
+/* ------------------------------------------------------- editable layout */
+.grid--layout {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: start;
+}
+
+.panel[data-width='third'] {
+    grid-column: span 2;
+}
+.panel[data-width='half'] {
+    grid-column: span 3;
+}
+.panel[data-width='two-thirds'] {
+    grid-column: span 4;
+}
+.panel[data-width='full'] {
+    grid-column: span 6;
+}
+
+.panel[data-hidden='true'] {
+    opacity: 0.45;
+    border-style: dashed;
+}
+
+.panel[data-dragging='true'] {
+    opacity: 0.4;
+}
+
+.panel[data-over='true'] {
+    outline: 2px dashed var(--accent);
+    outline-offset: 2px;
+}
+
+.panel__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+}
+
+.tool {
+    padding: 3px 8px;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+.tool[data-active='true'] {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+}
+
+.tool__group {
+    display: flex;
+    gap: 2px;
+    margin-left: auto;
+}
+
+@media (max-width: 1100px) {
+    .grid--layout {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .panel[data-width='third'],
+    .panel[data-width='half'],
+    .panel[data-width='two-thirds'] {
+        grid-column: span 1;
+    }
+    .panel[data-width='full'] {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 720px) {
+    .grid--layout {
+        grid-template-columns: 1fr;
+    }
+    .panel[data-width] {
+        grid-column: span 1;
+    }
+}
+
+/* ------------------------------------------------------- states & buttons */
+.state {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--ink-2);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+}
+
+.state__title {
+    color: var(--ink);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.state--error {
+    border-color: var(--sev-critical);
+}
+
+.react-aria-Button {
+    padding: 6px 12px;
+    background: var(--surface-2);
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.react-aria-Button[data-hovered] {
+    background: var(--surface-hover);
+}
+
+.react-aria-Button[data-pressed] {
+    transform: translateY(1px);
+}
+
+.btn--primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+    box-shadow: var(--glow);
+}
+
+.skeleton {
+    height: 38px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(90deg, var(--surface) 0%, var(--surface-2) 50%, var(--surface) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.1s linear infinite;
+}
+
+@keyframes shimmer {
+    to {
+        background-position: -200% 0;
+    }
+}
+
+.footnote {
+    font-size: 12px;
+    color: var(--ink-3);
+}
+
+/* ------------------------------------------------------------- responsive */
+@media (max-width: 1100px) {
+    /* Below this the two panes fight each other; stack them and let the record sit under the list. */
+    .split[data-open='true'] {
+        grid-template-columns: 1fr;
+    }
+
+    .pane {
+        position: static;
+        max-height: none;
+    }
+
+    .worklist[data-compact='true'] .row {
+        grid-template-columns: 92px minmax(0, 1fr) 150px 92px;
+    }
+
+    .worklist[data-compact='true'] .row__owner,
+    .worklist[data-compact='true'] .row__dwell {
+        display: block;
+    }
+}
+
+@media (max-width: 860px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .rail {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .row {
+        grid-template-columns: 84px minmax(0, 1fr);
+        row-gap: 2px;
+    }
+
+    .row__owner,
+    .row__dwell {
+        grid-column: 2;
+        text-align: left;
+    }
+}

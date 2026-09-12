@@ -1,0 +1,114 @@
+.secops-console {
+    font-size: 14px;
+
+    &__title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 16px 0 12px;
+    }
+
+    &__summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    &__table {
+        th {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        td {
+            vertical-align: middle;
+        }
+    }
+
+    &__hint {
+        color: #6b7280;
+        font-size: 12px;
+        margin-top: 4px;
+        max-width: 360px;
+    }
+
+    &__error {
+        color: #b91c1c;
+        font-size: 12px;
+        max-width: 320px;
+        word-break: break-word;
+    }
+
+    &__empty {
+        color: #6b7280;
+        font-style: italic;
+        margin: 8px 0 20px;
+    }
+}
+
+.secops-tile {
+    align-items: center;
+    border: 1px solid #e5e7eb;
+    border-left-width: 4px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    min-width: 96px;
+    padding: 12px 16px;
+
+    &__value {
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.1;
+    }
+
+    &__label {
+        color: #6b7280;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+
+    &--healthy {
+        border-left-color: #15803d;
+    }
+    &--degraded {
+        border-left-color: #b45309;
+    }
+    &--down {
+        border-left-color: #b91c1c;
+    }
+    &--unknown {
+        border-left-color: #9ca3af;
+    }
+}
+
+.secops-badge {
+    border-radius: 10px;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    text-transform: uppercase;
+
+    &--healthy,
+    &--state-success {
+        background-color: #dcfce7;
+        color: #15803d;
+    }
+    &--degraded,
+    &--state-retry_pending {
+        background-color: #fef3c7;
+        color: #b45309;
+    }
+    &--down,
+    &--state-failed {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
+    &--unknown,
+    &--state-pending,
+    &--state-skipped,
+    &--muted {
+        background-color: #f3f4f6;
+        color: #6b7280;
+    }
+}
