@@ -224,7 +224,16 @@ Full walkthrough: [docs/04-install-and-config.md](docs/04-install-and-config.md)
 | [05-xml-blueprint.md](docs/05-xml-blueprint.md) | Table and cross-scope privilege XML blueprint |
 | [06-store-certification.md](docs/06-store-certification.md) | Certification checklist, what is done, what the publisher must still do |
 | [07-vulnerability-response.md](docs/07-vulnerability-response.md) | VR ingestion and promotion, including a correction to a common table-name mistake |
-| [08-analyst-console.md](docs/08-analyst-console.md) | The React UI Page console: hosting choice, data paths, record pane, themes, accessibility |
+| [08-analyst-console.md](docs/08-analyst-console.md) | The React UI Page console: hosting choice, data paths, record pane, drill-in, editable layout, themes, accessibility |
+| [09-testing-guide.md](docs/09-testing-guide.md) | **Start here to test anything.** Full capability inventory, Postman payloads for every inbound API, the external tools you can connect and how, and step-by-step tests for the internals |
+
+Testing assets that go with `09`:
+
+| Path | What it is |
+|---|---|
+| [test/postman/](test/postman/) | 30-request Postman collection with assertions, plus an environment template. Creates a credential-free loopback connector, exercises the whole inbound surface, and tears itself down. |
+| [test/manual/loopback-selftest.js](test/manual/loopback-selftest.js) | Background script: 15 checks against public echo services. No credentials, no real security data, no third-party account. |
+| [test/manual/loopback-cleanup.js](test/manual/loopback-cleanup.js) | Removes what the self-test creates. |
 
 ## Project layout
 

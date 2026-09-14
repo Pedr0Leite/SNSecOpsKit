@@ -1,0 +1,877 @@
+{
+  "info": {
+    "name": "SecOps Universal Connector Framework",
+    "description": "Every inbound API of the x_335329_secops scoped application, plus a credential-free loopback connector you can create, exercise and delete entirely from Postman.\n\nSETUP\n1. Create an environment with base_url, sn_user, sn_password.\n2. Run the folders in order. Folder 0 stores sys_ids in collection variables that later folders reuse.\n3. Folder 5 removes everything the collection created.\n\nThe ingestion API requires the x_335329_secops.admin role. The console API requires x_335329_secops.viewer.\n\nAll test data uses hostnames prefixed 'postman-test-' and IPs inside 192.0.2.0/24 (RFC 5737, reserved for documentation).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      { "key": "username", "value": "{{sn_user}}", "type": "string" },
+      { "key": "password", "value": "{{sn_password}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "base_url", "value": "https://dev296062.service-now.com" },
+    { "key": "source", "value": "PostmanTest" },
+    { "key": "connector_sys_id", "value": "" },
+    { "key": "enrich_endpoint_sys_id", "value": "" },
+    { "key": "health_endpoint_sys_id", "value": "" },
+    { "key": "cleanup_ids", "value": "[]" },
+    { "key": "cleanup_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "0. Setup - loopback connector",
+      "description": "Creates a connector pointing at postman-echo.com, which echoes back whatever you send it. No credentials, no vendor account, no side effects. This is what makes an end-to-end outbound test possible without touching a real security tool.",
+      "item": [
+        {
+          "name": "0.1 Create loopback connector",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('connector created', () => pm.response.to.have.status(201))",
+                  "const id = pm.response.json().result.sys_id",
+                  "pm.collectionVariables.set('connector_sys_id', id)",
+                  "console.log('connector_sys_id = ' + id)"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/now/table/x_335329_secops_connector", "host": ["{{base_url}}"], "path": ["api", "now", "table", "x_335329_secops_connector"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Echo (test)\",\n  \"vendor\": \"Postman\",\n  \"category\": \"other\",\n  \"active\": \"true\",\n  \"base_url\": \"https://postman-echo.com\",\n  \"auth_type\": \"none\",\n  \"http_timeout_ms\": \"20000\",\n  \"max_retries\": \"1\",\n  \"health_endpoint_path\": \"/status/200\",\n  \"description\": \"Postman loopback connector - safe to delete\"\n}"
+            }
+          }
+        },
+        {
+          "name": "0.2 Create enrich endpoint",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('endpoint created', () => pm.response.to.have.status(201))",
+                  "pm.collectionVariables.set('enrich_endpoint_sys_id', pm.response.json().result.sys_id)"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/now/table/x_335329_secops_endpoints", "host": ["{{base_url}}"], "path": ["api", "now", "table", "x_335329_secops_endpoints"] },
+            "description": "postman-echo.com/post returns the posted JSON under 'json', so response_root='json' hands the handler back exactly what was sent. Set verdict to 'malicious' here and the enrichment will resolve to Malicious - that is the whole verdict pipeline proven without a vendor.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Echo lookup\",\n  \"connector\": \"{{connector_sys_id}}\",\n  \"capability\": \"enrich\",\n  \"active\": \"true\",\n  \"http_method\": \"post\",\n  \"path\": \"/post\",\n  \"request_template\": \"{\\\"indicator\\\":\\\"${ioc}\\\",\\\"type\\\":\\\"${type}\\\",\\\"verdict\\\":\\\"suspicious\\\"}\",\n  \"response_root\": \"json\",\n  \"success_codes\": \"200\",\n  \"description\": \"Postman loopback endpoint - safe to delete\"\n}"
+            }
+          }
+        },
+        {
+          "name": "0.3 Create health endpoint",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('endpoint created', () => pm.response.to.have.status(201))",
+                  "pm.collectionVariables.set('health_endpoint_sys_id', pm.response.json().result.sys_id)"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/now/table/x_335329_secops_endpoints", "host": ["{{base_url}}"], "path": ["api", "now", "table", "x_335329_secops_endpoints"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Echo status probe\",\n  \"connector\": \"{{connector_sys_id}}\",\n  \"capability\": \"health\",\n  \"active\": \"true\",\n  \"http_method\": \"get\",\n  \"path\": \"/status/200\",\n  \"success_codes\": \"200\",\n  \"description\": \"Postman loopback endpoint - safe to delete\"\n}"
+            }
+          }
+        },
+        {
+          "name": "0.4 Map verdict to finding",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": ["pm.test('mapping created', () => pm.response.to.have.status(201))"] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/now/table/x_335329_secops_field_map", "host": ["{{base_url}}"], "path": ["api", "now", "table", "x_335329_secops_field_map"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"endpoint\": \"{{enrich_endpoint_sys_id}}\",\n  \"source_path\": \"verdict\",\n  \"target_table\": \"sn_ti_lookup_result\",\n  \"target_field\": \"finding\",\n  \"transform\": \"none\",\n  \"order\": \"100\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Vulnerability ingestion",
+      "item": [
+        {
+          "name": "1.1 Stage three findings",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201))",
+                  "const b = pm.response.json()",
+                  "pm.test('three staged', () => pm.expect(b.staged).to.eql(3))",
+                  "pm.test('none skipped', () => pm.expect(b.skipped).to.eql(0))"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "query": [{ "key": "source", "value": "{{source}}" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"id\": \"PT-1001\",\n    \"cve\": \"CVE-2026-10001\",\n    \"title\": \"Test finding - outdated TLS library\",\n    \"severity\": \"high\",\n    \"cvss_score\": 7.5,\n    \"host\": \"postman-test-host-01\"\n  },\n  {\n    \"id\": \"PT-1002\",\n    \"cve\": \"CVE-2026-10002\",\n    \"title\": \"Test finding - world-writable configuration file\",\n    \"severity\": \"medium\",\n    \"cvss_score\": 5.3,\n    \"host\": \"postman-test-host-01\"\n  },\n  {\n    \"id\": \"PT-1003\",\n    \"cve\": \"CVE-2026-10003\",\n    \"title\": \"Test finding - deprecated cipher suite offered\",\n    \"severity\": \"low\",\n    \"cvss_score\": 3.1,\n    \"host\": \"postman-test-host-02\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "1.2 Re-send the same batch (de-duplication)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('still reports three staged', () => pm.expect(pm.response.json().staged).to.eql(3))",
+                  "// The row count is checked by the next request - coalescing on source+external_id",
+                  "// means these three UPDATE the existing rows rather than inserting new ones."
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "query": [{ "key": "source", "value": "{{source}}" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"id\": \"PT-1001\",\n    \"cve\": \"CVE-2026-10001\",\n    \"title\": \"Test finding - outdated TLS library\",\n    \"severity\": \"high\",\n    \"cvss_score\": 7.5,\n    \"host\": \"postman-test-host-01\"\n  },\n  {\n    \"id\": \"PT-1002\",\n    \"cve\": \"CVE-2026-10002\",\n    \"title\": \"Test finding - world-writable configuration file\",\n    \"severity\": \"medium\",\n    \"cvss_score\": 5.3,\n    \"host\": \"postman-test-host-01\"\n  },\n  {\n    \"id\": \"PT-1003\",\n    \"cve\": \"CVE-2026-10003\",\n    \"title\": \"Test finding - deprecated cipher suite offered\",\n    \"severity\": \"low\",\n    \"cvss_score\": 3.1,\n    \"host\": \"postman-test-host-02\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "1.3 Verify de-duplication (three rows, not six)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const rows = pm.response.json().result",
+                  "pm.test('exactly three rows exist', () => pm.expect(rows.length).to.eql(3))",
+                  "pm.test('all are state=new', () => rows.forEach(r => pm.expect(r.state).to.eql('new')))",
+                  "rows.forEach(r => console.log(r.external_id + '  first_seen=' + r.first_seen + '  last_seen=' + r.last_seen))",
+                  "pm.test('first_seen is not equal to last_seen after a re-send', () => {",
+                  "    pm.expect(rows.some(r => r.first_seen !== r.last_seen)).to.be.true",
+                  "})"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/now/table/x_335329_secops_vuln_stage?sysparm_query=source%3D{{source}}%5Eexternal_idSTARTSWITHPT-100&sysparm_fields=external_id,cve,severity,state,first_seen,last_seen,ci_identifier",
+              "host": ["{{base_url}}"],
+              "path": ["api", "now", "table", "x_335329_secops_vuln_stage"],
+              "query": [
+                { "key": "sysparm_query", "value": "source%3D{{source}}%5Eexternal_idSTARTSWITHPT-100" },
+                { "key": "sysparm_fields", "value": "external_id,cve,severity,state,first_seen,last_seen,ci_identifier" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "1.4 Envelope auto-detected (findings wrapper)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201))",
+                  "pm.test('one staged from the envelope', () => pm.expect(pm.response.json().staged).to.eql(1))"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "query": [{ "key": "source", "value": "{{source}}" }]
+            },
+            "description": "records, results, items, data, vulnerabilities and findings are recognised wrappers. No records_path needed.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scan_id\": \"scan-2026-09-14-001\",\n  \"completed\": \"2026-09-14T09:00:00Z\",\n  \"findings\": [\n    {\n      \"id\": \"PT-2001\",\n      \"cve\": \"CVE-2026-20001\",\n      \"title\": \"Test finding inside a recognised envelope\",\n      \"severity\": \"critical\",\n      \"cvss_score\": 9.1,\n      \"host\": \"postman-test-host-01\"\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "1.5 Custom wrapper with records_path",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('one staged from the custom path', () => pm.expect(pm.response.json().staged).to.eql(1))"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}&records_path=report.sections.vulnerabilities",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "query": [
+                { "key": "source", "value": "{{source}}" },
+                { "key": "records_path", "value": "report.sections.vulnerabilities" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"report\": {\n    \"sections\": {\n      \"vulnerabilities\": [\n        {\n          \"id\": \"PT-3001\",\n          \"cve\": \"CVE-2026-30001\",\n          \"title\": \"Test finding at a custom path\",\n          \"severity\": \"medium\",\n          \"host\": \"postman-test-host-02\"\n        }\n      ]\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "1.6 Same payload WITHOUT records_path (finds nothing, honestly)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json()",
+                  "pm.test('reports success', () => pm.expect(b.ok).to.be.true)",
+                  "pm.test('but stages nothing', () => pm.expect(b.staged).to.eql(0))",
+                  "// This is the single most common misconfiguration in a real feed:",
+                  "// a 201 with staged=0 means the records array was never found."
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "query": [{ "key": "source", "value": "{{source}}" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"report\": {\n    \"sections\": {\n      \"vulnerabilities\": [\n        {\n          \"id\": \"PT-3002\",\n          \"cve\": \"CVE-2026-30002\",\n          \"title\": \"This record will not be found\",\n          \"severity\": \"medium\",\n          \"host\": \"postman-test-host-02\"\n        }\n      ]\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "1.7 Scanner-shaped payload, zero configuration",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('staged by convention', () => pm.expect(pm.response.json().staged).to.eql(2))",
+                  "// qid -> external_id, vulnerability_id -> cve, synopsis -> title,",
+                  "// risk '3' -> high, base_score -> cvss_score, ip -> ci_identifier."
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "query": [{ "key": "source", "value": "{{source}}" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"qid\": \"PT-4001\",\n    \"vulnerability_id\": \"CVE-2026-40001\",\n    \"synopsis\": \"Test finding - SSH weak MAC algorithms\",\n    \"risk\": \"3\",\n    \"base_score\": 6.5,\n    \"ip\": \"192.0.2.11\"\n  },\n  {\n    \"finding_id\": \"PT-4002\",\n    \"cve_id\": \"CVE-2026-40002\",\n    \"name\": \"Test finding - unsupported OS build\",\n    \"criticality\": \"critical\",\n    \"cvss\": 9.8,\n    \"fqdn\": \"postman-test-host-03.example.test\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "1.8 Payload carrying credentials (redaction test)",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": ["pm.test('staged', () => pm.expect(pm.response.json().staged).to.eql(1))"] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "query": [{ "key": "source", "value": "{{source}}" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"id\": \"PT-5001\",\n    \"cve\": \"CVE-2026-50001\",\n    \"title\": \"Test finding with credentials in the payload\",\n    \"severity\": \"low\",\n    \"host\": \"postman-test-host-01\",\n    \"api_key\": \"postman-secret-must-never-persist\",\n    \"scanner_config\": {\n      \"password\": \"postman-secret-must-never-persist\",\n      \"token\": \"postman-secret-must-never-persist\"\n    }\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "1.9 Verify redaction actually happened",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const rows = pm.response.json().result",
+                  "pm.test('the staged row exists', () => pm.expect(rows.length).to.eql(1))",
+                  "const raw = rows[0].raw_payload || ''",
+                  "pm.test('NO credential was stored', () => pm.expect(raw).to.not.include('postman-secret-must-never-persist'))",
+                  "pm.test('it was replaced, not dropped', () => pm.expect(raw).to.include('***REDACTED***'))",
+                  "console.log(raw)"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/now/table/x_335329_secops_vuln_stage?sysparm_query=source%3D{{source}}%5Eexternal_id%3DPT-5001&sysparm_fields=external_id,raw_payload",
+              "host": ["{{base_url}}"],
+              "path": ["api", "now", "table", "x_335329_secops_vuln_stage"],
+              "query": [
+                { "key": "sysparm_query", "value": "source%3D{{source}}%5Eexternal_id%3DPT-5001" },
+                { "key": "sysparm_fields", "value": "external_id,raw_payload" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "1.10 Record with no usable identifier",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Bad Request', () => pm.response.to.have.status(400))",
+                  "const b = pm.response.json()",
+                  "pm.test('nothing staged', () => pm.expect(b.staged).to.eql(0))",
+                  "pm.test('one skipped with a reason', () => { pm.expect(b.skipped).to.eql(1); pm.expect(b.errors[0]).to.include('external identifier') })"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "query": [{ "key": "source", "value": "{{source}}" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"title\": \"Test finding with no id and no cve\",\n    \"severity\": \"low\",\n    \"host\": \"postman-test-host-01\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "1.11 Oversized batch (501 records)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const records = []",
+                  "for (let i = 1; i <= 501; i++) {",
+                  "    records.push({",
+                  "        id: 'PT-BULK-' + i,",
+                  "        cve: 'CVE-2026-9' + String(i).padStart(4, '0'),",
+                  "        title: 'Bulk test finding ' + i,",
+                  "        severity: 'low',",
+                  "        host: 'postman-test-host-03'",
+                  "    })",
+                  "}",
+                  "pm.variables.set('bulk_payload', JSON.stringify(records))"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json()",
+                  "pm.test('capped at 500', () => pm.expect(b.staged).to.eql(500))",
+                  "pm.test('and says so', () => pm.expect(b.errors.join(' ')).to.include('only the first 500'))"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "query": [{ "key": "source", "value": "{{source}}" }]
+            },
+            "body": { "mode": "raw", "raw": "{{bulk_payload}}" }
+          }
+        },
+        {
+          "name": "1.12 Ask for VR promotion (honest refusal)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const p = pm.response.json().promoted",
+                  "pm.test('promotion is reported, not silently ignored', () => pm.expect(p).to.not.be.null)",
+                  "pm.test('a disabled optional feature is not an error', () => { pm.expect(p.ok).to.be.true; pm.expect(p.skipped).to.be.true })",
+                  "console.log(p.errors.join(' | '))"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}&promote=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "query": [
+                { "key": "source", "value": "{{source}}" },
+                { "key": "promote", "value": "true" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"id\": \"PT-6001\",\n    \"cve\": \"CVE-2026-60001\",\n    \"title\": \"Test finding submitted with promote=true\",\n    \"severity\": \"high\",\n    \"host\": \"postman-test-host-01\"\n  }\n]"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Error handling",
+      "description": "Every one of these should fail cleanly. A 500 anywhere in this folder is a defect.",
+      "item": [
+        {
+          "name": "2.1 Missing source parameter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400', () => pm.response.to.have.status(400))",
+                  "pm.test('names the parameter', () => pm.expect(pm.response.json().error).to.include('source'))"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability", "host": ["{{base_url}}"], "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"] },
+            "body": { "mode": "raw", "raw": "[]" }
+          }
+        },
+        {
+          "name": "2.2 Empty body",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": ["pm.test('400', () => pm.response.to.have.status(400))"] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "query": [{ "key": "source", "value": "{{source}}" }]
+            },
+            "body": { "mode": "raw", "raw": "" }
+          }
+        },
+        {
+          "name": "2.3 Malformed JSON (must be 400, not 500)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 and not 500', () => pm.response.to.have.status(400))",
+                  "pm.test('says the body is not JSON', () => pm.expect(pm.response.json().error).to.include('not valid JSON'))",
+                  "// The script reads request.body.dataString rather than .data precisely so that a",
+                  "// bad client payload is a client error, not a platform stack trace."
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "query": [{ "key": "source", "value": "{{source}}" }]
+            },
+            "body": { "mode": "raw", "raw": "{ this is not json" }
+          }
+        },
+        {
+          "name": "2.4 Empty array is success, not failure",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201', () => pm.response.to.have.status(201))",
+                  "pm.test('ok with nothing staged', () => { const b = pm.response.json(); pm.expect(b.ok).to.be.true; pm.expect(b.staged).to.eql(0) })"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "query": [{ "key": "source", "value": "{{source}}" }]
+            },
+            "body": { "mode": "raw", "raw": "[]" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Health and console",
+      "item": [
+        {
+          "name": "3.1 Connector health (safe to poll)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200))",
+                  "const b = pm.response.json()",
+                  "pm.test('summary adds up', () => {",
+                  "    const s = b.summary",
+                  "    pm.expect(s.healthy + s.degraded + s.down + s.unknown).to.eql(b.total)",
+                  "})",
+                  "// This reports STORED health and makes no outbound calls. Run it ten times and",
+                  "// check the transaction table does not grow - that is the contract."
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/x_335329_secops/secops_connector/health", "host": ["{{base_url}}"], "path": ["api", "x_335329_secops", "secops_connector", "health"] }
+          }
+        },
+        {
+          "name": "3.2 Work queue - my work",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200))",
+                  "const b = pm.response.json().result || pm.response.json()",
+                  "pm.test('returns rows and a summary', () => { pm.expect(b.rows).to.be.an('array'); pm.expect(b.summary).to.be.an('object') })",
+                  "console.log('scope=' + b.scope + ' rows=' + b.rows.length + ' truncated=' + b.truncated)"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_console/work?scope=me&sources=sir,findings&limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_console", "work"],
+              "query": [
+                { "key": "scope", "value": "me" },
+                { "key": "sources", "value": "sir,findings" },
+                { "key": "limit", "value": "50" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.3 Work queue - my team (reports its group count)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json().result || pm.response.json()",
+                  "pm.test('reports how many groups it found', () => pm.expect(b.groups).to.be.a('number'))",
+                  "if (b.groups === 0) { console.log('This user is in no groups - team scope is honestly empty, not silently behaving like scope=me.') }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/x_335329_secops/secops_console/work?scope=team&severities=critical,high",
+              "host": ["{{base_url}}"],
+              "path": ["api", "x_335329_secops", "secops_console", "work"],
+              "query": [
+                { "key": "scope", "value": "team" },
+                { "key": "severities", "value": "critical,high" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.4 Security overview (counts only)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json().result || pm.response.json()",
+                  "pm.test('has all three metric groups', () => {",
+                  "    pm.expect(b.metrics.incidents).to.be.an('object')",
+                  "    pm.expect(b.metrics.findings).to.be.an('object')",
+                  "    pm.expect(b.metrics.integration).to.be.an('object')",
+                  "})",
+                  "pm.test('every charted value carries a drill query', () => {",
+                  "    pm.expect(b.metrics.incidents.by_severity.every(d => 'query' in d)).to.be.true",
+                  "})",
+                  "pm.test('returns the caller identity for preference scoping', () => pm.expect(b.user.sys_id).to.be.a('string'))"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/x_335329_secops/secops_console/overview", "host": ["{{base_url}}"], "path": ["api", "x_335329_secops", "secops_console", "overview"] }
+          }
+        },
+        {
+          "name": "3.5 Console connector health",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/x_335329_secops/secops_console/connectors", "host": ["{{base_url}}"], "path": ["api", "x_335329_secops", "secops_console", "connectors"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Inspect what happened",
+      "item": [
+        {
+          "name": "4.1 Staged rows from this session",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/now/table/x_335329_secops_vuln_stage?sysparm_query=source%3D{{source}}%5EORDERBYDESCsys_created_on&sysparm_fields=external_id,cve,title,severity,cvss_score,ci_identifier,ci,state,first_seen,last_seen&sysparm_limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "now", "table", "x_335329_secops_vuln_stage"],
+              "query": [
+                { "key": "sysparm_query", "value": "source%3D{{source}}%5EORDERBYDESCsys_created_on" },
+                { "key": "sysparm_fields", "value": "external_id,cve,title,severity,cvss_score,ci_identifier,ci,state,first_seen,last_seen" },
+                { "key": "sysparm_limit", "value": "50" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.2 Transaction log (redacted audit trail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const rows = pm.response.json().result",
+                  "pm.test('no transaction contains a credential', () => {",
+                  "    const blob = JSON.stringify(rows)",
+                  "    pm.expect(blob).to.not.include('postman-secret-must-never-persist')",
+                  "})"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/now/table/x_335329_secops_transaction?sysparm_query=ORDERBYDESCsys_created_on&sysparm_fields=correlation_id,capability,state,http_status,duration_ms,retry_count,next_retry,error_message,request_summary,response_summary&sysparm_limit=25",
+              "host": ["{{base_url}}"],
+              "path": ["api", "now", "table", "x_335329_secops_transaction"],
+              "query": [
+                { "key": "sysparm_query", "value": "ORDERBYDESCsys_created_on" },
+                { "key": "sysparm_fields", "value": "correlation_id,capability,state,http_status,duration_ms,retry_count,next_retry,error_message,request_summary,response_summary" },
+                { "key": "sysparm_limit", "value": "25" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Teardown",
+      "description": "Run this folder as a whole. 5.1 collects the sys_ids of everything staged by this collection, then 5.2 loops until they are gone.",
+      "item": [
+        {
+          "name": "5.1 Find staged test rows",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const ids = pm.response.json().result.map(r => r.sys_id)",
+                  "pm.collectionVariables.set('cleanup_ids', JSON.stringify(ids))",
+                  "console.log('to delete: ' + ids.length)",
+                  "if (ids.length === 0) { postman.setNextRequest('5.3 Delete the loopback connector') }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/now/table/x_335329_secops_vuln_stage?sysparm_query=source%3D{{source}}&sysparm_fields=sys_id&sysparm_limit=1000",
+              "host": ["{{base_url}}"],
+              "path": ["api", "now", "table", "x_335329_secops_vuln_stage"],
+              "query": [
+                { "key": "sysparm_query", "value": "source%3D{{source}}" },
+                { "key": "sysparm_fields", "value": "sys_id" },
+                { "key": "sysparm_limit", "value": "1000" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "5.2 Delete one staged row",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const ids = JSON.parse(pm.collectionVariables.get('cleanup_ids') || '[]')",
+                  "pm.collectionVariables.set('cleanup_id', ids.shift() || '')",
+                  "pm.collectionVariables.set('cleanup_ids', JSON.stringify(ids))"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const remaining = JSON.parse(pm.collectionVariables.get('cleanup_ids') || '[]')",
+                  "if (remaining.length > 0) { postman.setNextRequest('5.2 Delete one staged row') }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/now/table/x_335329_secops_vuln_stage/{{cleanup_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "now", "table", "x_335329_secops_vuln_stage", "{{cleanup_id}}"]
+            }
+          }
+        },
+        {
+          "name": "5.3 Delete the loopback connector",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('deleted', () => pm.expect([204, 200, 404]).to.include(pm.response.code))",
+                  "// Endpoints cascade-delete with the connector, and field mappings cascade with the",
+                  "// endpoint, so this one call removes the whole loopback configuration."
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/now/table/x_335329_secops_connector/{{connector_sys_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "now", "table", "x_335329_secops_connector", "{{connector_sys_id}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
