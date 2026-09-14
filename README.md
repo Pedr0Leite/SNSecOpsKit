@@ -234,6 +234,12 @@ Testing assets that go with `09`:
 | [test/postman/](test/postman/) | 30-request Postman collection with assertions, plus an environment template. Creates a credential-free loopback connector, exercises the whole inbound surface, and tears itself down. |
 | [test/manual/loopback-selftest.js](test/manual/loopback-selftest.js) | Background script: 15 checks against public echo services. No credentials, no real security data, no third-party account. |
 | [test/manual/loopback-cleanup.js](test/manual/loopback-cleanup.js) | Removes what the self-test creates. |
+| [docs/test-bench.html](docs/test-bench.html) | The same reference as a single self-contained page: copy buttons on every payload, one instance field that rewrites every URL, and a filterable vendor matrix. Download it and open it in any browser — no server, no account, no build step. |
+
+> `docs/test-bench.html` is deliberately in `docs/`, which is one of the two folders GitHub Pages
+> can serve from. Turning Pages on (Settings → Pages → Deploy from branch → `main` / `/docs`)
+> publishes it at `https://pedr0leite.github.io/SNSecOpsKit/test-bench.html` with no other changes.
+> It stays a plain file until you do — nothing depends on Pages being enabled.
 
 ## Project layout
 

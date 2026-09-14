@@ -1,0 +1,1251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  SecOps Universal Connector Framework - test bench.
+
+  Open this file in any browser. Nothing loads from the instance, so it works offline apart
+  from the Google Fonts link, which degrades to the system stack if it is blocked.
+
+  Mirrors docs/09-testing-guide.md. The guide is the fuller reference; this page is the one to
+  keep open beside Postman, because every payload has a copy button and the instance URL at the
+  top rewrites every URL on the page.
+-->
+<title>SecOps Connector Test Bench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+:root {
+    --ground: #eef2f3;
+    --surface: #ffffff;
+    --surface-2: #f7f9fa;
+    --ink: #131a1d;
+    --ink-2: #4c5b60;
+    --ink-3: #7b8b90;
+    --line: #d5dee0;
+    --line-strong: #b9c7ca;
+    --accent: #0d6b66;
+    --accent-soft: #dceceb;
+    --ok: #2c7048;
+    --warn: #9a5c0d;
+    --crit: #a83232;
+    --code-ground: #10191b;
+    --code-ink: #d7e4e3;
+    --code-key: #7fcac2;
+    --code-str: #d9b48a;
+    --code-num: #a8c99a;
+
+    --f-display: 'Archivo', system-ui, sans-serif;
+    --f-body: 'IBM Plex Sans', system-ui, sans-serif;
+    --f-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+    --rail: 232px;
+    --gutter: 24px;
+    color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --ground: #0d1214;
+        --surface: #141c1e;
+        --surface-2: #182225;
+        --ink: #e4eded;
+        --ink-2: #a3b4b6;
+        --ink-3: #75888b;
+        --line: #253134;
+        --line-strong: #35464a;
+        --accent: #45b5ab;
+        --accent-soft: #16302f;
+        --ok: #5cb383;
+        --warn: #d09240;
+        --crit: #e0736c;
+        --code-ground: #0a1113;
+        --code-ink: #cfdedd;
+        color-scheme: dark;
+    }
+}
+
+:root[data-theme="dark"] {
+    --ground: #0d1214;
+    --surface: #141c1e;
+    --surface-2: #182225;
+    --ink: #e4eded;
+    --ink-2: #a3b4b6;
+    --ink-3: #75888b;
+    --line: #253134;
+    --line-strong: #35464a;
+    --accent: #45b5ab;
+    --accent-soft: #16302f;
+    --ok: #5cb383;
+    --warn: #d09240;
+    --crit: #e0736c;
+    --code-ground: #0a1113;
+    --code-ink: #cfdedd;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+
+a { color: var(--accent); }
+
+code, kbd { font-family: var(--f-mono); font-size: 0.9em; }
+
+/* ------------------------------------------------------------ shell */
+
+.shell {
+    display: grid;
+    grid-template-columns: var(--rail) minmax(0, 1fr);
+    gap: 40px;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding-inline: var(--gutter);
+    padding-block: 0 72px;
+    align-items: start;
+}
+
+.rail {
+    position: sticky;
+    top: 0;
+    padding-block: 32px;
+    max-height: 100vh;
+    overflow-y: auto;
+}
+
+.rail__mark {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+}
+
+.rail nav { display: flex; flex-direction: column; gap: 1px; }
+
+.rail a {
+    display: block;
+    padding: 6px 10px;
+    border-radius: 4px;
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: 13.5px;
+    border-left: 2px solid transparent;
+}
+
+.rail a:hover { color: var(--ink); background: var(--surface); }
+.rail a.is-active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); }
+
+.main { padding-block: 32px; min-width: 0; }
+
+/* ------------------------------------------------------------ masthead */
+
+.masthead { margin-bottom: 40px; }
+
+.masthead__kicker {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+    margin-bottom: 10px;
+}
+
+.masthead h1 {
+    font-size: clamp(30px, 4.4vw, 44px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+}
+
+.masthead p {
+    max-width: 62ch;
+    color: var(--ink-2);
+    margin: 14px 0 0;
+}
+
+/* the host bar: substitutes into every URL on the page */
+.hostbar {
+    margin-top: 26px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.hostbar label {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+}
+
+.hostbar input {
+    flex: 1 1 300px;
+    min-width: 0;
+    font-family: var(--f-mono);
+    font-size: 13px;
+    padding: 7px 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    background: var(--surface-2);
+    color: var(--ink);
+}
+
+.hostbar input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.hostbar .note { font-size: 12.5px; color: var(--ink-3); flex-basis: 100%; margin: 0; }
+
+/* ------------------------------------------------------------ sections */
+
+section { margin-bottom: 56px; scroll-margin-top: 24px; }
+
+.sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 22px;
+}
+
+.sec-head h2 {
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.sec-head .count {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    margin-left: auto;
+}
+
+h3 {
+    font-size: 15.5px;
+    font-weight: 600;
+    margin: 30px 0 10px;
+}
+
+p { margin: 0 0 12px; max-width: 72ch; }
+
+.lede { color: var(--ink-2); }
+
+/* ------------------------------------------------------------ capability list */
+
+.caps { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+
+.cap {
+    background: var(--surface);
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 4px 20px;
+}
+
+.cap__name { font-weight: 600; font-size: 14.5px; }
+.cap__name span { display: block; font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-3); font-weight: 400; margin-top: 2px; }
+.cap__body { color: var(--ink-2); font-size: 14px; }
+.cap__body strong { color: var(--ink); font-weight: 500; }
+
+@media (max-width: 640px) { .cap { grid-template-columns: 1fr; } }
+
+/* ------------------------------------------------------------ payload block */
+
+.block {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 18px;
+    background: var(--surface);
+}
+
+.block__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+}
+
+.verb {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    padding: 2px 7px;
+    border-radius: 3px;
+    background: var(--accent);
+    color: #fff;
+}
+
+.verb[data-verb="GET"] { background: var(--ink-2); }
+.verb[data-verb="DELETE"] { background: var(--crit); }
+.verb[data-verb="JS"] { background: var(--warn); }
+
+.block__path {
+    font-family: var(--f-mono);
+    font-size: 12.5px;
+    color: var(--ink);
+    word-break: break-all;
+    flex: 1 1 240px;
+    min-width: 0;
+}
+
+.chip {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+}
+
+.chip[data-tone="ok"] { color: var(--ok); }
+.chip[data-tone="warn"] { color: var(--warn); }
+.chip[data-tone="crit"] { color: var(--crit); }
+
+.btn {
+    font-family: var(--f-body);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    color: var(--ink-2);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn:hover { color: var(--accent); border-color: var(--accent); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.btn[data-done="1"] { color: var(--ok); border-color: var(--ok); }
+
+pre {
+    margin: 0;
+    padding: 14px 16px;
+    background: var(--code-ground);
+    color: var(--code-ink);
+    font-family: var(--f-mono);
+    font-size: 12.5px;
+    line-height: 1.65;
+    overflow-x: auto;
+    tab-size: 2;
+}
+
+.block__note {
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--ink-2);
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+}
+
+.block__note strong { color: var(--ink); font-weight: 600; }
+
+/* ------------------------------------------------------------ expectation table */
+
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 18px; }
+
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; background: var(--surface); }
+
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+
+th {
+    font-family: var(--f-display);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    background: var(--surface-2);
+    white-space: nowrap;
+}
+
+tbody tr:last-child td { border-bottom: 0; }
+td code { color: var(--ink); background: var(--surface-2); padding: 1px 5px; border-radius: 3px; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------------ vendor matrix */
+
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+
+.filter {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    padding: 4px 11px;
+    border-radius: 20px;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    color: var(--ink-2);
+    cursor: pointer;
+}
+
+.filter[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.filter:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+tr[hidden] { display: none; }
+
+.verify { color: var(--warn); font-weight: 600; font-size: 11px; font-family: var(--f-mono); }
+
+/* ------------------------------------------------------------ callout */
+
+.callout {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 12px 16px;
+    border-radius: 0 5px 5px 0;
+    margin-bottom: 18px;
+    font-size: 14px;
+    color: var(--ink);
+}
+
+.callout p { margin: 0; max-width: none; }
+.callout p + p { margin-top: 8px; }
+
+.callout[data-tone="warn"] { border-left-color: var(--warn); background: color-mix(in srgb, var(--warn) 10%, transparent); }
+
+footer {
+    border-top: 1px solid var(--line);
+    padding-top: 20px;
+    color: var(--ink-3);
+    font-size: 13px;
+}
+
+@media (max-width: 860px) {
+    .shell { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .rail { position: static; max-height: none; padding-block: 28px 0; }
+    .rail nav { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+    .rail a { border-left: 0; border-bottom: 2px solid transparent; }
+    .rail a.is-active { border-left: 0; border-bottom-color: var(--accent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+
+<div class="shell">
+    <aside class="rail">
+        <div class="rail__mark">x_335329_secops</div>
+        <nav id="nav" aria-label="Sections">
+            <a href="#what">What it does</a>
+            <a href="#postman">Postman payloads</a>
+            <a href="#expect">What to expect back</a>
+            <a href="#vendors">External tools</a>
+            <a href="#internal">Internal tests</a>
+            <a href="#selftest">The self-test</a>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <header class="masthead">
+            <div class="masthead__kicker">SecOps Universal Connector Framework &middot; test reference</div>
+            <h1>Every part of it, and how to prove it works</h1>
+            <p class="lede">
+                Five capabilities, five inbound routes, four handlers and a staging pipeline. Below: what each
+                one does, a payload you can paste straight into Postman, the external tools it can talk to, and
+                the internal behaviour that no HTTP client can reach.
+            </p>
+
+            <div class="hostbar">
+                <label for="host">Instance</label>
+                <input id="host" type="text" value="https://dev296062.service-now.com" spellcheck="false" autocomplete="off">
+                <button class="btn" id="host-reset" type="button">Reset</button>
+                <p class="note">Every URL on this page updates as you type. Stored in this browser only.</p>
+            </div>
+        </header>
+
+        <!-- ===================================================== WHAT IT DOES -->
+        <section id="what">
+            <div class="sec-head">
+                <h2>What the application does</h2>
+                <span class="count">5 capabilities</span>
+            </div>
+
+            <p class="lede">
+                You describe a third-party tool as records — a <strong>connector</strong> (who and where),
+                <strong>endpoints</strong> (callable operations), and optional <strong>field mappings</strong>
+                (which part of the response lands on which field). Four handlers drive those records. Onboarding a
+                new tool is data entry, not code.
+            </p>
+
+            <div class="caps">
+                <div class="cap">
+                    <div class="cap__name">Threat intel enrichment<span>SecOpsThreatIntelHandler</span></div>
+                    <div class="cap__body">
+                        Calls every active <code>enrich</code> endpoint for one observable, writes a Threat Lookup
+                        Result per source, rolls the worst verdict up.
+                        <strong>It will not lower an existing verdict and will not override a manual analyst
+                        decision</strong> — so a feed that changes its JSON shape cannot erase a known-bad finding.
+                    </div>
+                </div>
+                <div class="cap">
+                    <div class="cap__name">Phishing response<span>SecOpsPhishingHandler</span></div>
+                    <div class="cap__body">
+                        Harvests IOCs from a security incident — including journal fields, and re-fanging
+                        <code>hxxp://</code> and <code>1.1.1[.]1</code> — detonates each, returns the worst
+                        disposition. <strong>"Nothing malicious" and "the sandbox is down" do not look alike.</strong>
+                    </div>
+                </div>
+                <div class="cap">
+                    <div class="cap__name">Vulnerability ingestion<span>SecOpsVulnIngestionHandler</span></div>
+                    <div class="cap__body">
+                        Push (inbound REST) or pull (scheduled). Always stages first —
+                        <strong>never writes straight into Vulnerability Response</strong>. De-duplicates on
+                        source + external id, resolves CIs in two queries per batch, and leaves an ambiguous
+                        CI match empty rather than guessing.
+                    </div>
+                </div>
+                <div class="cap">
+                    <div class="cap__name">Containment<span>SecOpsContainmentHandler</span></div>
+                    <div class="cap__body">
+                        Isolate, release, block, unblock — against a host, IP, user, URL, hash or account.
+                        <strong>A request that cannot name its target is refused before any HTTP happens</strong>,
+                        and the requester and reason are logged before the call, not after.
+                    </div>
+                </div>
+                <div class="cap">
+                    <div class="cap__name">Connection health<span>SecOpsHealthChecker</span></div>
+                    <div class="cap__body">
+                        Hourly sweep, a Test button, and a REST route. A 4xx is <code>degraded</code>, not
+                        <code>down</code> — the service answered, so it is up and the credential is wrong.
+                        No answer at all is <code>down</code>.
+                    </div>
+                </div>
+            </div>
+
+            <h3>Everything is logged, with credentials removed</h3>
+            <p>
+                Every outbound call writes a transaction row with the request and response redacted first.
+                Keys matching <code>password</code>, <code>secret</code>, <code>client_secret</code>,
+                <code>api_key</code>, <code>token</code>, <code>authorization</code>, <code>x-api-key</code> —
+                plus anything you add — become <code>***REDACTED***</code>. Redaction <em>fails closed</em>:
+                a structure nested past the depth limit is replaced wholesale rather than passed through.
+            </p>
+
+            <h3>What it deliberately will not do</h3>
+            <div class="tablewrap">
+                <table>
+                    <thead><tr><th>Not this</th><th>Because</th></tr></thead>
+                    <tbody>
+                        <tr><td>Store a credential</td><td>They live in Connection &amp; Credential Aliases and resolve at call time</td></tr>
+                        <tr><td>Write into VR by default</td><td>VR is a separate subscription; the app must install and run without it</td></tr>
+                        <tr><td>Replay a failed request</td><td>The only stored copy is redacted, so a replay would send a broken request</td></tr>
+                        <tr><td>Refresh an OAuth token itself</td><td>A blind retry on a dead grant can lock out the service account. It reports the fix instead.</td></tr>
+                        <tr><td>Sleep between retries</td><td>Scoped apps have no <code>gs.sleep()</code>. Back-pressure is parked for a scheduled job.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===================================================== POSTMAN -->
+        <section id="postman">
+            <div class="sec-head">
+                <h2>Postman payloads</h2>
+                <span class="count">5 routes &middot; 30-request collection in the repo</span>
+            </div>
+
+            <div class="callout">
+                <p><strong>Auth:</strong> basic. The ingestion API needs <code>x_335329_secops.admin</code>;
+                the console API needs <code>x_335329_secops.viewer</code>.</p>
+                <p>Worth testing the ACL itself: call ingestion as a viewer-only user and you should get
+                <strong>403</strong>. A 200 there means the ACL is protecting nothing.</p>
+            </div>
+
+            <h3>Stage vulnerability findings</h3>
+            <div class="block">
+                <div class="block__head">
+                    <span class="verb" data-verb="POST">POST</span>
+                    <span class="block__path"><span class="js-host">https://dev296062.service-now.com</span>/api/x_335329_secops/secops_connector/vulnerability?source=PostmanTest</span>
+                    <span class="chip" data-tone="ok">201</span>
+                    <button class="btn js-copy" type="button">Copy body</button>
+                </div>
+<pre>[
+  {
+    "id": "PT-1001",
+    "cve": "CVE-2026-10001",
+    "title": "Test finding - outdated TLS library",
+    "severity": "high",
+    "cvss_score": 7.5,
+    "host": "postman-test-host-01"
+  },
+  {
+    "id": "PT-1002",
+    "cve": "CVE-2026-10002",
+    "title": "Test finding - world-writable configuration file",
+    "severity": "medium",
+    "cvss_score": 5.3,
+    "host": "postman-test-host-01"
+  },
+  {
+    "id": "PT-1003",
+    "cve": "CVE-2026-10003",
+    "title": "Test finding - deprecated cipher suite offered",
+    "severity": "low",
+    "cvss_score": 3.1,
+    "host": "postman-test-host-02"
+  }
+]</pre>
+                <div class="block__note">
+                    Returns <code>{"ok":true,"staged":3,"skipped":0}</code>.
+                    <strong>Send it a second time</strong> — still <code>staged: 3</code>, but the staging table
+                    still holds three rows. <code>last_seen</code> moves, <code>first_seen</code> does not.
+                    Six rows means de-duplication is broken.
+                </div>
+            </div>
+
+            <h3>A scanner-shaped payload, with no configuration at all</h3>
+            <div class="block">
+                <div class="block__head">
+                    <span class="verb" data-verb="POST">POST</span>
+                    <span class="block__path"><span class="js-host">https://dev296062.service-now.com</span>/api/x_335329_secops/secops_connector/vulnerability?source=PostmanTest</span>
+                    <span class="chip" data-tone="ok">201</span>
+                    <button class="btn js-copy" type="button">Copy body</button>
+                </div>
+<pre>[
+  {
+    "qid": "PT-4001",
+    "vulnerability_id": "CVE-2026-40001",
+    "synopsis": "Test finding - SSH weak MAC algorithms",
+    "risk": "3",
+    "base_score": 6.5,
+    "ip": "192.0.2.11"
+  },
+  {
+    "finding_id": "PT-4002",
+    "cve_id": "CVE-2026-40002",
+    "name": "Test finding - unsupported OS build",
+    "criticality": "critical",
+    "cvss": 9.8,
+    "fqdn": "postman-test-host-03.example.test"
+  }
+]</pre>
+                <div class="block__note">
+                    Convention mapping does the work: <code>qid</code>&rarr;external id,
+                    <code>vulnerability_id</code>&rarr;CVE, <code>synopsis</code>&rarr;title,
+                    <code>risk: "3"</code>&rarr;<strong>high</strong>, <code>base_score</code>&rarr;CVSS,
+                    <code>ip</code>&rarr;CI identifier. This is why most scanner feeds work before you configure
+                    anything. <code>192.0.2.0/24</code> is RFC 5737 TEST-NET-1 — routes nowhere, safe for tests.
+                </div>
+            </div>
+
+            <h3>Redaction — the one to actually verify</h3>
+            <div class="block">
+                <div class="block__head">
+                    <span class="verb" data-verb="POST">POST</span>
+                    <span class="block__path"><span class="js-host">https://dev296062.service-now.com</span>/api/x_335329_secops/secops_connector/vulnerability?source=PostmanTest</span>
+                    <span class="chip" data-tone="ok">201</span>
+                    <button class="btn js-copy" type="button">Copy body</button>
+                </div>
+<pre>[
+  {
+    "id": "PT-5001",
+    "cve": "CVE-2026-50001",
+    "title": "Test finding with credentials in the payload",
+    "severity": "low",
+    "host": "postman-test-host-01",
+    "api_key": "postman-secret-must-never-persist",
+    "scanner_config": {
+      "password": "postman-secret-must-never-persist",
+      "token": "postman-secret-must-never-persist"
+    }
+  }
+]</pre>
+                <div class="block__note">
+                    Then read <code>raw_payload</code> on the staged row: all three values must be
+                    <code>***REDACTED***</code>. <strong>Search the whole instance for the secret string —
+                    zero hits is the pass condition.</strong>
+                </div>
+            </div>
+
+            <h3>A custom envelope</h3>
+            <div class="block">
+                <div class="block__head">
+                    <span class="verb" data-verb="POST">POST</span>
+                    <span class="block__path"><span class="js-host">https://dev296062.service-now.com</span>/api/x_335329_secops/secops_connector/vulnerability?source=PostmanTest&amp;records_path=report.sections.vulnerabilities</span>
+                    <span class="chip" data-tone="ok">201</span>
+                    <button class="btn js-copy" type="button">Copy body</button>
+                </div>
+<pre>{
+  "report": {
+    "sections": {
+      "vulnerabilities": [
+        {
+          "id": "PT-3001",
+          "cve": "CVE-2026-30001",
+          "title": "Test finding at a custom path",
+          "severity": "medium",
+          "host": "postman-test-host-02"
+        }
+      ]
+    }
+  }
+}</pre>
+                <div class="block__note">
+                    <code>records</code>, <code>results</code>, <code>items</code>, <code>data</code>,
+                    <code>vulnerabilities</code> and <code>findings</code> are detected automatically — no
+                    parameter needed. Anything else needs <code>records_path</code>.
+                    <strong>Send this one without the parameter</strong> and you get
+                    <code>201</code> with <code>staged: 0</code>. That combination is the single most common
+                    misconfiguration in a real feed, and it is not an error — it means the array was never found.
+                </div>
+            </div>
+
+            <h3>Read-only routes</h3>
+            <div class="block">
+                <div class="block__head">
+                    <span class="verb" data-verb="GET">GET</span>
+                    <span class="block__path"><span class="js-host">https://dev296062.service-now.com</span>/api/x_335329_secops/secops_connector/health</span>
+                    <span class="chip" data-tone="ok">200</span>
+                    <button class="btn js-copy" type="button">Copy URL</button>
+                </div>
+                <div class="block__note">
+                    Reports <strong>stored</strong> health and makes no outbound calls, so a monitoring system can
+                    poll it. Verify that: poll it ten times and confirm no new transactions appear.
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block__head">
+                    <span class="verb" data-verb="GET">GET</span>
+                    <span class="block__path"><span class="js-host">https://dev296062.service-now.com</span>/api/x_335329_secops/secops_console/work?scope=team&amp;sources=sir,findings&amp;severities=critical,high&amp;limit=50</span>
+                    <span class="chip" data-tone="ok">200</span>
+                    <button class="btn js-copy" type="button">Copy URL</button>
+                </div>
+                <div class="block__note">
+                    <code>scope</code> is <code>me</code> | <code>team</code> | <code>all</code>. The response carries a
+                    <code>groups</code> count, so <code>team</code> can say it found no groups rather than silently
+                    behaving like <code>me</code>. <strong>Call it as two different users</strong> — the row sets must
+                    differ, because every read underneath is <code>GlideRecordSecure</code>.
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block__head">
+                    <span class="verb" data-verb="GET">GET</span>
+                    <span class="block__path"><span class="js-host">https://dev296062.service-now.com</span>/api/x_335329_secops/secops_console/overview</span>
+                    <span class="chip" data-tone="ok">200</span>
+                    <button class="btn js-copy" type="button">Copy URL</button>
+                </div>
+                <div class="block__note">
+                    Counts only, no record content. Note the deliberate asymmetry:
+                    <strong>these totals are organisation-wide</strong> — <code>GlideAggregate</code> does not apply
+                    record ACLs, and the control is the role gate — while the drill-in in the dashboard is
+                    ACL-filtered. The UI states that gap out loud rather than hiding it.
+                </div>
+            </div>
+
+            <h3>Build the whole loopback connector over REST</h3>
+            <p>
+                <code>postman-echo.com/post</code> returns the posted JSON under <code>json</code>, so
+                <code>response_root: "json"</code> hands the handler back exactly what was sent. That makes a
+                complete outbound round-trip testable with no vendor, no credential and no side effects.
+                Verified working 2026-09-14.
+            </p>
+
+            <div class="block">
+                <div class="block__head">
+                    <span class="verb" data-verb="POST">POST</span>
+                    <span class="block__path"><span class="js-host">https://dev296062.service-now.com</span>/api/now/table/x_335329_secops_connector</span>
+                    <span class="chip" data-tone="ok">201</span>
+                    <button class="btn js-copy" type="button">Copy body</button>
+                </div>
+<pre>{
+  "name": "Postman Echo (test)",
+  "vendor": "Postman",
+  "category": "other",
+  "active": "true",
+  "base_url": "https://postman-echo.com",
+  "auth_type": "none",
+  "http_timeout_ms": "20000",
+  "max_retries": "1",
+  "health_endpoint_path": "/status/200",
+  "description": "Postman loopback connector - safe to delete"
+}</pre>
+            </div>
+
+            <div class="block">
+                <div class="block__head">
+                    <span class="verb" data-verb="POST">POST</span>
+                    <span class="block__path"><span class="js-host">https://dev296062.service-now.com</span>/api/now/table/x_335329_secops_endpoints</span>
+                    <span class="chip" data-tone="ok">201</span>
+                    <button class="btn js-copy" type="button">Copy body</button>
+                </div>
+<pre>{
+  "name": "Echo lookup",
+  "connector": "&lt;connector sys_id&gt;",
+  "capability": "enrich",
+  "active": "true",
+  "http_method": "post",
+  "path": "/post",
+  "request_template": "{\"indicator\":\"${ioc}\",\"type\":\"${type}\",\"verdict\":\"suspicious\"}",
+  "response_root": "json",
+  "success_codes": "200"
+}</pre>
+                <div class="block__note">
+                    Change <code>"verdict"</code> to <code>malicious</code> and re-run enrichment — the verdict
+                    pipeline resolves to Malicious with no vendor involved. Deleting the connector cascades to its
+                    endpoints and their field mappings, so teardown is one <code>DELETE</code>.
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================== EXPECTATIONS -->
+        <section id="expect">
+            <div class="sec-head">
+                <h2>What to expect back</h2>
+                <span class="count">a 500 anywhere here is a defect</span>
+            </div>
+
+            <div class="tablewrap">
+                <table>
+                    <thead>
+                        <tr><th>Send</th><th class="num">Status</th><th>Body</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Three valid records</td><td class="num"><span class="chip" data-tone="ok">201</span></td><td><code>staged: 3, skipped: 0</code></td></tr>
+                        <tr><td>The same three again</td><td class="num"><span class="chip" data-tone="ok">201</span></td><td><code>staged: 3</code> — and still only 3 rows in the table</td></tr>
+                        <tr><td>No <code>source</code> parameter</td><td class="num"><span class="chip" data-tone="warn">400</span></td><td>names the missing parameter</td></tr>
+                        <tr><td>Empty body</td><td class="num"><span class="chip" data-tone="warn">400</span></td><td><code>A JSON request body is required</code></td></tr>
+                        <tr><td><code>{ this is not json</code></td><td class="num"><span class="chip" data-tone="warn">400</span></td><td><code>The request body is not valid JSON</code> — <strong>never a 500</strong></td></tr>
+                        <tr><td><code>[]</code></td><td class="num"><span class="chip" data-tone="ok">201</span></td><td><code>ok: true, staged: 0</code> — nothing to do is not a failure</td></tr>
+                        <tr><td>A record with no id and no CVE</td><td class="num"><span class="chip" data-tone="warn">400</span></td><td><code>skipped: 1</code> with a reason, never staged anonymously</td></tr>
+                        <tr><td>501 records</td><td class="num"><span class="chip" data-tone="ok">201</span></td><td><code>staged: 500</code> and an error saying only the first 500 were taken</td></tr>
+                        <tr><td><code>promote=true</code>, VR absent</td><td class="num"><span class="chip" data-tone="ok">201</span></td><td><code>promoted.skipped: true</code> naming the missing tables — a disabled optional feature is not an error</td></tr>
+                        <tr><td>As a viewer-only user</td><td class="num"><span class="chip" data-tone="crit">403</span></td><td>the ACL doing its job</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>
+                The malformed-JSON row deserves its own test. The script reads
+                <code>request.body.dataString</code> rather than <code>.data</code> precisely so that a bad client
+                payload is a client error and not a platform stack trace.
+            </p>
+        </section>
+
+        <!-- ===================================================== VENDORS -->
+        <section id="vendors">
+            <div class="sec-head">
+                <h2>External tools you can connect</h2>
+                <span class="count">filter by capability</span>
+            </div>
+
+            <p class="lede">
+                A tool is connectable if it speaks HTTP and the framework can authenticate to it. JSON is native;
+                XML and form-encoded bodies work if you set <code>Content-Type</code> in the endpoint's additional
+                headers; GraphQL is just a JSON POST. On-premises tools go through a MID Server.
+            </p>
+
+            <div class="callout" data-tone="warn">
+                <p><span class="verify">VERIFY</span> — vendor paths and headers below are as I know them and
+                change over time. Check the vendor's current documentation before wiring production credentials.
+                The ServiceNow-side configuration is exact.</p>
+            </div>
+
+            <div class="filters" id="filters" role="group" aria-label="Filter by capability">
+                <button class="filter" type="button" data-cap="all" aria-pressed="true">All</button>
+                <button class="filter" type="button" data-cap="enrich" aria-pressed="false">enrich</button>
+                <button class="filter" type="button" data-cap="detonate" aria-pressed="false">detonate</button>
+                <button class="filter" type="button" data-cap="contain" aria-pressed="false">contain</button>
+                <button class="filter" type="button" data-cap="ingest" aria-pressed="false">ingest</button>
+                <button class="filter" type="button" data-cap="custom" aria-pressed="false">custom</button>
+            </div>
+
+            <div class="tablewrap">
+                <table id="vendors-table">
+                    <thead>
+                        <tr><th>Tool</th><th>Capability</th><th>Auth</th><th>Example call</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr data-cap="enrich"><td>VirusTotal v3</td><td><code>enrich</code></td><td>header <code>x-apikey</code></td><td><code>GET /api/v3/ip_addresses/${ioc}</code></td></tr>
+                        <tr data-cap="enrich"><td>AbuseIPDB</td><td><code>enrich</code></td><td>header <code>Key</code></td><td><code>GET /api/v2/check?ipAddress=${ioc}</code> — score is 0-100, matches the built-in thresholds with no mapping</td></tr>
+                        <tr data-cap="enrich"><td>AlienVault OTX</td><td><code>enrich</code></td><td>header <code>X-OTX-API-KEY</code></td><td><code>GET /api/v1/indicators/IPv4/${ioc}/general</code></td></tr>
+                        <tr data-cap="enrich"><td>GreyNoise</td><td><code>enrich</code></td><td>header <code>key</code></td><td><code>GET /v3/community/${ioc}</code></td></tr>
+                        <tr data-cap="enrich"><td>Shodan</td><td><code>enrich</code></td><td>key in query</td><td><code>GET /shodan/host/${ioc}?key=…</code></td></tr>
+                        <tr data-cap="enrich"><td>urlscan.io</td><td><code>enrich</code></td><td>header <code>API-Key</code></td><td><code>POST /api/v1/scan/</code></td></tr>
+                        <tr data-cap="enrich"><td>MISP</td><td><code>enrich</code></td><td>header <code>Authorization</code></td><td><code>POST /attributes/restSearch</code></td></tr>
+                        <tr data-cap="enrich"><td>IBM X-Force Exchange</td><td><code>enrich</code></td><td>Basic</td><td><code>GET /ipr/${ioc}</code></td></tr>
+                        <tr data-cap="enrich"><td>Recorded Future</td><td><code>enrich</code></td><td>header <code>X-RFToken</code></td><td><code>GET /v2/ip/${ioc}</code></td></tr>
+                        <tr data-cap="enrich"><td>Anomali ThreatStream</td><td><code>enrich</code></td><td>header <code>Authorization</code></td><td><code>GET /api/v2/intelligence/?value=${ioc}</code></td></tr>
+                        <tr data-cap="detonate"><td>Hybrid Analysis</td><td><code>detonate</code></td><td>header <code>api-key</code></td><td><span class="verify">VERIFY</span> also needs a specific <code>User-Agent</code></td></tr>
+                        <tr data-cap="detonate"><td>Joe Sandbox</td><td><code>detonate</code></td><td>form field <code>apikey</code></td><td>form-encoded — set <code>Content-Type</code></td></tr>
+                        <tr data-cap="detonate"><td>VMRay</td><td><code>detonate</code></td><td>header <code>Authorization: api_key …</code></td><td>your appliance</td></tr>
+                        <tr data-cap="detonate"><td>ANY.RUN</td><td><code>detonate</code></td><td>header <code>Authorization: API-Key …</code></td><td><code>POST /v1/analysis</code></td></tr>
+                        <tr data-cap="contain"><td>CrowdStrike Falcon</td><td><code>contain</code></td><td>OAuth2 client credentials</td><td><code>POST /devices/entities/devices-actions/v2?action_name=contain</code></td></tr>
+                        <tr data-cap="contain"><td>SentinelOne</td><td><code>contain</code></td><td>header <code>Authorization: ApiToken …</code></td><td><code>POST /web/api/v2.1/agents/actions/disconnect</code></td></tr>
+                        <tr data-cap="contain"><td>Microsoft Defender for Endpoint</td><td><code>contain</code></td><td>OAuth2 (Entra)</td><td><code>POST /api/machines/${target_value}/isolate</code> with <code>{"Comment":"${reason}","IsolationType":"Full"}</code></td></tr>
+                        <tr data-cap="contain"><td>Palo Alto Cortex XDR</td><td><code>contain</code></td><td>headers <code>x-xdr-auth-id</code> + <code>Authorization</code></td><td><code>POST /public_api/v1/endpoints/isolate</code></td></tr>
+                        <tr data-cap="contain"><td>VMware Carbon Black Cloud</td><td><code>contain</code></td><td>header <code>X-Auth-Token</code></td><td>quarantine device API</td></tr>
+                        <tr data-cap="contain"><td>Cisco Umbrella</td><td><code>contain</code></td><td>token</td><td>Enforcement API — POST a domain to a destination list</td></tr>
+                        <tr data-cap="contain"><td>Cloudflare</td><td><code>contain</code></td><td>header <code>Authorization: Bearer</code></td><td><code>POST /client/v4/…/firewall/rules</code></td></tr>
+                        <tr data-cap="contain"><td>Fortinet FortiGate</td><td><code>contain</code></td><td>API token header</td><td>address-object + policy REST</td></tr>
+                        <tr data-cap="contain"><td>Palo Alto PAN-OS</td><td><code>contain</code></td><td>API key</td><td><span class="verify">VERIFY</span> XML API — template the XML, set <code>Content-Type: application/xml</code></td></tr>
+                        <tr data-cap="contain"><td>Okta</td><td><code>contain</code></td><td>header <code>Authorization: SSWS …</code></td><td><code>POST /api/v1/users/${target_value}/lifecycle/suspend</code></td></tr>
+                        <tr data-cap="contain"><td>Microsoft Entra ID</td><td><code>contain</code></td><td>OAuth2</td><td>Graph <code>PATCH /v1.0/users/{id}</code> with <code>{"accountEnabled":false}</code></td></tr>
+                        <tr data-cap="ingest"><td>Tenable.io</td><td><code>ingest</code></td><td>header <code>X-ApiKeys</code></td><td><code>GET /workbenches/vulnerabilities</code></td></tr>
+                        <tr data-cap="ingest"><td>Tenable.sc</td><td><code>ingest</code></td><td>header <code>x-apikey</code></td><td><code>POST /rest/analysis</code></td></tr>
+                        <tr data-cap="ingest"><td>Qualys VMDR</td><td><code>ingest</code></td><td>Basic</td><td><span class="verify">VERIFY</span> largely XML</td></tr>
+                        <tr data-cap="ingest"><td>Rapid7 InsightVM</td><td><code>ingest</code></td><td>header <code>X-Api-Key</code></td><td><code>GET /vm/v4/integration/assets</code></td></tr>
+                        <tr data-cap="ingest"><td>Wiz</td><td><code>ingest</code></td><td>OAuth2</td><td>GraphQL POST</td></tr>
+                        <tr data-cap="ingest"><td>Snyk</td><td><code>ingest</code></td><td>header <code>Authorization: token …</code></td><td><code>GET /rest/orgs/{org}/issues</code></td></tr>
+                        <tr data-cap="ingest"><td>Trivy / Grype / Nuclei</td><td><code>ingest</code></td><td>none — push</td><td>reshape their JSON with <code>jq</code> and POST it. Easiest real integration to build.</td></tr>
+                        <tr data-cap="ingest"><td>AWS Inspector / Security Hub</td><td><code>ingest</code></td><td>SigV4</td><td><span class="verify">VERIFY</span> request signing is <strong>not</strong> implemented — push from a Lambda instead</td></tr>
+                        <tr data-cap="custom"><td>Splunk</td><td><code>custom</code></td><td>token</td><td><span class="verify">VERIFY</span> <code>/services/search/jobs/export</code> is form-encoded, not JSON</td></tr>
+                        <tr data-cap="custom"><td>Microsoft Sentinel</td><td><code>custom</code></td><td>OAuth2</td><td><code>POST https://api.loganalytics.io/v1/workspaces/{id}/query</code></td></tr>
+                        <tr data-cap="custom"><td>IBM QRadar</td><td><code>custom</code></td><td>header <code>SEC</code></td><td><code>GET /api/ariel/searches</code></td></tr>
+                        <tr data-cap="custom"><td>Elastic Security</td><td><code>custom</code></td><td>API key header</td><td><code>POST /_search</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>What will need more than configuration</h3>
+            <div class="tablewrap">
+                <table>
+                    <thead><tr><th>Blocker</th><th>Workaround</th></tr></thead>
+                    <tbody>
+                        <tr><td>AWS SigV4 / HMAC request signing</td><td>Push instead of pull, or a small script include that pre-computes the header</td></tr>
+                        <tr><td>Login-then-act flows (Zscaler, Cybereason)</td><td>Two endpoints driven from a Flow — one endpoint execution is one call</td></tr>
+                        <tr><td>Pagination</td><td>Loop in a Flow, or pull smaller windows more often</td></tr>
+                        <tr><td>Very large responses</td><td>Set a <code>response_root</code> — summaries cap at 8000 chars, raw payloads at 32000</td></tr>
+                        <tr><td>Outbound webhooks</td><td>Not this app's job — a Business Rule with <code>RESTMessageV2</code>, or Flow Designer</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===================================================== INTERNAL -->
+        <section id="internal">
+            <div class="sec-head">
+                <h2>Internal behaviour Postman cannot reach</h2>
+                <span class="count">Scripts - Background</span>
+            </div>
+
+            <div class="callout" data-tone="warn">
+                <p><strong>Set the scope selector to "SecOps Universal Connector Framework" first.</strong>
+                The infrastructure script includes are <code>package_private</code>, so in global scope these fail
+                with <code>SecOpsJson is not defined</code>. Only the five handlers are <code>public</code>.</p>
+            </div>
+
+            <h3>Verdict monotonicity — the most important one</h3>
+            <p>
+                This is the rule that stops a broken feed erasing a known-bad verdict. If any downgrade below
+                succeeds, treat it as a stop-ship bug.
+            </p>
+            <div class="block">
+                <div class="block__head">
+                    <span class="verb" data-verb="JS">JS</span>
+                    <span class="block__path">Scripts - Background &middot; needs Threat Intelligence</span>
+                    <button class="btn js-copy" type="button">Copy script</button>
+                </div>
+<pre>var ti = new SecOpsThreatIntelHandler()
+
+var obs = new GlideRecord('sn_ti_observable')
+obs.initialize()
+obs.setValue('value', '192.0.2.77')
+var t = new GlideRecord('sn_ti_observable_type')
+t.addQuery('name', 'IP address (V4)'); t.setLimit(1); t.query()
+if (t.next()) { obs.setValue('type', t.getUniqueValue()) }
+obs.setValue('finding', 'Malicious')
+var id = obs.insert()
+
+gs.info('downgrade to Clean:    ' + ti.rollUpFinding(id, 'Clean'))      // expect false
+gs.info('downgrade to Unknown:  ' + ti.rollUpFinding(id, 'Unknown'))    // expect false
+gs.info('same value again:      ' + ti.rollUpFinding(id, 'Malicious'))  // expect false
+
+var check = new GlideRecord('sn_ti_observable'); check.get(id)
+gs.info('finding must still be Malicious: ' + check.getValue('finding'))
+
+check.setValue('finding', 'Clean'); check.update()
+gs.info('upgrade to Malicious:  ' + ti.rollUpFinding(id, 'Malicious'))  // expect true
+
+var del = new GlideRecord('sn_ti_observable'); if (del.get(id)) { del.deleteRecord() }</pre>
+            </div>
+
+            <h3>Template injection safety</h3>
+            <div class="block">
+                <div class="block__head">
+                    <span class="verb" data-verb="JS">JS</span>
+                    <span class="block__path">Scripts - Background &middot; no network, no writes</span>
+                    <button class="btn js-copy" type="button">Copy script</button>
+                </div>
+<pre>var t = new SecOpsTemplate()
+var hostile = 'evil","admin":true,"x":"'
+
+gs.info('UNESCAPED: ' + t.render('{"indicator":"${ioc}"}', { ioc: hostile }))
+gs.info('ESCAPED:   ' + t.render('{"indicator":"${ioc}"}', { ioc: hostile }, { jsonEscape: true }))
+gs.info('MISSING:   ' + t.render('{"a":"${missing.path}"}', {}, { jsonEscape: true }))</pre>
+                <div class="block__note">
+                    The escaped output must still be JSON with exactly one key. The missing path must render as
+                    <code>""</code> and <strong>never</strong> as a literal <code>${missing.path}</code>.
+                </div>
+            </div>
+
+            <h3>Indicator extraction, de-fanged</h3>
+            <div class="block">
+                <div class="block__head">
+                    <span class="verb" data-verb="JS">JS</span>
+                    <span class="block__path">Scripts - Background &middot; no network, no writes</span>
+                    <button class="btn js-copy" type="button">Copy script</button>
+                </div>
+<pre>var text = [
+    'Reported phish from finance-alerts[at]example-invoices.test',
+    'Link: hxxps://login-verify.example-phish.test/session?id=99',
+    'Callback IP 192.0.2.44',
+    'SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+    'MD5 d41d8cd98f00b204e9800998ecf8427e'
+].join('\n')
+
+new SecOpsIndicatorExtractor().extract(text).forEach(function (i) {
+    gs.info(i.type + ' = ' + i.value)
+})</pre>
+                <div class="block__note">
+                    Types come back as verbatim <code>sn_ti_observable_type</code> names —
+                    <code>IP address (V4)</code>, <code>MD5 hash</code>, <code>Email address</code>. Do not tidy the
+                    casing; the lookup depends on it.
+                </div>
+            </div>
+
+            <h3>Retry and back-pressure</h3>
+            <p>
+                Point an endpoint at <code>https://httpbin.org/status/429</code> with
+                <code>max_retries: 2</code>. The transaction should show <code>retry_count: 2</code>,
+                <code>state: retry_pending</code> and a <code>next_retry</code> five minutes out. Then run the
+                <strong>Expire deferred retries</strong> job after that timestamp: the state must become
+                <code>failed</code> with the reason appended. A <code>500</code> behaves differently — retryable,
+                but not back-pressure, so it fails immediately with no <code>next_retry</code>. Confirm both.
+            </p>
+
+            <h3>The scheduled jobs</h3>
+            <div class="tablewrap">
+                <table>
+                    <thead><tr><th>Job</th><th>How to test</th></tr></thead>
+                    <tbody>
+                        <tr><td>Connector health sweep</td><td>Execute Now — <code>last_health_check</code> moves on every active connector and on no inactive one</td></tr>
+                        <tr><td>Transaction cleanup</td><td>Retention <code>0</code> deletes nothing and says so. Retention <code>1</code> with a back-dated row deletes it — but <strong>a back-dated <code>retry_pending</code> row must survive</strong></td></tr>
+                        <tr><td>Expire deferred retries</td><td>See back-pressure above</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>The business rules</h3>
+            <p>
+                Both ship inactive <em>and</em> gated by
+                <code>x_335329_secops.enrichment.auto_enabled</code>. Two independent switches, because enabling
+                automation that spends a customer's API quota should never be a side effect of installing an app.
+                Test both directions: rule active + property off must do nothing.
+            </p>
+
+            <h3>If enrichment silently writes nothing</h3>
+            <p>
+                Check <strong>System Applications &rarr; Application Restricted Caller Access</strong> for a pending
+                entry. SIR runs with RCA on, and the writer degrades gracefully rather than throwing — so a denial
+                looks like "nothing happened", not like an error. That is the first place to look.
+            </p>
+        </section>
+
+        <!-- ===================================================== SELF TEST -->
+        <section id="selftest">
+            <div class="sec-head">
+                <h2>The harmless self-test</h2>
+                <span class="count">15 checks</span>
+            </div>
+
+            <p class="lede">
+                <code>test/manual/loopback-selftest.js</code> creates a temporary connector pointing at public
+                request reflectors, exercises the whole stack, prints a pass/fail report and deletes what it made.
+                No credentials. No vendor account. No real security data.
+            </p>
+
+            <div class="tablewrap">
+                <table>
+                    <thead><tr><th class="num">#</th><th>Check</th><th>What it proves</th></tr></thead>
+                    <tbody>
+                        <tr><td class="num">1</td><td>Health against <code>/status/200</code></td><td>Outbound HTTP, classification, health recorded</td></tr>
+                        <tr><td class="num">2</td><td>Health against <code>/status/500</code></td><td><code>degraded</code>, not <code>down</code> — and the synthetic probe fallback</td></tr>
+                        <tr><td class="num">3</td><td>Containment call</td><td>Transport, transaction logging</td></tr>
+                        <tr><td class="num">3b</td><td>Echoed request body</td><td>Template placeholders really resolved</td></tr>
+                        <tr><td class="num">4</td><td>Containment with no target</td><td>Refused before any HTTP happens</td></tr>
+                        <tr><td class="num">5</td><td>Unknown target type</td><td>Enum validation</td></tr>
+                        <tr><td class="num">6</td><td>Stage three records</td><td>Convention mapping, severity normalisation</td></tr>
+                        <tr><td class="num">6b</td><td>Scanner-shaped record</td><td><code>risk: "3"</code> becomes <code>high</code>; <code>qid</code> becomes the external id</td></tr>
+                        <tr><td class="num">7</td><td>Re-ingest the same batch</td><td>De-duplication, <code>first_seen</code> preserved</td></tr>
+                        <tr><td class="num">8</td><td>Payload with an <code>api_key</code></td><td>Redaction actually happened</td></tr>
+                        <tr><td class="num">9</td><td>Record with no identifier</td><td>Skipped with a reason, not staged anonymously</td></tr>
+                        <tr><td class="num">10</td><td>Indicator extraction</td><td>De-fanging and typing</td></tr>
+                        <tr><td class="num">11</td><td>Hostile template value</td><td>Cannot inject extra keys</td></tr>
+                        <tr><td class="num">11b</td><td>Unresolved placeholder</td><td>Never ships literally</td></tr>
+                        <tr><td class="num">12</td><td><code>/status/429</code></td><td>Retried, then parked with a <code>next_retry</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>If every HTTP check returns status 0</strong>, the instance has no outbound internet
+                access. Put a MID Server on the connector, or read checks 4, 5, 6&ndash;11 as the full result — the
+                script says which happened rather than reporting a false failure.</p>
+            </div>
+        </section>
+
+        <footer>
+            Built from the source of <code>x_335329_secops</code> on 2026-09-14. Route paths verified against
+            <code>sys_ws_operation</code> on the instance; echo-service response shapes verified live. Vendor API
+            details are marked <span class="verify">VERIFY</span> where they should be checked against current
+            vendor documentation.
+        </footer>
+    </main>
+</div>
+
+<script>
+(function () {
+    'use strict'
+
+    // ---------------------------------------------------------- host swap
+    var input = document.getElementById('host')
+    var DEFAULT_HOST = 'https://dev296062.service-now.com'
+
+    function applyHost(value) {
+        var host = (value || '').replace(/\/+$/, '') || DEFAULT_HOST
+        var nodes = document.querySelectorAll('.js-host')
+        for (var i = 0; i < nodes.length; i++) {
+            nodes[i].textContent = host
+        }
+    }
+
+    try {
+        var saved = localStorage.getItem('secops.host')
+        if (saved) { input.value = saved }
+    } catch (e) { /* private window - the default is fine */ }
+
+    applyHost(input.value)
+
+    input.addEventListener('input', function () {
+        applyHost(input.value)
+        try { localStorage.setItem('secops.host', input.value) } catch (e) {}
+    })
+
+    document.getElementById('host-reset').addEventListener('click', function () {
+        input.value = DEFAULT_HOST
+        applyHost(DEFAULT_HOST)
+        try { localStorage.removeItem('secops.host') } catch (e) {}
+    })
+
+    // ---------------------------------------------------------- copy
+    function textFor(button) {
+        var block = button.closest('.block')
+        var pre = block.querySelector('pre')
+        if (pre) { return pre.textContent }
+        return block.querySelector('.block__path').textContent.trim()
+    }
+
+    function flash(button, label) {
+        var original = button.getAttribute('data-label') || button.textContent
+        button.setAttribute('data-label', original)
+        button.textContent = label
+        button.setAttribute('data-done', '1')
+        window.setTimeout(function () {
+            button.textContent = button.getAttribute('data-label')
+            button.removeAttribute('data-done')
+        }, 1600)
+    }
+
+    function selectFallback(button) {
+        // Clipboard access can be blocked in a sandboxed frame. Selecting the text still
+        // leaves the reader one keystroke from copying, which beats a silent no-op.
+        var block = button.closest('.block')
+        var target = block.querySelector('pre') || block.querySelector('.block__path')
+        var range = document.createRange()
+        range.selectNodeContents(target)
+        var selection = window.getSelection()
+        selection.removeAllRanges()
+        selection.addRange(range)
+        flash(button, 'Selected - press Ctrl/Cmd+C')
+    }
+
+    var buttons = document.querySelectorAll('.js-copy')
+    for (var b = 0; b < buttons.length; b++) {
+        buttons[b].addEventListener('click', function (event) {
+            var button = event.currentTarget
+            var text = textFor(button)
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(
+                    function () { flash(button, 'Copied') },
+                    function () { selectFallback(button) }
+                )
+            } else {
+                selectFallback(button)
+            }
+        })
+    }
+
+    // ---------------------------------------------------------- vendor filter
+    var filters = document.querySelectorAll('#filters .filter')
+    var rows = document.querySelectorAll('#vendors-table tbody tr')
+
+    function filterTo(capability) {
+        for (var r = 0; r < rows.length; r++) {
+            rows[r].hidden = capability !== 'all' && rows[r].getAttribute('data-cap') !== capability
+        }
+        for (var f = 0; f < filters.length; f++) {
+            filters[f].setAttribute('aria-pressed', String(filters[f].getAttribute('data-cap') === capability))
+        }
+    }
+
+    for (var i2 = 0; i2 < filters.length; i2++) {
+        filters[i2].addEventListener('click', function (event) {
+            filterTo(event.currentTarget.getAttribute('data-cap'))
+        })
+    }
+
+    // ---------------------------------------------------------- nav highlight
+    var links = document.querySelectorAll('#nav a')
+    var sections = []
+    for (var l = 0; l < links.length; l++) {
+        var target = document.querySelector(links[l].getAttribute('href'))
+        if (target) { sections.push({ link: links[l], el: target }) }
+    }
+
+    function highlight() {
+        var best = sections[0]
+        for (var s = 0; s < sections.length; s++) {
+            if (sections[s].el.getBoundingClientRect().top <= 120) { best = sections[s] }
+        }
+        for (var k = 0; k < sections.length; k++) {
+            sections[k].link.classList.toggle('is-active', sections[k] === best)
+        }
+    }
+
+    highlight()
+    window.addEventListener('scroll', highlight, { passive: true })
+})()
+</script>
+
+</body>
+</html>
