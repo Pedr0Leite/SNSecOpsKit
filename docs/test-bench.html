@@ -302,6 +302,8 @@ p { margin: 0 0 12px; max-width: 72ch; }
 }
 
 .verb[data-verb="GET"] { background: var(--ink-2); }
+/* Not an HTTP verb - a call graph. Outlined so it does not read as a request. */
+.verb[data-verb="FLOW"] { background: transparent; color: var(--ink-2); border: 1px solid var(--line-strong); }
 .verb[data-verb="DELETE"] { background: var(--crit); }
 .verb[data-verb="JS"] { background: var(--warn); }
 
@@ -456,6 +458,7 @@ footer {
         <div class="rail__mark">x_335329_secops</div>
         <nav id="nav" aria-label="Sections">
             <a href="#what">What it does</a>
+            <a href="#phishing">Inside the phishing handler</a>
             <a href="#postman">Postman payloads</a>
             <a href="#expect">What to expect back</a>
             <a href="#vendors">External tools</a>
@@ -560,6 +563,141 @@ footer {
                         <tr><td>Replay a failed request</td><td>The only stored copy is redacted, so a replay would send a broken request</td></tr>
                         <tr><td>Refresh an OAuth token itself</td><td>A blind retry on a dead grant can lock out the service account. It reports the fix instead.</td></tr>
                         <tr><td>Sleep between retries</td><td>Scoped apps have no <code>gs.sleep()</code>. Back-pressure is parked for a scheduled job.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===================================================== PHISHING -->
+        <section id="phishing">
+            <div class="sec-head">
+                <h2>Inside the phishing handler</h2>
+                <span class="count">the one that chains three subsystems</span>
+            </div>
+
+            <p class="lede">
+                <code>enrich</code> handles one indicator. <code>detonate</code> handles a whole incident — it
+                reads, extracts, caps, calls, records and links, in that order. Think of a mailroom X-ray desk:
+                read the whole report <em>including the sticky notes attached to it</em>, highlight every
+                identifier, send each to the lab, file an evidence card per item, staple the cards to the case
+                file, and report the worst single result rather than an average.
+            </p>
+
+            <div class="block">
+                <div class="block__head">
+                    <span class="verb" data-verb="FLOW">FLOW</span>
+                    <span class="block__path">SecOpsPhishingHandler.analyzeIncident(incidentSysId, options)</span>
+                </div>
+<pre>                       sn_si_incident
+                             │
+     ┌───────────────────────┴────────────────────────┐
+     │ collectText()                                  │
+     │   short_description ─┐                         │
+     │   description       ─┴─ getValue()             │
+     │   comments          ─┐                         │
+     │   work_notes        ─┴─ getJournalEntry(-1)    │
+     └───────────────────────┬────────────────────────┘
+                             │  one joined string
+                             ▼
+     ┌────────────────────────────────────────────────┐
+     │ SecOpsIndicatorExtractor.extract()             │
+     │   re-fang:  hxxps://  → https://               │
+     │             1.1.1[.]1 → 1.1.1.1                │
+     │             name[at]x → name@x                 │
+     │   match in order, de-duplicating as it goes:   │
+     │   SHA256 ▸ SHA1 ▸ MD5 ▸ URL ▸ email ▸ IP ▸ domain
+     └───────────────────────┬────────────────────────┘
+                             │  [{type, value}, …]
+                             ▼
+              cap at detonate.max_indicators (15)
+                             │
+   ╔═════════════════════════▼══════════════════════════╗
+   ║  per indicator — processIndicator()                ║
+   ║                                                    ║
+   ║   run({ioc, value, type, incident}, write:false)   ║
+   ║        └─▶ SecOpsRestClient ─▶ sandbox ─▶ payload  ║
+   ║                                     │              ║
+   ║   intel.findingFrom(payload) ◀──────┘              ║
+   ║        │   Malicious │ Suspicious │ Clean │ Unknown║
+   ║        ▼                                           ║
+   ║   upsertObservable()          sn_ti_observable     ║
+   ║     coalesce on value+type                         ║
+   ║     finding written on INSERT ONLY                 ║
+   ║        │                                           ║
+   ║        └─ already existed? ─▶ intel.rollUpFinding()║
+   ║        ▼                                           ║
+   ║   linkObservableToIncident()                       ║
+   ║                        sn_ti_m2m_task_observable   ║
+   ╚═════════════════════════╤══════════════════════════╝
+                             ▼
+                    worstDisposition()  ─▶  outcome</pre>
+            </div>
+
+            <h3>Why each step is written the way it is</h3>
+            <div class="tablewrap">
+                <table>
+                    <thead><tr><th>Step</th><th>The reason it is not simpler</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td>Journal fields read with <code>getJournalEntry(-1)</code></td>
+                            <td><code>comments</code> and <code>work_notes</code> store content in
+                            <code>sys_journal_field</code>, so <code>getValue()</code> returns the empty journal
+                            <em>input</em>. A forwarded phish usually arrives <strong>as a comment</strong> —
+                            <code>getValue()</code> would drop the most common place the evidence lives, and the
+                            handler would report success having found nothing.</td>
+                        </tr>
+                        <tr>
+                            <td>Longest hashes matched first</td>
+                            <td>A 64-character hex string contains 32-character substrings. Domains are matched
+                            last, against text with URLs and emails already stripped, so one string is never
+                            reported twice under two types.</td>
+                        </tr>
+                        <tr>
+                            <td>IPv4 validated, not just regex-matched</td>
+                            <td>Rejects octets above 255 and zero-padded forms like <code>01.1.1.1</code> — but
+                            deliberately accepts <code>1.2.3.4</code>. That is a valid dotted quad, and deciding it
+                            is "probably a version string" would be the wrong kind of clever.</td>
+                        </tr>
+                        <tr>
+                            <td>Cap of 15, with its own property</td>
+                            <td>Each indicator is one <em>synchronous</em> outbound call. A report pasted with a
+                            full header block can yield fifty; fifty sequential calls in one transaction exhausts
+                            the quota and leaves an incident half-processed. Truncation sets
+                            <code>outcome.truncated</code> rather than staying quiet.</td>
+                        </tr>
+                        <tr>
+                            <td><code>finding</code> written on insert only</td>
+                            <td>Re-analysing the same phish coalesces onto the existing observable. Writing the
+                            verdict unconditionally would fail twice over: a failed detonation returns
+                            <code>Unknown</code>, erasing a previous <code>Malicious</code>, and it would ignore an
+                            analyst's manual override. Existing observables route through
+                            <code>rollUpFinding()</code>, which refuses both.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>The gotcha</h3>
+            <div class="callout" data-tone="warn">
+                <p><strong>Field mappings on a <code>detonate</code> endpoint do nothing — unless
+                <code>target_field</code> is <code>finding</code>.</strong></p>
+                <p><code>processIndicator</code> calls the base handler with <code>write: false</code>, because the
+                handler writes the observable itself. That skips <code>mapAndWrite()</code> entirely. The only
+                place mappings are read is inside <code>findingFrom()</code>, which scans for one targeting
+                <code>finding</code> and ignores every other row.</p>
+                <p>So <code>sandbox_verdict → finding</code> works exactly as expected, and anything else on the
+                same endpoint is configured, saved, executed — and silently does nothing. On an
+                <code>enrich</code> endpoint those same rows <em>would</em> override the default value set. Same
+                configuration table, different behaviour per capability.</p>
+            </div>
+
+            <div class="tablewrap">
+                <table>
+                    <thead><tr><th>Also worth knowing</th><th>What to check instead</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>ok: true</code> with zero indicators is a real outcome — nothing was analysed, but nothing failed</td><td><code>outcome.indicators.length</code></td></tr>
+                        <tr><td><code>ok</code> means "at least one indicator was analysed", not all of them</td><td><code>outcome.indicators[].ok</code></td></tr>
+                        <tr><td>A failed detonation gives <code>Unknown</code>, never <code>Clean</code></td><td><code>outcome.disposition</code> plus the transaction's status</td></tr>
                     </tbody>
                 </table>
             </div>

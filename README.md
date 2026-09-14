@@ -150,6 +150,103 @@ A business rule fires: *enrich observable `8.8.8.8`.*
                 response
 ```
 
+## Walking through a phishing analysis
+
+`enrich` handles one indicator. `detonate` handles a whole incident, and chains three subsystems to
+do it — so it is worth its own walkthrough.
+
+Think of a **mailroom X-ray desk**. Someone forwards a suspicious envelope. The operator reads the
+whole report *including the sticky notes attached to it*, highlights every identifier on it, sends
+each one to the lab, files an evidence card per item, staples the cards to the case file, and
+reports the worst single result rather than an average. That is the handler, in order.
+
+```
+                       sn_si_incident
+                             │
+     ┌───────────────────────┴────────────────────────┐
+     │ collectText()                                  │
+     │   short_description ─┐                         │
+     │   description       ─┴─ getValue()             │
+     │   comments          ─┐                         │
+     │   work_notes        ─┴─ getJournalEntry(-1)    │
+     └───────────────────────┬────────────────────────┘
+                             │  one joined string
+                             ▼
+     ┌────────────────────────────────────────────────┐
+     │ SecOpsIndicatorExtractor.extract()             │
+     │   re-fang:  hxxps://  → https://               │
+     │             1.1.1[.]1 → 1.1.1.1                │
+     │             name[at]x → name@x                 │
+     │   match in order, de-duplicating as it goes:   │
+     │   SHA256 ▸ SHA1 ▸ MD5 ▸ URL ▸ email ▸ IP ▸ domain
+     └───────────────────────┬────────────────────────┘
+                             │  [{type, value}, …]
+                             ▼
+              cap at detonate.max_indicators (15)
+                             │
+   ╔═════════════════════════▼══════════════════════════╗
+   ║  per indicator — processIndicator()                ║
+   ║                                                    ║
+   ║   run({ioc, value, type, incident}, write:false)   ║
+   ║        └─▶ SecOpsRestClient ─▶ sandbox ─▶ payload  ║
+   ║                                     │              ║
+   ║   intel.findingFrom(payload) ◀──────┘              ║
+   ║        │   Malicious │ Suspicious │ Clean │ Unknown║
+   ║        ▼                                           ║
+   ║   upsertObservable()          sn_ti_observable     ║
+   ║     coalesce on value+type                         ║
+   ║     finding written on INSERT ONLY                 ║
+   ║        │                                           ║
+   ║        └─ already existed? ─▶ intel.rollUpFinding()║
+   ║        ▼                                           ║
+   ║   linkObservableToIncident()                       ║
+   ║                        sn_ti_m2m_task_observable   ║
+   ╚═════════════════════════╤══════════════════════════╝
+                             ▼
+                    worstDisposition()  ─▶  outcome
+```
+
+**Why the journal fields get different treatment.** `comments` and `work_notes` store their content
+in `sys_journal_field`, so `getValue()` returns the empty journal *input*, not the entries. A
+forwarded phish usually arrives *as a comment* — reading these with `getValue()` would silently drop
+the most common place the evidence lives, and the handler would report success having found nothing.
+
+**Why extraction order matters.** Longest hashes first, because a 64-character hex string contains
+32-character substrings. Domains are matched last, against text with URLs and emails already
+stripped out, so one string is never reported twice under two types. The IPv4 check rejects octets
+above 255 and zero-padded forms like `01.1.1.1`, but deliberately accepts `1.2.3.4` — that is a
+valid dotted quad, and deciding it is "probably a version string" would be the wrong kind of clever.
+
+**Why the cap is small and has its own property.** Each indicator is one *synchronous* outbound
+call. A report pasted with a full header block can yield fifty; fifty sequential HTTP calls in one
+transaction is how you exhaust the quota and leave an incident half-processed. When it truncates it
+sets `outcome.truncated` rather than staying quiet.
+
+**Why the verdict is insert-only.** Re-analysing the same phish coalesces onto the existing
+observable. Writing `finding` unconditionally would be a bug in two directions: a failed detonation
+returns `Unknown`, which would erase a previous `Malicious`, and it would ignore an analyst's manual
+override. Existing observables route through `rollUpFinding()` instead, which refuses both.
+
+### The gotcha
+
+**Field mappings on a `detonate` endpoint do nothing — unless `target_field` is `finding`.**
+
+`processIndicator` calls the base handler with `write: false`, because the handler writes the
+observable itself. That skips `mapAndWrite()` entirely. The only place mappings are consulted is
+inside `findingFrom()`, which scans them for one targeting `finding` and ignores every other row.
+
+So mapping `sandbox_verdict → finding` works exactly as expected, and mapping anything else on the
+same endpoint is configured, saved, executed — and silently does nothing. This differs from an
+`enrich` endpoint, where non-`finding` mappings *do* override the default value set. Same-looking
+configuration table, different behaviour per capability.
+
+Two smaller ones for callers:
+
+- **`ok: true` with zero indicators is a real outcome.** Nothing was analysed, but nothing failed.
+  `disposition` stays `Unknown`. Check `indicators.length`, not just `ok`.
+- **`ok` means "at least one indicator was analysed"**, not all of them. Read
+  `outcome.indicators[].ok` for per-indicator truth.
+
 ## What it deliberately will not do
 
 These are design decisions, not gaps. Each one exists because the alternative fails badly in a
