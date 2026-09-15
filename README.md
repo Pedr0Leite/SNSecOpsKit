@@ -323,6 +323,7 @@ Full walkthrough: [docs/04-install-and-config.md](docs/04-install-and-config.md)
 | [07-vulnerability-response.md](docs/07-vulnerability-response.md) | VR ingestion and promotion, including a correction to a common table-name mistake |
 | [08-analyst-console.md](docs/08-analyst-console.md) | The React UI Page console: hosting choice, data paths, record pane, drill-in, editable layout, themes, accessibility |
 | [09-testing-guide.md](docs/09-testing-guide.md) | **Start here to test anything.** Full capability inventory, Postman payloads for every inbound API, the external tools you can connect and how, and step-by-step tests for the internals |
+| [10-knowledge-base.md](docs/10-knowledge-base.md) | **Start here if the security concepts are new.** What an indicator is, what detonation actually means and who does it, why indicators are written `hxxp://`, which addresses are safe in test data, and why automation may raise a verdict but never lower one |
 
 Testing assets that go with `09`:
 
