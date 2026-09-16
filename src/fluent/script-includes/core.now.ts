@@ -103,3 +103,12 @@ export const SecOpsHealthChecker = ScriptInclude({
     script: Now.include('../../script-includes/secops-health-checker.js'),
     accessibleFrom: 'package_private',
 })
+
+export const SecOpsVersionMatcher = ScriptInclude({
+    $id: Now.ID["si-secops-version-matcher"],
+    name: "SecOpsVersionMatcher",
+    description:
+        "Decides whether this instance build is below a CVE fix threshold. Pure string logic, three-valued, never guesses.",
+    script: Now.include("../../script-includes/secops-version-matcher.js"),
+    accessibleFrom: "package_private",
+})

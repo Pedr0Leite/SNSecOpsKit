@@ -29,6 +29,22 @@ declare global {
                         table: 'sys_security_acl'
                         id: 'd640110917074c50b5e7c54981dc3d66'
                     }
+                    'acl-cve-watch-create': {
+                        table: 'sys_security_acl'
+                        id: '1903ce56e1b04bc2bae1e9f8401bd5be'
+                    }
+                    'acl-cve-watch-delete': {
+                        table: 'sys_security_acl'
+                        id: 'a867375b4b4c4e7c913acd1c53afca8b'
+                    }
+                    'acl-cve-watch-read': {
+                        table: 'sys_security_acl'
+                        id: '3652e8bec33d4d2aa9e544b7deefe164'
+                    }
+                    'acl-cve-watch-write': {
+                        table: 'sys_security_acl'
+                        id: '76b9305a959f41b6a8f9c6aee7c571fe'
+                    }
                     'acl-dashboard-ui-page': {
                         table: 'sys_security_acl'
                         id: 'ad5880ca9ae14b71bd1e68e75e8e6f53'
@@ -177,6 +193,22 @@ declare global {
                         table: 'sys_script'
                         id: '8dc8699eebb94818842ea50c04abc541'
                     }
+                    'cve-connector': {
+                        table: 'x_335329_secops_connector'
+                        id: 'f084f1f8ffb248c9ba133d0e1965a8da'
+                    }
+                    'cve-endpoint-detail': {
+                        table: 'x_335329_secops_endpoints'
+                        id: '070cbd5ebe8744eeb78a1540cf374d06'
+                    }
+                    'cve-endpoint-health': {
+                        table: 'x_335329_secops_endpoints'
+                        id: 'd6bae48058ef4339bc6ce2302c9f3990'
+                    }
+                    'cve-endpoint-search': {
+                        table: 'x_335329_secops_endpoints'
+                        id: 'd7c91c496dd04bbcb0a01a282bc2efcf'
+                    }
                     'demo-connector-threat-intel': {
                         table: 'x_335329_secops_connector'
                         id: '2e891a2b04fd4d5eb0e3f82418c181ef'
@@ -206,6 +238,10 @@ declare global {
                         table: 'sysauto_script'
                         id: 'e5fe217a9c784a2c9c072f26667262f6'
                     }
+                    'job-cve-watch-daily': {
+                        table: 'sysauto_script'
+                        id: '4947484239884512a47c0cfe8d9c3a09'
+                    }
                     'job-expire-deferred-retries': {
                         table: 'sysauto_script'
                         id: '947116dacce04f5dbcc5b17c6d4e514a'
@@ -225,6 +261,10 @@ declare global {
                     'module-contact-support': {
                         table: 'sys_app_module'
                         id: '485d7eae5ce84c0685478f846aaf50f8'
+                    }
+                    'module-cve-watch': {
+                        table: 'sys_app_module'
+                        id: '2ed3f066245d4499bff734f25de64a35'
                     }
                     'module-dashboard': {
                         table: 'sys_app_module'
@@ -265,6 +305,34 @@ declare global {
                     'prop-auto-enrichment': {
                         table: 'sys_properties'
                         id: '113dede11bd545febf0ce444a8931967'
+                    }
+                    'prop-cve-backfill-months': {
+                        table: 'sys_properties'
+                        id: 'f8ec6759e2634940ab643cee8e62d747'
+                    }
+                    'prop-cve-connector': {
+                        table: 'sys_properties'
+                        id: 'edc29f38773b421ba19f6be0c2173945'
+                    }
+                    'prop-cve-create-incidents': {
+                        table: 'sys_properties'
+                        id: '23233141a27540058df0e702c5cc4f58'
+                    }
+                    'prop-cve-enabled': {
+                        table: 'sys_properties'
+                        id: 'e2535c86ed2e455b9e4609e65fc47b51'
+                    }
+                    'prop-cve-incident-table': {
+                        table: 'sys_properties'
+                        id: 'd0d1687047764726b0e0d6ccd84b4b95'
+                    }
+                    'prop-cve-keyword': {
+                        table: 'sys_properties'
+                        id: '50ea32628cca46c3803b193bd9947968'
+                    }
+                    'prop-cve-watermark': {
+                        table: 'sys_properties'
+                        id: '02a90fb85d5d44f980039a9e8b94744e'
                     }
                     'prop-detonate-max-indicators': {
                         table: 'sys_properties'
@@ -313,6 +381,10 @@ declare global {
                     'si-secops-containment-handler': {
                         table: 'sys_script_include'
                         id: 'e5a8ab9d8c26422d8c37278f153e3d8d'
+                    }
+                    'si-secops-cve-watch': {
+                        table: 'sys_script_include'
+                        id: 'f02030c8aaf94452977b1745c4c106c6'
                     }
                     'si-secops-field-mapper': {
                         table: 'sys_script_include'
@@ -370,6 +442,10 @@ declare global {
                         table: 'sys_script_include'
                         id: '72f78dc180374706825c250f5fb0e55e'
                     }
+                    'si-secops-version-matcher': {
+                        table: 'sys_script_include'
+                        id: '7d0d7e8019ab462aa4c6c90313f1bcc3'
+                    }
                     'si-secops-vuln-ingestion-handler': {
                         table: 'sys_script_include'
                         id: 'aaf0789b48da4a3aa672788cc9fd4c30'
@@ -410,6 +486,10 @@ declare global {
                     'xsp-global-user-read': {
                         table: 'sys_scope_privilege'
                         id: '1da9825d5fbd4f168c5d82f0b5b23921'
+                    }
+                    'xsp-sn-si-incident-create': {
+                        table: 'sys_scope_privilege'
+                        id: '9b16f54f12f24cd3889bf1afcdfcc898'
                     }
                     'xsp-sn-si-incident-read': {
                         table: 'sys_scope_privilege'
@@ -496,6 +576,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '04a139b5fb68473695bf9bde90f81dd0'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'relevance_reason'
+                        }
+                    },
+                    {
                         table: 'sys_documentation'
                         id: '0538d38b764d4688821e39a0e3ab4118'
                         key: {
@@ -540,6 +628,15 @@ declare global {
                         key: {
                             name: 'x_335329_secops_transaction'
                             element: 'retry_count'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '082b53fabe374bc19cbccd9f646bbd2c'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'advisory_url'
+                            language: 'en'
                         }
                     },
                     {
@@ -662,6 +759,15 @@ declare global {
                     },
                     {
                         table: 'sys_documentation'
+                        id: '113d37fe75c94cf292c27f56bdd40cec'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'NULL'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
                         id: '14c8b2b41ba54db2a7566eedcf2391e0'
                         key: {
                             name: 'x_335329_secops_field_map'
@@ -688,6 +794,15 @@ declare global {
                                     name: 'x_335329_secops.admin'
                                 }
                             }
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '1824939f72774cada9e01e0986ac3db9'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'last_checked'
+                            language: 'en'
                         }
                     },
                     {
@@ -766,6 +881,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '1fdaaf16d06547e2929fd95ac012c537'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'cvss_score'
+                        }
+                    },
+                    {
                         table: 'sys_documentation'
                         id: '204861197afb44ef95616b5d430b9dfd'
                         key: {
@@ -789,6 +912,25 @@ declare global {
                             name: 'x_335329_secops_field_map'
                             element: 'order'
                             language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: '211517662c034bb0b25b2b88229518f1'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'relevance'
+                            value: 'unknown'
+                            language: 'en'
+                            dependent_value: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_choice_set'
+                        id: '2127a8a6d16743c99cc2d2fe14f8de1b'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'state'
                         }
                     },
                     {
@@ -826,12 +968,28 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '25eab8d01055472886fb35bde32051f5'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'cvss_vector'
+                        }
+                    },
+                    {
                         table: 'sys_documentation'
                         id: '266fc3f53000485fa0950d4a9e87094e'
                         key: {
                             name: 'x_335329_secops_connector'
                             element: 'health_status'
                             language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_choice_set'
+                        id: '28213ec50bf643c1955c20389c4d891c'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'relevance'
                         }
                     },
                     {
@@ -870,6 +1028,28 @@ declare global {
                             name: 'x_335329_secops_endpoints'
                             element: 'http_method'
                             value: 'patch'
+                            language: 'en'
+                            dependent_value: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: '2b8836f51ca34039a6d64ba5aa92e9aa'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'severity'
+                            value: 'high'
+                            language: 'en'
+                            dependent_value: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: '2b8cc06a8a5f46779f33f82d63631ada'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'state'
+                            value: 'dismissed'
                             language: 'en'
                             dependent_value: 'NULL'
                         }
@@ -951,6 +1131,17 @@ declare global {
                         key: {
                             name: 'x_335329_secops_vuln_stage'
                             element: 'title'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: '34057494ca5549f78def2f4413c5be57'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'relevance'
+                            value: 'not_affected'
+                            language: 'en'
+                            dependent_value: 'NULL'
                         }
                     },
                     {
@@ -1098,6 +1289,17 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_choice'
+                        id: '42d39f659f364c67a9e7cf9618058e51'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'severity'
+                            value: 'none'
+                            language: 'en'
+                            dependent_value: 'NULL'
+                        }
+                    },
+                    {
                         table: 'sys_security_acl_role'
                         id: '44bbcd2f6b1143979062f8e5203445a6'
                         key: {
@@ -1128,11 +1330,28 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '471647a7f9264b9f98af487742b9fec4'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'title'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_dictionary'
                         id: '471fb12e7d214717bd1d27560d53af5f'
                         key: {
                             name: 'x_335329_secops_connector'
                             element: 'mid_server'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '48721fd3de234389ae199512369a334d'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'last_checked'
                         }
                     },
                     {
@@ -1165,6 +1384,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '4c8a510d00ac49209aeffc7b9e6f327a'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'NULL'
+                        }
+                    },
+                    {
                         table: 'sys_documentation'
                         id: '4d2eb350b04546ebac92e1f8a3bc0087'
                         key: {
@@ -1184,6 +1411,14 @@ declare global {
                                     name: 'x_335329_secops.viewer'
                                 }
                             }
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '4ff1e4e6cb484be79089f85a7124402a'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'cna'
                         }
                     },
                     {
@@ -1218,6 +1453,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_index'
+                        id: '50c100fb224b49cb9df988cb1cde34cc'
+                        key: {
+                            logical_table_name: 'x_335329_secops_cve_watch'
+                            col_name_string: 'relevance,state'
+                        }
+                    },
+                    {
                         table: 'sys_documentation'
                         id: '50f255588230400a9d3c242a56ab460a'
                         key: {
@@ -1237,6 +1480,33 @@ declare global {
                                     name: 'x_335329_secops.admin'
                                 }
                             }
+                        }
+                    },
+                    {
+                        table: 'sys_index'
+                        id: '51e550d6e6c54fa58daee8e97788f86e'
+                        key: {
+                            logical_table_name: 'x_335329_secops_cve_watch'
+                            col_name_string: 'cve_id'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '530177feef1b4b148990bfeb8a4bbacc'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'state'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: '5321d91f34cc4935a9f3e8474e0159b2'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'relevance'
+                            value: 'affected'
+                            language: 'en'
+                            dependent_value: 'NULL'
                         }
                     },
                     {
@@ -1273,6 +1543,28 @@ declare global {
                             name: 'x_335329_secops_field_map'
                             element: 'transform'
                             value: 'boolean'
+                            language: 'en'
+                            dependent_value: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: '56f07641f4e04181b0da71b1de11d5bc'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'severity'
+                            value: 'unknown'
+                            language: 'en'
+                            dependent_value: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: '570859aead1e4ae58ef0d6ea8f0391a1'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'severity'
+                            value: 'medium'
                             language: 'en'
                             dependent_value: 'NULL'
                         }
@@ -1341,6 +1633,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '5ad3adfefd84441db3ec41fc82dd1fec'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'severity'
+                        }
+                    },
+                    {
                         table: 'sys_choice'
                         id: '5b79edd790df49a28bb618065e8d2ad3'
                         key: {
@@ -1349,6 +1649,13 @@ declare global {
                             value: 'mapped'
                             language: 'en'
                             dependent_value: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_db_object'
+                        id: '5b94a78cce404e819cff0d97439386e6'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
                         }
                     },
                     {
@@ -1376,6 +1683,15 @@ declare global {
                         key: {
                             name: 'x_335329_secops_vuln_stage'
                             element: 'title'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '5c650a31c7a24d759686f8623f477506'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'relevance_reason'
                             language: 'en'
                         }
                     },
@@ -1414,6 +1730,14 @@ declare global {
                     },
                     {
                         table: 'sys_dictionary'
+                        id: '5f5347eb5b2440d9993924fd1d3c3914'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'published'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
                         id: '5f90c1ea45de42f2bbc80b59dbc517d8'
                         key: {
                             name: 'x_335329_secops_endpoints'
@@ -1426,6 +1750,19 @@ declare global {
                         deleted: true
                         key: {
                             endpoint: 'x_335329_secops_overview.do'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '608bdb92f0eb4959ac0b8b395655f6a5'
+                        key: {
+                            sys_security_acl: 'a867375b4b4c4e7c913acd1c53afca8b'
+                            sys_user_role: {
+                                id: '558c55998de6414d8c13c904c8b69fe6'
+                                key: {
+                                    name: 'x_335329_secops.admin'
+                                }
+                            }
                         }
                     },
                     {
@@ -1461,6 +1798,14 @@ declare global {
                             name: 'x_335329_secops_field_map'
                             element: 'default_value'
                             language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '6422fd79f502407290ca6a557413a2a0'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'description'
                         }
                     },
                     {
@@ -1522,6 +1867,14 @@ declare global {
                             name: 'x_335329_secops_transaction'
                             element: 'duration_ms'
                             language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '679b59880a604ab5a7c388017df3c7ac'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'raw_record'
                         }
                     },
                     {
@@ -1600,6 +1953,14 @@ declare global {
                     },
                     {
                         table: 'sys_dictionary'
+                        id: '6de160c13af941bab7348d16d013a53d'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'fix_versions'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
                         id: '6eb1d18f8e5c4ae0a5b7d6edf34bb733'
                         key: {
                             name: 'x_335329_secops_connector'
@@ -1648,6 +2009,15 @@ declare global {
                                     name: 'x_335329_secops.admin'
                                 }
                             }
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '724524a2c340484ca5c8fac57a87210a'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'cvss_vector'
+                            language: 'en'
                         }
                     },
                     {
@@ -1784,6 +2154,17 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_choice'
+                        id: '7c9023a9449a4ec7bf353a0a7114b7d8'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'state'
+                            value: 'error'
+                            language: 'en'
+                            dependent_value: 'NULL'
+                        }
+                    },
+                    {
                         table: 'sys_security_acl_role'
                         id: '7db1468c3fad416b90bb529251879fe0'
                         key: {
@@ -1882,6 +2263,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '88930553a2c14c99b4858c03b37ec18c'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'cve_url'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_db_object'
                         id: '8958e367e1074990a8077b8f77c98ad4'
                         key: {
@@ -1932,6 +2322,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '8f697e5ddeda42acb108b89cc4849a42'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'cve_url'
+                        }
+                    },
+                    {
                         table: 'sys_choice'
                         id: '9028b2017c4044f5b1165247db4c22e5'
                         key: {
@@ -1960,6 +2358,15 @@ declare global {
                     },
                     {
                         table: 'sys_documentation'
+                        id: '9113e4d82478443da821e1d867cbf009'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'state'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
                         id: '91176c4cca0c423698a79ad6b9e4101c'
                         key: {
                             name: 'x_335329_secops_connector'
@@ -1973,6 +2380,17 @@ declare global {
                         key: {
                             name: 'x_335329_secops_connector'
                             element: 'last_health_check'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: '91a2df786c754254bf167a390c567b55'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'state'
+                            value: 'new'
+                            language: 'en'
+                            dependent_value: 'NULL'
                         }
                     },
                     {
@@ -2000,6 +2418,19 @@ declare global {
                             value: 'threat_intel'
                             language: 'en'
                             dependent_value: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '96c7f63070df4d8f9a30a20abb9d12eb'
+                        key: {
+                            sys_security_acl: '1903ce56e1b04bc2bae1e9f8401bd5be'
+                            sys_user_role: {
+                                id: '558c55998de6414d8c13c904c8b69fe6'
+                                key: {
+                                    name: 'x_335329_secops.admin'
+                                }
+                            }
                         }
                     },
                     {
@@ -2056,6 +2487,13 @@ declare global {
                         }
                     },
                     {
+                        table: 'ua_table_licensing_config'
+                        id: '99c53a592b474fcdbdf3dfafd5e99a93'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                        }
+                    },
+                    {
                         table: 'sys_choice'
                         id: '9a1790039feb4996a5d2767c29996f80'
                         key: {
@@ -2089,6 +2527,14 @@ declare global {
                         key: {
                             name: 'x_335329_secops_vuln_stage'
                             element: 'source'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '9bab9e0c3f8a44e6af8fe84226f64fc3'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'security_incident'
                         }
                     },
                     {
@@ -2146,6 +2592,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '9f914d469b344a46a2f0f5d10fda1dda'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'security_incident_number'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_security_acl_role'
                         id: 'a0ca7b8a77564ac183a0b0ba6f1eabf4'
                         key: {
@@ -2156,6 +2611,17 @@ declare global {
                                     name: 'x_335329_secops.admin'
                                 }
                             }
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: 'a1020937f3e740c881a1d5855a27e693'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'state'
+                            value: 'tracked'
+                            language: 'en'
+                            dependent_value: 'NULL'
                         }
                     },
                     {
@@ -2341,6 +2807,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: 'b2758453871e4786a0754404b7885fe2'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'relevance'
+                        }
+                    },
+                    {
                         table: 'sys_security_acl_role'
                         id: 'b311d839d679426abc7def6a01432fea'
                         key: {
@@ -2351,6 +2825,14 @@ declare global {
                                     name: 'x_335329_secops.viewer'
                                 }
                             }
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'b38790da6c95425e83f92b9e96997f37'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'cve_last_modified'
                         }
                     },
                     {
@@ -2426,6 +2908,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: 'bb601004e35e4037a2d2b95cf756af7f'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'relevance'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_choice'
                         id: 'bc8e482143f34e18ad56f51816992052'
                         key: {
@@ -2441,6 +2932,15 @@ declare global {
                         id: 'bce2d4f78ed444aca5f9cfcf3b499915'
                         key: {
                             name: 'x_335329_secops_transaction'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'bda761caabc641ddab6375b6eee306a9'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'severity'
+                            language: 'en'
                         }
                     },
                     {
@@ -2501,6 +3001,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: 'c2b1589683d8490299ef9708a4b0de7f'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'raw_record'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sn_glider_source_artifact_m2m'
                         id: 'c2f50dd8d75b4d1c90fa56b93f2bd7cc'
                         deleted: true
@@ -2532,6 +3041,14 @@ declare global {
                         key: {
                             name: 'x_335329_secops_connector'
                             element: 'max_retries'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'c4f4b0ab650c4da29aa6b0d37502ffd7'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'security_incident_number'
                         }
                     },
                     {
@@ -2577,11 +3094,33 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_security_acl_role'
+                        id: 'c70a0442ba514284b2140ec28ec26d8f'
+                        key: {
+                            sys_security_acl: '76b9305a959f41b6a8f9c6aee7c571fe'
+                            sys_user_role: {
+                                id: '2205bcedeed94c5ab19c1b16c716a095'
+                                key: {
+                                    name: 'x_335329_secops.operator'
+                                }
+                            }
+                        }
+                    },
+                    {
                         table: 'sys_dictionary'
                         id: 'c808504438b548dca8e30dfc57de0eb2'
                         key: {
                             name: 'x_335329_secops_endpoints'
                             element: 'success_codes'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'c830884b933740a5ab4b5b9eafdf6397'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'description'
+                            language: 'en'
                         }
                     },
                     {
@@ -2630,11 +3169,47 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_choice'
+                        id: 'cbcaec78c10642cb82acccec6e65c820'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'severity'
+                            value: 'critical'
+                            language: 'en'
+                            dependent_value: 'NULL'
+                        }
+                    },
+                    {
                         table: 'sys_index'
                         id: 'cbf7403fd89a4add8a7435314b74579d'
                         key: {
                             logical_table_name: 'x_335329_secops_transaction'
                             col_name_string: 'state'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'cbfd9514f6694a7c973fe5d87f35bcf5'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'cve_id'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'cc3610de2e494fa09dd78ff6a370842c'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'advisory_url'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'cc43843b9b984f35b37f4787504a45eb'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'cna'
+                            language: 'en'
                         }
                     },
                     {
@@ -2657,6 +3232,26 @@ declare global {
                                     name: 'x_335329_secops.operator'
                                 }
                             }
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: 'cd634a51fc224d038e63a429dc677016'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'state'
+                            value: 'sir_raised'
+                            language: 'en'
+                            dependent_value: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'cd79cb57b1df427983c3ec6790617342'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'security_incident'
+                            language: 'en'
                         }
                     },
                     {
@@ -2735,6 +3330,28 @@ declare global {
                         key: {
                             logical_table_name: 'x_335329_secops_field_map'
                             col_name_string: 'endpoint'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'dabdb78d4d3449f2bc0cfce857971d09'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'cve_last_modified'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'daf85d8746684e7ba49cc0a7d780f8e7'
+                        key: {
+                            sys_security_acl: '3652e8bec33d4d2aa9e544b7deefe164'
+                            sys_user_role: {
+                                id: '199c888755f24e6f8acf1f6f193cd8b3'
+                                key: {
+                                    name: 'x_335329_secops.viewer'
+                                }
+                            }
                         }
                     },
                     {
@@ -2817,10 +3434,47 @@ declare global {
                     },
                     {
                         table: 'sys_documentation'
+                        id: 'e01d012f14df4327bce922db87142f96'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'fix_versions'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'e1578a7fd81444558aacb85e484b2612'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'assessed_version'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: 'e15ff8bea6074c5996da31ca4138cfeb'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'severity'
+                            value: 'low'
+                            language: 'en'
+                            dependent_value: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
                         id: 'e1fa3ab251bd465a9f6ef69921f77e87'
                         key: {
                             name: 'x_335329_secops_vuln_stage'
                             element: 'transaction'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'e257e8f0c3dd4fb6a7cd36b72550b325'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'published'
                             language: 'en'
                         }
                     },
@@ -2834,6 +3488,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: 'e36be7eda0514524afe4141076c0738f'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'title'
+                        }
+                    },
+                    {
                         table: 'sys_choice'
                         id: 'e4548a603e4a4aee936e168f53d8c878'
                         key: {
@@ -2842,6 +3504,15 @@ declare global {
                             value: 'low'
                             language: 'en'
                             dependent_value: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'e464c6dc7a2d46a5910caf60dc3ea75c'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'assessed_version'
+                            language: 'en'
                         }
                     },
                     {
@@ -2897,6 +3568,14 @@ declare global {
                         key: {
                             name: 'x_335329_secops_transaction'
                             element: 'state'
+                        }
+                    },
+                    {
+                        table: 'sys_choice_set'
+                        id: 'e7b1e14c1cd145e2b8e66049200080d6'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'severity'
                         }
                     },
                     {
@@ -3038,6 +3717,15 @@ declare global {
                     },
                     {
                         table: 'sys_documentation'
+                        id: 'f8ab0e23d5e247fc958c802f827ec818'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'cvss_score'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
                         id: 'fab26166aa3b425f96e366c7be1a37dc'
                         key: {
                             name: 'x_335329_secops_connector'
@@ -3097,6 +3785,15 @@ declare global {
                         key: {
                             name: 'x_335329_secops_connector'
                             element: 'vendor'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'fedbcc60b34d45ac9789eeb6202dd913'
+                        key: {
+                            name: 'x_335329_secops_cve_watch'
+                            element: 'cve_id'
                             language: 'en'
                         }
                     },

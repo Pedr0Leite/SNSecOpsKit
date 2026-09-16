@@ -181,3 +181,18 @@ export const abstractAjaxExecute = CrossScopePrivilege({
     targetScope: 'global',
     targetType: 'sys_script_include',
 })
+
+// --- Security Incident Response: raise incidents for CVEs -------------------
+/**
+ * The CVE watch job creates Security Incidents. Read was already granted above for indicator
+ * harvesting; this adds create. There is deliberately no update or delete privilege - the job
+ * opens an incident and then leaves it alone, which is the analyst's record from that point on.
+ */
+export const siIncidentCreate = CrossScopePrivilege({
+    $id: Now.ID["xsp-sn-si-incident-create"],
+    status: "allowed",
+    operation: "create",
+    targetName: "sn_si_incident",
+    targetScope: "sn_si",
+    targetType: "sys_db_object",
+})

@@ -34,3 +34,16 @@ export const expireDeferredRetries = ScheduledScript({
     executionInterval: { minutes: 15 },
     script: Now.include('../../jobs/expire-deferred-retries.js'),
 })
+
+/**
+ * Daily rather than hourly: CVEs are published a handful of times a year, and NVD asks callers not
+ * to poll harder than they need to.
+ */
+export const cveWatchDaily = ScheduledScript({
+    $id: Now.ID["job-cve-watch-daily"],
+    name: "SecOps Universal - ServiceNow CVE watch",
+    active: true,
+    frequency: "daily",
+    executionTime: { hours: 6, minutes: 30, seconds: 0 },
+    script: Now.include("../../jobs/cve-watch-daily.js"),
+})

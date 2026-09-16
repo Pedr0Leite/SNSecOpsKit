@@ -19,6 +19,7 @@ SecOpsRegistry.prototype = {
     TABLE_FIELD_MAP: 'x_335329_secops_field_map',
     TABLE_TRANSACTION: 'x_335329_secops_transaction',
     TABLE_VULN_STAGE: 'x_335329_secops_vuln_stage',
+    TABLE_CVE_WATCH: 'x_335329_secops_cve_watch',
 
     // --- property names ----------------------------------------------------
     PROP_TIMEOUT: 'x_335329_secops.http.timeout_ms',
@@ -31,6 +32,13 @@ SecOpsRegistry.prototype = {
     PROP_VR_PROMOTION: 'x_335329_secops.vr.promotion_enabled',
     PROP_VR_ENTRY_TABLE: 'x_335329_secops.vr.entry_table',
     PROP_VR_ITEM_TABLE: 'x_335329_secops.vr.item_table',
+    PROP_CVE_ENABLED: 'x_335329_secops.cve.enabled',
+    PROP_CVE_CREATE_SIR: 'x_335329_secops.cve.create_incidents',
+    PROP_CVE_BACKFILL_MONTHS: 'x_335329_secops.cve.backfill_months',
+    PROP_CVE_KEYWORD: 'x_335329_secops.cve.keyword',
+    PROP_CVE_CONNECTOR: 'x_335329_secops.cve.connector',
+    PROP_CVE_WATERMARK: 'x_335329_secops.cve.last_run',
+    PROP_CVE_SIR_TABLE: 'x_335329_secops.cve.incident_table',
 
     // --- typed property access --------------------------------------------
     getString: function (name, fallback) {
@@ -145,6 +153,49 @@ SecOpsRegistry.prototype = {
         gr.query()
 
         return gr.next() ? this.endpointToObject(gr) : null
+    },
+
+    /**
+     * Resolves an endpoint by its name.
+     *
+     * Capability lookup cannot separate two endpoints that share one - the CVE feed needs a search
+     * call and a detail call, both 'custom' on the same connector. Name is what distinguishes them,
+     * so the caller names what it wants instead of relying on `order`.
+     */
+    findEndpointByName: function (name, connectorId) {
+        if (!name) {
+            return null
+        }
+        var gr = new GlideRecord(this.TABLE_ENDPOINT)
+        if (!gr.isValid()) {
+            return null
+        }
+        gr.addQuery('name', String(name))
+        gr.addQuery('active', 'true')
+        gr.addQuery('connector.active', 'true')
+        if (connectorId) {
+            gr.addQuery('connector', String(connectorId))
+        }
+        gr.setLimit(1)
+        gr.query()
+
+        return gr.next() ? this.endpointToObject(gr) : null
+    },
+
+    /** Resolves a connector by name. The CVE feed names its connector in a property. */
+    findConnectorByName: function (name) {
+        if (!name) {
+            return null
+        }
+        var gr = new GlideRecord(this.TABLE_CONNECTOR)
+        if (!gr.isValid()) {
+            return null
+        }
+        gr.addQuery('name', String(name))
+        gr.setLimit(1)
+        gr.query()
+
+        return gr.next() ? this.connectorToObject(gr) : null
     },
 
     /** All active endpoints for a capability - used when an action should fan out to every tool. */

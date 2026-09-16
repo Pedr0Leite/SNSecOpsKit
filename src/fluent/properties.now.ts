@@ -114,3 +114,74 @@ export const vrItemTable = Property({
     description: 'Vulnerability Response table that receives the per-CI occurrence (the vulnerable item).',
     roles: { write: [secopsAdminRole] },
 })
+
+// --- ServiceNow CVE watch ---------------------------------------------------
+
+export const cveWatchEnabled = Property({
+    $id: Now.ID["prop-cve-enabled"],
+    name: "x_335329_secops.cve.enabled",
+    type: "boolean",
+    value: true,
+    description:
+        "Run the daily ServiceNow CVE sweep. Turning this off stops all outbound calls to the CVE services.",
+    roles: { write: [secopsAdminRole] },
+})
+
+export const cveCreateIncidents = Property({
+    $id: Now.ID["prop-cve-create-incidents"],
+    name: "x_335329_secops.cve.create_incidents",
+    type: "boolean",
+    value: true,
+    description:
+        "Raise a Security Incident for each CVE that affects this instance, and for each one whose version match is uncertain. Turn off to keep the tracking table only.",
+    roles: { write: [secopsAdminRole] },
+})
+
+export const cveBackfillMonths = Property({
+    $id: Now.ID["prop-cve-backfill-months"],
+    name: "x_335329_secops.cve.backfill_months",
+    type: "integer",
+    value: 6,
+    description:
+        "How far back the FIRST run looks. Later runs only fetch what changed since the last successful sweep. Clear x_335329_secops.cve.last_run to force another backfill.",
+    roles: { write: [secopsAdminRole] },
+})
+
+export const cveKeyword = Property({
+    $id: Now.ID["prop-cve-keyword"],
+    name: "x_335329_secops.cve.keyword",
+    type: "string",
+    value: "ServiceNow",
+    description: "Keyword searched at NVD. Every ServiceNow CVE to date is published by the vendor CNA and matches this.",
+    roles: { write: [secopsAdminRole] },
+})
+
+export const cveConnector = Property({
+    $id: Now.ID["prop-cve-connector"],
+    name: "x_335329_secops.cve.connector",
+    type: "string",
+    value: "CVE Program (NVD + CVE Services)",
+    description:
+        "Name of the connector used to reach the CVE services. Point this at a different connector to route through a MID Server or a proxy.",
+    roles: { write: [secopsAdminRole] },
+})
+
+export const cveIncidentTable = Property({
+    $id: Now.ID["prop-cve-incident-table"],
+    name: "x_335329_secops.cve.incident_table",
+    type: "string",
+    value: "sn_si_incident",
+    description:
+        "Table that receives the Security Incident. If Security Incident Response is absent the CVE is still tracked, without an incident.",
+    roles: { write: [secopsAdminRole] },
+})
+
+export const cveWatermark = Property({
+    $id: Now.ID["prop-cve-watermark"],
+    name: "x_335329_secops.cve.last_run",
+    type: "string",
+    value: "",
+    description:
+        "Internal watermark: the end of the last SUCCESSFUL sweep. It only advances when a sweep completes without errors, so a failed window is retried rather than skipped. Clear it to force a full backfill.",
+    roles: { write: [secopsAdminRole] },
+})

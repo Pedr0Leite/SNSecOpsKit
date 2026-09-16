@@ -58,3 +58,12 @@ export const SecOpsConsoleAjax = ScriptInclude({
     clientCallable: true,
     accessibleFrom: 'public',
 })
+
+export const SecOpsCveWatch = ScriptInclude({
+    $id: Now.ID["si-secops-cve-watch"],
+    name: "SecOpsCveWatch",
+    description:
+        "Tracks published CVEs naming ServiceNow, assesses them against this instance build, and raises Security Incidents.",
+    script: Now.include("../../script-includes/secops-cve-watch.js"),
+    accessibleFrom: "public",
+})

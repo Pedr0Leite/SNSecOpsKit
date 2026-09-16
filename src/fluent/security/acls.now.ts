@@ -17,6 +17,7 @@ const CONNECTOR = 'x_335329_secops_connector'
 const ENDPOINTS = 'x_335329_secops_endpoints'
 const FIELD_MAP = 'x_335329_secops_field_map'
 const TRANSACTION = 'x_335329_secops_transaction'
+const CVE_WATCH = 'x_335329_secops_cve_watch'
 const VULN_STAGE = 'x_335329_secops_vuln_stage'
 
 // --- Connector --------------------------------------------------------------
@@ -202,6 +203,45 @@ Acl({
     type: 'record',
     table: VULN_STAGE,
     operation: 'delete',
+    roles: [secopsAdminRole],
+    adminOverrides: true,
+})
+
+// --- CVE watch --------------------------------------------------------------
+Acl({
+    $id: Now.ID["acl-cve-watch-read"],
+    type: "record",
+    table: CVE_WATCH,
+    operation: "read",
+    roles: [secopsViewerRole],
+    adminOverrides: true,
+    description: "Anyone with console access can see which CVEs affect this instance. That is the point of the table.",
+})
+
+Acl({
+    $id: Now.ID["acl-cve-watch-create"],
+    type: "record",
+    table: CVE_WATCH,
+    operation: "create",
+    roles: [secopsAdminRole],
+    adminOverrides: true,
+})
+
+Acl({
+    $id: Now.ID["acl-cve-watch-write"],
+    type: "record",
+    table: CVE_WATCH,
+    operation: "write",
+    roles: [secopsOperatorRole],
+    adminOverrides: true,
+    description: "Operators triage: dismissing a CVE or correcting a verdict is analyst work, not configuration.",
+})
+
+Acl({
+    $id: Now.ID["acl-cve-watch-delete"],
+    type: "record",
+    table: CVE_WATCH,
+    operation: "delete",
     roles: [secopsAdminRole],
     adminOverrides: true,
 })

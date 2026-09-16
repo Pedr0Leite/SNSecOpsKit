@@ -137,6 +137,21 @@ export const moduleVulnStage = Record({
     },
 })
 
+export const moduleCveWatch = Record({
+    $id: Now.ID["module-cve-watch"],
+    table: "sys_app_module",
+    data: {
+        title: "ServiceNow CVE watch",
+        application: secopsMenu,
+        link_type: "LIST",
+        name: "x_335329_secops_cve_watch",
+        hint: "Published CVEs naming ServiceNow, assessed against this instance build.",
+        roles: ["x_335329_secops.viewer"],
+        active: true,
+        order: 700,
+    },
+})
+
 export const moduleSupportSeparator = Record({
     $id: Now.ID['module-separator-support'],
     table: 'sys_app_module',

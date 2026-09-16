@@ -13,7 +13,7 @@ trail are already built.
 | **Application** | SecOps Universal Connector Framework |
 | **Built with** | ServiceNow SDK (Fluent) 4.12.1 |
 | **Verified on** | dev296062.service-now.com — installed, REST ingestion smoke-tested end to end |
-| **Tests** | 144 (`npm test`), including 21 regression tests for the audit findings in [BUGS.md](BUGS.md) |
+| **Tests** | 166 (`npm test`), including 21 regression tests for the audit findings in [BUGS.md](BUGS.md) and 20 for the CVE version matcher |
 | **Audited** | 21 findings from an independent code audit, all fixed and mutation-tested — see [BUGS.md](BUGS.md) |
 
 > **Scope naming — read before Store submission.** The specified scope was `x_snc_secops_uni`, but a
@@ -76,6 +76,7 @@ retries, credentials, redaction, audit — is built once and shared by everythin
 | `ingest` | `SecOpsVulnIngestionHandler` | Stages third-party vulnerability telemetry; optional, guarded promotion into Vulnerability Response. |
 | `contain` | `SecOpsContainmentHandler` | Requests endpoint isolation or a network block from an EDR/firewall. |
 | `health` | `SecOpsHealthChecker` | Reachability probe; drives the console and the hourly health sweep. |
+| *(scheduled)* | `SecOpsCveWatch` | Daily sweep for published CVEs naming ServiceNow, assessed against this instance build, raising a Security Incident for anything it cannot rule out. |
 
 Plus two React + TypeScript UI Pages sharing one component library, with light/dark/Matrix themes:
 
@@ -86,7 +87,7 @@ Plus two React + TypeScript UI Pages sharing one component library, with light/d
 
 See [docs/08-analyst-console.md](docs/08-analyst-console.md).
 
-### The five capabilities in detail
+### The capabilities in detail
 
 **1. Threat intel enrichment (`enrich`)**
 Give it an observable sys_id. It fans out to *every* configured intel source, writes one Threat
@@ -113,6 +114,13 @@ Promotion into Vulnerability Response is a separate, opt-in step.
 **5. Health (`health`)**
 Hourly sweep plus an on-demand **Test** button in the Service Portal console, so a credential that
 expired overnight surfaces before an analyst hits it mid-investigation.
+
+**6. ServiceNow CVE watch**
+Every day it asks NVD which CVEs name ServiceNow, reads the authoritative record from the CVE
+Program for the affected-version strings, and compares them against this instance's own build tag.
+Anything that affects you - **or that it cannot confidently rule out** - gets a Security Incident.
+Everything gets a row in a register that persists, so a new advisory is visibly new. See
+[docs/11-cve-watch.md](docs/11-cve-watch.md).
 
 ## Walking through one call
 
@@ -323,6 +331,7 @@ Full walkthrough: [docs/04-install-and-config.md](docs/04-install-and-config.md)
 | [07-vulnerability-response.md](docs/07-vulnerability-response.md) | VR ingestion and promotion, including a correction to a common table-name mistake |
 | [08-analyst-console.md](docs/08-analyst-console.md) | The React UI Page console: hosting choice, data paths, record pane, drill-in, editable layout, themes, accessibility |
 | [09-testing-guide.md](docs/09-testing-guide.md) | **Start here to test anything.** Full capability inventory, Postman payloads for every inbound API, the external tools you can connect and how, and step-by-step tests for the internals |
+| [11-cve-watch.md](docs/11-cve-watch.md) | **The ServiceNow CVE watch.** Daily sweep of published CVEs naming ServiceNow, assessed against this instance build, raising a Security Incident for anything that affects it or cannot be ruled out |
 | [10-knowledge-base.md](docs/10-knowledge-base.md) | **Start here if the security concepts are new.** What an indicator is, what detonation actually means and who does it, why indicators are written `hxxp://`, which addresses are safe in test data, and why automation may raise a verdict but never lower one |
 
 Testing assets that go with `09`:
@@ -332,6 +341,7 @@ Testing assets that go with `09`:
 | [test/postman/](test/postman/) | 30-request Postman collection with assertions, plus an environment template. Creates a credential-free loopback connector, exercises the whole inbound surface, and tears itself down. |
 | [test/manual/loopback-selftest.js](test/manual/loopback-selftest.js) | Background script: 15 checks against public echo services. No credentials, no real security data, no third-party account. |
 | [test/manual/loopback-cleanup.js](test/manual/loopback-cleanup.js) | Removes what the self-test creates. |
+| [test/manual/cve-watch-run.js](test/manual/cve-watch-run.js) | Runs the CVE sweep on demand. Defaults to a dry run: same calls, same assessment, nothing written. |
 | [docs/test-bench.html](docs/test-bench.html) | The same reference as a single self-contained page: copy buttons on every payload, one instance field that rewrites every URL, and a filterable vendor matrix. Download it and open it in any browser — no server, no account, no build step. |
 
 > `docs/test-bench.html` is deliberately in `docs/`, which is one of the two folders GitHub Pages
