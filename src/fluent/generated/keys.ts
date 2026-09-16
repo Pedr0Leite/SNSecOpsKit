@@ -322,9 +322,17 @@ declare global {
                         table: 'sys_properties'
                         id: 'e2535c86ed2e455b9e4609e65fc47b51'
                     }
+                    'prop-cve-first-run-sir-months': {
+                        table: 'sys_properties'
+                        id: 'a24261a82c314acd9a94a42d617f16c2'
+                    }
                     'prop-cve-incident-table': {
                         table: 'sys_properties'
                         id: 'd0d1687047764726b0e0d6ccd84b4b95'
+                    }
+                    'prop-cve-initial-run-complete': {
+                        table: 'sys_properties'
+                        id: '4568f25d972542d495b0f17b242b75cd'
                     }
                     'prop-cve-keyword': {
                         table: 'sys_properties'

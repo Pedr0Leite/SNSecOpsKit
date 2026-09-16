@@ -310,6 +310,13 @@ function loadScriptIncludes(fileNames, options) {
             }
             return fallback === undefined ? null : fallback
         },
+        // Writes into the same map getProperty reads, so a property set during a test is visible
+        // to the code that reads it back - which is the whole point of the CVE watch watermark.
+        setProperty: (name, value) => {
+            properties[name] = String(value)
+            audit.push({ op: 'setProperty', name: name, value: String(value) })
+            return true
+        },
         generateGUID: () => 'guid' + Math.random().toString(16).slice(2, 14),
         getUserID: () => 'test_user_sys_id',
         getUserName: () => 'test.user',

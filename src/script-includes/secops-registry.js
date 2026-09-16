@@ -39,6 +39,8 @@ SecOpsRegistry.prototype = {
     PROP_CVE_CONNECTOR: 'x_335329_secops.cve.connector',
     PROP_CVE_WATERMARK: 'x_335329_secops.cve.last_run',
     PROP_CVE_SIR_TABLE: 'x_335329_secops.cve.incident_table',
+    PROP_CVE_INITIAL_DONE: 'x_335329_secops.cve.initial_run_complete',
+    PROP_CVE_FIRST_RUN_SIR_MONTHS: 'x_335329_secops.cve.first_run_sir_months',
 
     // --- typed property access --------------------------------------------
     getString: function (name, fallback) {

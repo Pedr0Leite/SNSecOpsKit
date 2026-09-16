@@ -185,3 +185,23 @@ export const cveWatermark = Property({
         "Internal watermark: the end of the last SUCCESSFUL sweep. It only advances when a sweep completes without errors, so a failed window is retried rather than skipped. Clear it to force a full backfill.",
     roles: { write: [secopsAdminRole] },
 })
+
+export const cveInitialRunComplete = Property({
+    $id: Now.ID["prop-cve-initial-run-complete"],
+    name: "x_335329_secops.cve.initial_run_complete",
+    type: "boolean",
+    value: false,
+    description:
+        "Whether the first-run sweep has already happened. The job sets this to true after its first SUCCESSFUL run. Set it back to false to deliberately replay the initial sweep - the backfill window and the narrower first-run incident window both apply again.",
+    roles: { write: [secopsAdminRole] },
+})
+
+export const cveFirstRunSirMonths = Property({
+    $id: Now.ID["prop-cve-first-run-sir-months"],
+    name: "x_335329_secops.cve.first_run_sir_months",
+    type: "integer",
+    value: 3,
+    description:
+        "On the FIRST run only, raise Security Incidents for CVEs published within this many months. Older CVEs inside the backfill window are still tracked, just not raised - six months of history landing in the queue on install day teaches people to ignore the queue. Ignored on every later run.",
+    roles: { write: [secopsAdminRole] },
+})
