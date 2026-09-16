@@ -185,6 +185,56 @@ far more dangerous than an honest "I don't know".
 
 ---
 
+## "How does the CVE watch search the official CVE page?"
+
+**It does not.** It never loads `cve.org` at all.
+
+That page is a *reading room*: its search terminal is built for a person standing in front of it, and
+it runs entirely in the browser. There is no documented endpoint behind it to call, and scraping a
+single-page application is the kind of integration that breaks on a Tuesday for no reason.
+
+Instead the app uses the two official services the CVE ecosystem publishes — the library's
+**catalogue API** to find the call numbers, and the **archive desk** to request each document by
+number:
+
+| | Service | Answers |
+|---|---|---|
+| **Call 1** | NVD 2.0 — `services.nvd.nist.gov/rest/json/cves/2.0` | *Which CVEs mention ServiceNow in this date range?* Returns ids, descriptions and CVSS. |
+| **Call 2** | CVE Services — `cveawg.mitre.org/api/cve/{id}` | *Which versions does this one affect?* Returns the CNA's own strings, like `"Australia Patch 3 Hot Fix 2"`. |
+
+Neither is sufficient alone. NVD has **no CPE data at all** for recent ServiceNow CVEs, so version
+matching is impossible from it. CVE Services has no search. Both are free and unauthenticated.
+
+A real discovery request, verified working:
+
+```
+GET https://services.nvd.nist.gov/rest/json/cves/2.0
+      ?keywordSearch=ServiceNow
+      &pubStartDate=2026-05-20T00:00:00.000
+      &pubEndDate=2026-09-16T00:00:00.000
+      &resultsPerPage=200
+      &startIndex=0
+```
+
+Two constraints worth carrying in your head if you ever write against NVD yourself:
+
+- **Any date range wider than 120 days returns HTTP 404**, and the failure looks like an empty body
+  rather than a validation error. A six-month backfill is two calls, not one.
+- Unauthenticated callers get **5 requests per 30 seconds**. An NVD API key raises it to 50.
+
+### The catch nobody expects
+
+`keywordSearch` searches the **description text**, not a product field. It works today because of a
+convention rather than a guarantee: ServiceNow is its own CNA, and their advisories all open with
+*"ServiceNow has addressed…"*.
+
+So it can **miss** a CVE in a third-party library shipped inside ServiceNow whose write-up never
+types the word, and it can **pull in** a CVE for some other product that merely mentions ServiceNow
+in passing. Treat the feed as a net, not a guarantee — the vendor's own security advisory mailing
+list is still what catches the rest. Full detail in [11-cve-watch.md](11-cve-watch.md).
+
+---
+
 ## "Do I need a malware lab to test this application?"
 
 **No.** The Postman collection and the background self-test send made-up strings to
