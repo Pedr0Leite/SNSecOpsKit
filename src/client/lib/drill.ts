@@ -83,7 +83,9 @@ function displayOf(record: Record<string, unknown>, field: string): string {
 }
 
 export async function fetchDrill(datum: DrillDatum, signal?: AbortSignal): Promise<DrillResult> {
-    if (!datum.query) {
+    // null means the grouping value could not be expressed as a safe query. An EMPTY query is
+    // valid and means "the whole table", which is what a headline total drills into.
+    if (datum.query === null || datum.query === undefined) {
         throw new Error('This value cannot be drilled into — its grouping key contains a character that is not safe in a query.')
     }
 

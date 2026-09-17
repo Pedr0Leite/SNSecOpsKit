@@ -1176,6 +1176,16 @@ input {
     cursor: pointer;
 }
 
+.react-aria-Button-hide{
+    color: var(--sev-critical);
+
+}
+
+.react-aria-Button-show{
+    color: var(--sev-low);
+
+}
+
 .react-aria-Button[data-hovered] {
     background: var(--surface-hover);
 }

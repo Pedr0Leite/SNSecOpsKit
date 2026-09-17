@@ -30,10 +30,17 @@ export interface Slice {
     drill?: DrillTarget
 }
 
-/** A drill target only works if it can actually name records. */
+/**
+ * A drill target only works if it can actually name records.
+ *
+ * `query` is three-valued, and the difference matters:
+ *   a filter string  drill into those records
+ *   ''               drill into the whole table - a total with no filter is still a real list
+ *   null             NOT drillable: the grouping value could not be expressed as a safe query
+ */
 export function drillable(drill?: DrillTarget): boolean {
     if (!drill) return false
-    return Boolean(drill.query) || Boolean(drill.ids && drill.ids.length > 0)
+    return typeof drill.query === 'string' || Boolean(drill.ids && drill.ids.length > 0)
 }
 
 /** Largest value in a series, never below 1 so a zero series still produces usable scales. */

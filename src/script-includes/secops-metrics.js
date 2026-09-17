@@ -114,6 +114,9 @@ SecOpsMetrics.prototype = {
         var result = {
             table: table,
             total: 0,
+            // Empty string, not null: "no filter" rather than "cannot be drilled". The headline
+            // total is a real list - every staged finding - and should behave like one.
+            total_query: '',
             by_severity: [],
             by_state: [],
             by_source: [],

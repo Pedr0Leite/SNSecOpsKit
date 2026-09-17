@@ -164,6 +164,17 @@ A grouping value containing `^` or `,` renders as a plain, non-clickable bar. Th
 structural in an encoded query, and a drill-in that silently matched the wrong records would be
 worse than one that is not offered.
 
+**`query` is three-valued**, and the difference is load-bearing:
+
+| Value | Means |
+|---|---|
+| a filter string | drill into those records |
+| `` (empty) | drill into the **whole table** — a headline total with no filter is still a real list |
+| `null` | **not** drillable: the grouping value could not be expressed as a safe query |
+
+That distinction is what lets the headline totals drill. `Boolean(query)` would have collapsed the
+first two cases together and left every unfiltered total dead.
+
 ## Editable layout
 
 Both pages let a user rearrange their own panels: **Edit layout** → drag to reorder (or use the

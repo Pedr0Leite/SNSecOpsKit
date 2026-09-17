@@ -22,6 +22,8 @@ export interface IncidentMetrics {
 export interface FindingMetrics {
     table: string
     total: number
+    /** Empty string: the whole table. See drillable() for why that is not the same as null. */
+    total_query: string
     by_severity: CountDatum[]
     by_state: CountDatum[]
     by_source: CountDatum[]

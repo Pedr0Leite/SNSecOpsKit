@@ -1,6 +1,6 @@
 {
     "name": "secops-universal-connector",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "description": "Universal, extensible middleware between ServiceNow Security Operations and any third-party security tool.",
     "license": "UNLICENSED",
     "imports": {
@@ -11,6 +11,9 @@
         "deploy": "now-sdk install",
         "transform": "now-sdk transform",
         "types": "now-sdk dependencies",
+        "tosn-p": "npm version patch --no-git-tag-version && npm run build && npm run deploy",
+        "tosn-mi": "npm version minor --no-git-tag-version && npm run build && npm run deploy",
+        "tosn-mj": "npm version major --no-git-tag-version && npm run build && npm run deploy",
         "test": "node --experimental-strip-types --test test/*.test.js test/*.test.ts",
         "verify": "npm run build && npm test"
     },

@@ -203,7 +203,15 @@ function HeadlineBand({ data, onDrill }: { data: Overview; onDrill: (datum: Dril
                 caption="ageing out"
                 onPress={ageing ? () => onDrill(ageing) : undefined}
             />
-            <Metric value={findings.total} label="vulnerability findings" />
+            <Metric
+                value={findings.total}
+                label="vulnerability findings"
+                onPress={
+                    findings.total > 0
+                        ? () => onDrill(asDrill('findings', 'Vulnerability findings', findings.total, findings.table, findings.total_query))
+                        : undefined
+                }
+            />
             <Metric
                 value={rate === null ? '—' : `${rate}%`}
                 label="integration success"
@@ -322,9 +330,34 @@ function buildPanels(data: Overview, onDrill: (datum: DrillDatum) => void): Pane
         {
             id: 'finding-ci',
             title: 'Most affected assets',
-            hint: findings.unmatched_ci > 0 ? `${findings.unmatched_ci} findings have no matched CI` : undefined,
             defaultWidth: 'half',
-            render: () => <BarChart slices={toSlices(findings.top_ci, 'var(--sev-high)')} onDrill={onDrill} />,
+            render: () => (
+                <>
+                    <BarChart slices={toSlices(findings.top_ci, 'var(--sev-high)')} onDrill={onDrill} />
+                    {findings.unmatched_ci > 0 ? (
+                        <p className="footnote">
+                            <button
+                                type="button"
+                                className="linkish"
+                                onClick={() =>
+                                    onDrill(
+                                        asDrill(
+                                            'unmatched_ci',
+                                            'Findings with no matched CI',
+                                            findings.unmatched_ci,
+                                            findings.table,
+                                            findings.unmatched_ci_query
+                                        )
+                                    )
+                                }
+                            >
+                                {findings.unmatched_ci} findings have no matched CI
+                            </button>{' '}
+                            — they are counted here but attached to no asset.
+                        </p>
+                    ) : null}
+                </>
+            ),
         },
         {
             id: 'integration-trend',

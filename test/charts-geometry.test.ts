@@ -130,7 +130,8 @@ test('every bucket key is covered by a definition', () => {
 test('a value is drillable when it names either a query or some ids', () => {
     const base = { key: 'k', label: 'K', count: 1, table: 'x' }
     assert.strictEqual(drillable(undefined), false)
-    assert.strictEqual(drillable({ ...base, query: null }), false, 'nothing to drill into')
+    assert.strictEqual(drillable({ ...base, query: null }), false, 'null means the value is not safely queryable')
+    assert.strictEqual(drillable({ ...base, query: '' }), true, 'an empty query means the whole table, which is a real list')
     assert.strictEqual(drillable({ ...base, query: null, ids: [] }), false, 'an empty id set is not a drill')
     assert.strictEqual(drillable({ ...base, query: 'active=true' }), true)
     assert.strictEqual(drillable({ ...base, query: null, ids: ['abc'] }), true)

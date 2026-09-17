@@ -113,7 +113,7 @@ export function PanelHost({ panels, layout, editing, onMove, onDrop, onWidth, on
                                 </span>
 
                                 <Button
-                                    className="react-aria-Button tool"
+                                    className={!state.hidden ? `react-aria-Button tool react-aria-Button-hide` : `react-aria-Button tool react-aria-Button-show`}
                                     onPress={() => onHide(state.id, !state.hidden)}
                                     aria-label={state.hidden ? `Show ${panel.title}` : `Hide ${panel.title}`}
                                 >
