@@ -185,6 +185,48 @@ far more dangerous than an honest "I don't know".
 
 ---
 
+## "What are the 'vulnerability findings' on the security overview? Are they Vulnerability Response records?"
+
+**No.** They are rows in this application's own staging table, `x_335329_secops_vuln_stage`.
+
+The distinction matters, because the words look the same and the tables are not:
+
+| | Vulnerability findings (this app) | Vulnerable items (ServiceNow VR) |
+|---|---|---|
+| Table | `x_335329_secops_vuln_stage` | `sn_vul_vulnerable_item` |
+| Needs a subscription | no | **yes** |
+| Written by | the `ingest` capability, from scanner telemetry | Vulnerability Response |
+| Deduplicated on | `source` + `external_id` | VR's own rules |
+
+Everything a scanner pushes to `/api/x_335329_secops/secops_connector/vulnerability`, or that the app
+pulls from an `ingest` endpoint, lands here first — **always**, and never straight into VR. Promotion
+into Vulnerability Response is a separate, opt-in, runtime-guarded step, so that the application
+installs and runs on an instance where VR does not exist. See
+[07-vulnerability-response.md](07-vulnerability-response.md).
+
+So when the overview says *"12 vulnerability findings"*, it means twelve rows of staged third-party
+telemetry, not twelve VR records.
+
+### Why so many have no matched CI
+
+The staging table holds a raw `ci_identifier` (whatever the scanner called the host — `web01`,
+`192.0.2.11`, an FQDN) and a separate `ci` reference that is filled in **only if** that string
+resolves to exactly one `cmdb_ci`. Two queries per batch, by name and then by IP address.
+
+An identifier matching **more than one** CI is deliberately left empty. Attaching a vulnerability to
+the wrong asset is worse than attaching it to none, and the warning log names the ambiguous ones.
+
+On a demo or test instance the count is usually *all of them*, because invented hostnames like
+`web01` do not exist in the CMDB. That is the CMDB having no such record, not the matcher failing.
+
+### All four figures drill into a list
+
+Every findings number on the overview opens the records behind it: by severity, by source, most
+affected assets, the headline total, and the unmatched-CI count. Clicking shows only what you have
+access to — see the drill-in rules in [08-analyst-console.md](08-analyst-console.md).
+
+---
+
 ## "How does the CVE watch search the official CVE page?"
 
 **It does not.** It never loads `cve.org` at all.
