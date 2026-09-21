@@ -333,6 +333,7 @@ Full walkthrough: [docs/04-install-and-config.md](docs/04-install-and-config.md)
 | [09-testing-guide.md](docs/09-testing-guide.md) | **Start here to test anything.** Full capability inventory, Postman payloads for every inbound API, the external tools you can connect and how, and step-by-step tests for the internals |
 | [11-cve-watch.md](docs/11-cve-watch.md) | **The ServiceNow CVE watch.** Daily sweep of published CVEs naming ServiceNow, assessed against this instance build, raising a Security Incident for anything that affects it or cannot be ruled out |
 | [10-knowledge-base.md](docs/10-knowledge-base.md) | **Start here if the security concepts are new.** What an indicator is, what detonation actually means and who does it, why indicators are written `hxxp://`, which addresses are safe in test data, and why automation may raise a verdict but never lower one |
+| [12-feature-research.md](docs/12-feature-research.md) | **Where this should go next.** What the app does today measured against ServiceNow's own Security Operations Integration Framework, what the market and the SecOps roadmap are asking for, and a ranked, costed set of recommendations |
 
 Testing assets that go with `09`:
 
