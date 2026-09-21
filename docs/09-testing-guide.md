@@ -678,6 +678,85 @@ The framework has no SIEM-specific handler; you use `custom` and drive it from a
 | **Very large responses** | `request_summary`/`response_summary` cap at 8000 chars, `raw_payload` at 32000 | Set a `response_root` so only the useful node is kept |
 | **Webhooks out** | The app only receives | Use a Business Rule + RESTMessageV2, or Flow Designer |
 
+
+### 3.4 Free accounts you can sign up for today
+
+The largest open risk in this project is that `enrich`, `detonate` and `contain` have **never
+called a real third-party API** ([NEXT-STEPS.md](../NEXT-STEPS.md)). You do not need a corporate
+procurement cycle to close it. Almost every capability has a vendor with a genuinely free tier.
+
+🔎 Free tiers change. Re-read each provider's current terms before you rely on one.
+
+#### The shortlist
+
+| Vendor | Proves | Free tier | Sign-up cost | Notes |
+|---|---|---|---|---|
+| **AlienVault OTX** | `enrich` | Very generous — effectively no practical limit for testing | Email | **Start here.** No approval wait, no commercial restriction, simple `X-OTX-API-KEY` header. |
+| **AbuseIPDB** | `enrich` | ~1,000 checks/day | Email | Clean JSON, a numeric confidence score that exercises the field mapper properly. |
+| **GreyNoise** | `enrich` | ~1,000/day registered (50/day anonymous) | Email | Community API. Good "is this just internet noise?" verdict. |
+| **urlscan.io** | `enrich`, partial `detonate` | Free quota, submit + retrieve | Email | Submit-then-poll, so it also exercises the two-call pattern in §3.3. |
+| **Hatching Triage** (`tria.ge`) | `detonate` | Free researcher account | Email + a **Researcher** flag on your account before an API key appears | The most realistic free sandbox. |
+| **Hybrid Analysis** | `detonate` | Free community API | Email + vetting | Requires a `User-Agent: Falcon Sandbox` header — already flagged in the matrix above. |
+| **LimaCharlie** | **`contain`** | Full-featured free tier | Email | **The only realistic free EDR with an isolate API.** Install a sensor on a throwaway VM and isolate *that*. |
+| **Wazuh** (self-hosted) | `sightings` (W1) | Free and open source | Your own container | Splunk's free tiers block REST API access; Wazuh does not. |
+| **MISP** (self-hosted) | `enrich`, `sightings` | Free and open source | Your own container | Also the reference implementation of the native SecOps sightings capability. |
+| **VirusTotal** | `enrich`, `detonate` | 500/day, **4 requests/minute** | Email | See the warning below — read it before using this one. |
+
+#### Read this before using VirusTotal
+
+The VirusTotal Public API is explicitly **not for use in commercial products or services**. This
+application is headed for the ServiceNow Store.
+
+That does not stop you using it on your own dev instance to prove your own code works. It does mean
+you must never ship a VirusTotal key, never seed one into demo data, and never demonstrate the app
+to a prospect over the public API. If VirusTotal is to be a supported connector in a commercial
+product, that is a premium API conversation with Google, not a free-tier one.
+
+Also note the rate limit shape: **4 requests per minute** is brutal for `detonate`, which makes one
+synchronous call per indicator. A phishing sample with a dozen indicators will hit 429 mid-run —
+which, to be fair, is a genuinely useful test of the retry-and-park behaviour.
+
+#### What each one actually proves
+
+Wiring one vendor is not about that vendor. It is about the assumptions in this codebase that no
+mock can test:
+
+- **Auth shape.** Does the Connection & Credential Alias inject the header the vendor expects?
+  `SecOpsRestClient` has never resolved a real alias against a real 401.
+- **Payload shape.** Real responses are deeper, more nested and more inconsistent than the fixtures
+  in `test/harness.js`. The JSON-path engine and `response_root` will meet cases the tests do not
+  contain.
+- **Vocabulary normalisation.** Does the vendor's verdict word map onto a platform choice, or fall
+  through to `Unknown`? `Unknown` on a live lookup is a mapping bug, not a safe default.
+- **Redaction against a real payload.** §2.5 calls this the one to actually verify. A real response
+  carries fields the redaction list has never seen.
+- **Failure behaviour.** A real 429 with a real `Retry-After`, a real timeout, a real expired key.
+
+#### Suggested order
+
+1. **OTX** — fastest path to a real `enrich`. Instant key, no restrictions, no approval.
+2. **AbuseIPDB** — a second `enrich` source, which is what proves the *fan-out* and the
+   worst-verdict roll-up, not just a single call.
+3. **Triage** — first real `detonate`. Submit an EICAR file, not live malware.
+4. **LimaCharlie** — first real `contain`, against a throwaway VM you own.
+5. **Wazuh or MISP** — stand one up when you start W1
+   ([13-tier1-build-strategy.md](13-tier1-build-strategy.md)), so sightings is built against a real
+   search API from day one rather than retro-fitted to one.
+
+#### Ground rules
+
+- **Use a personal account and a throwaway email**, not a customer's tenant or a work identity.
+- **Never submit real data.** Use the safe test indicators in
+  [10-knowledge-base.md](10-knowledge-base.md), EICAR for files, and IPs you own or that are
+  documented as safe. Submitting a customer's file to a public sandbox publishes it — permanently,
+  and to everyone.
+- **Keys go in a Connection & Credential Alias, nowhere else.** The app's stated position is that
+  it never stores a secret; testing is not an exception. Not in a property, not in demo data, not
+  in an endpoint header you commit.
+- **One connector per vendor, inactive by default.** Activate deliberately, deactivate when done.
+- **Check the commercial terms before a demo.** Free-for-research and free-for-commercial-use are
+  different things, and the difference matters the moment you show the app to a buyer.
+
 ---
 
 ## Part 4 — Internal functionality: step-by-step tests
