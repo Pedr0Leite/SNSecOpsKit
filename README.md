@@ -334,6 +334,8 @@ Full walkthrough: [docs/04-install-and-config.md](docs/04-install-and-config.md)
 | [11-cve-watch.md](docs/11-cve-watch.md) | **The ServiceNow CVE watch.** Daily sweep of published CVEs naming ServiceNow, assessed against this instance build, raising a Security Incident for anything that affects it or cannot be ruled out |
 | [10-knowledge-base.md](docs/10-knowledge-base.md) | **Start here if the security concepts are new.** What an indicator is, what detonation actually means and who does it, why indicators are written `hxxp://`, which addresses are safe in test data, and why automation may raise a verdict but never lower one |
 | [12-feature-research.md](docs/12-feature-research.md) | **Where this should go next.** What the app does today measured against ServiceNow's own Security Operations Integration Framework, what the market and the SecOps roadmap are asking for, and a ranked, costed set of recommendations |
+| [13-tier1-build-strategy.md](docs/13-tier1-build-strategy.md) | **The Tier 1 build plan.** Sightings Search, the indicator deployment ledger and its retraction sweep, ATT&CK extraction and `.eml` parsing — design, schema, files, acceptance criteria and the conventions each must follow |
+| [14-ai-agent-tool-strategy.md](docs/14-ai-agent-tool-strategy.md) | **Being a tool the SecOps AI agents call.** What Now Assist actually costs on top of the SecOps subscription, how an AI Agent Studio tool is registered, and the agent-callable contract — idempotency, dry run, bounded output, attribution — worth building whether or not the customer ever buys it |
 
 Testing assets that go with `09`:
 
