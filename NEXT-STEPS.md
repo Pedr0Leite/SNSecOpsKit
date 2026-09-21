@@ -48,6 +48,18 @@ on it, verify on a VR-enabled instance:
 - Add the `sn_vul` cross-scope privileges (deliberately not shipped — the scope does not exist
   without the subscription). See `docs/07-vulnerability-response.md`.
 
+### An alias-held API key can only ever be sent as `Authorization: Bearer`
+`SecOpsRestClient.buildRequest` hardcodes the injection at
+`src/script-includes/secops-rest-client.js:290`. Most threat-intel vendors use their own header
+name instead - `X-OTX-API-KEY`, `Key`, `x-apikey`, `API-Key`, `api-key` - so their keys cannot go
+in a Connection & Credential Alias at all. The only route left is plain text in the endpoint's
+`request_headers`, which contradicts the application's stated position that it never stores a
+secret in a table.
+
+Fix: two connector fields, `api_key_header` (default `Authorization`) and `api_key_prefix`
+(default `Bearer `), honoured at that line. Small, and it unblocks most of the vendors in
+`docs/15-vendor-walkthroughs.md`.
+
 ### Enrichment, detonation and containment have never called a real API
 All three are unit-tested against a mocked `RESTMessageV2` and have never touched a live third
 party. The first real connector will surface auth and payload-shape issues no mock can predict.

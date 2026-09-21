@@ -336,6 +336,7 @@ Full walkthrough: [docs/04-install-and-config.md](docs/04-install-and-config.md)
 | [12-feature-research.md](docs/12-feature-research.md) | **Where this should go next.** What the app does today measured against ServiceNow's own Security Operations Integration Framework, what the market and the SecOps roadmap are asking for, and a ranked, costed set of recommendations |
 | [13-tier1-build-strategy.md](docs/13-tier1-build-strategy.md) | **The Tier 1 build plan.** Sightings Search, the indicator deployment ledger and its retraction sweep, ATT&CK extraction and `.eml` parsing — design, schema, files, acceptance criteria and the conventions each must follow |
 | [14-ai-agent-tool-strategy.md](docs/14-ai-agent-tool-strategy.md) | **Being a tool the SecOps AI agents call.** What Now Assist actually costs on top of the SecOps subscription, how an AI Agent Studio tool is registered, and the agent-callable contract — idempotency, dry run, bounded output, attribution — worth building whether or not the customer ever buys it |
+| [15-vendor-walkthroughs.md](docs/15-vendor-walkthroughs.md) | **Wiring a real vendor.** Sign-up, key, connector and endpoint for each free-tier tool, what each one proves that a mock cannot, and the custom-header gap that blocks putting most keys in a credential alias |
 
 Testing assets that go with `09`:
 
