@@ -12,7 +12,7 @@ import { secopsAdminRole } from './security/roles.now'
 
 export const logLevel = Property({
     $id: Now.ID['prop-log-level'],
-    name: 'x_335329_secops.log.level',
+    name: 'x_nold_secops.log.level',
     type: 'choicelist',
     value: 'warn',
     choices: ['debug', 'info', 'warn', 'error'],
@@ -22,7 +22,7 @@ export const logLevel = Property({
 
 export const httpTimeout = Property({
     $id: Now.ID['prop-http-timeout'],
-    name: 'x_335329_secops.http.timeout_ms',
+    name: 'x_nold_secops.http.timeout_ms',
     type: 'integer',
     value: 30000,
     description: 'Default outbound HTTP timeout in milliseconds. A connector record can override this.',
@@ -31,7 +31,7 @@ export const httpTimeout = Property({
 
 export const httpMaxRetries = Property({
     $id: Now.ID['prop-http-max-retries'],
-    name: 'x_335329_secops.http.max_retries',
+    name: 'x_nold_secops.http.max_retries',
     type: 'integer',
     value: 2,
     description: 'Default number of immediate retries for transient failures. A connector record can override this.',
@@ -40,7 +40,7 @@ export const httpMaxRetries = Property({
 
 export const logRetentionDays = Property({
     $id: Now.ID['prop-log-retention-days'],
-    name: 'x_335329_secops.log.retention_days',
+    name: 'x_nold_secops.log.retention_days',
     type: 'integer',
     value: 30,
     description: 'Days to keep connector transaction records before the cleanup job removes them.',
@@ -49,7 +49,7 @@ export const logRetentionDays = Property({
 
 export const redactExtraKeys = Property({
     $id: Now.ID['prop-redact-extra-keys'],
-    name: 'x_335329_secops.redact.extra_keys',
+    name: 'x_nold_secops.redact.extra_keys',
     type: 'string',
     value: '',
     description:
@@ -59,7 +59,7 @@ export const redactExtraKeys = Property({
 
 export const ingestMaxRecords = Property({
     $id: Now.ID['prop-ingest-max-records'],
-    name: 'x_335329_secops.ingest.max_records',
+    name: 'x_nold_secops.ingest.max_records',
     type: 'integer',
     value: 500,
     description: 'Maximum records accepted from a single ingestion payload. Protects against an oversized feed.',
@@ -68,7 +68,7 @@ export const ingestMaxRecords = Property({
 
 export const detonateMaxIndicators = Property({
     $id: Now.ID['prop-detonate-max-indicators'],
-    name: 'x_335329_secops.detonate.max_indicators',
+    name: 'x_nold_secops.detonate.max_indicators',
     type: 'integer',
     value: 15,
     description:
@@ -78,7 +78,7 @@ export const detonateMaxIndicators = Property({
 
 export const autoEnrichmentEnabled = Property({
     $id: Now.ID['prop-auto-enrichment'],
-    name: 'x_335329_secops.enrichment.auto_enabled',
+    name: 'x_nold_secops.enrichment.auto_enabled',
     type: 'boolean',
     value: false,
     description:
@@ -88,7 +88,7 @@ export const autoEnrichmentEnabled = Property({
 
 export const vrPromotionEnabled = Property({
     $id: Now.ID['prop-vr-promotion'],
-    name: 'x_335329_secops.vr.promotion_enabled',
+    name: 'x_nold_secops.vr.promotion_enabled',
     type: 'boolean',
     value: false,
     description:
@@ -98,7 +98,7 @@ export const vrPromotionEnabled = Property({
 
 export const vrEntryTable = Property({
     $id: Now.ID['prop-vr-entry-table'],
-    name: 'x_335329_secops.vr.entry_table',
+    name: 'x_nold_secops.vr.entry_table',
     type: 'string',
     value: 'sn_vul_third_party_entry',
     description:
@@ -108,7 +108,7 @@ export const vrEntryTable = Property({
 
 export const vrItemTable = Property({
     $id: Now.ID['prop-vr-item-table'],
-    name: 'x_335329_secops.vr.item_table',
+    name: 'x_nold_secops.vr.item_table',
     type: 'string',
     value: 'sn_vul_vulnerable_item',
     description: 'Vulnerability Response table that receives the per-CI occurrence (the vulnerable item).',
@@ -119,7 +119,7 @@ export const vrItemTable = Property({
 
 export const cveWatchEnabled = Property({
     $id: Now.ID["prop-cve-enabled"],
-    name: "x_335329_secops.cve.enabled",
+    name: "x_nold_secops.cve.enabled",
     type: "boolean",
     value: true,
     description:
@@ -129,7 +129,7 @@ export const cveWatchEnabled = Property({
 
 export const cveCreateIncidents = Property({
     $id: Now.ID["prop-cve-create-incidents"],
-    name: "x_335329_secops.cve.create_incidents",
+    name: "x_nold_secops.cve.create_incidents",
     type: "boolean",
     value: true,
     description:
@@ -139,17 +139,17 @@ export const cveCreateIncidents = Property({
 
 export const cveBackfillMonths = Property({
     $id: Now.ID["prop-cve-backfill-months"],
-    name: "x_335329_secops.cve.backfill_months",
+    name: "x_nold_secops.cve.backfill_months",
     type: "integer",
     value: 6,
     description:
-        "How far back the FIRST run looks. Later runs only fetch what changed since the last successful sweep. Clear x_335329_secops.cve.last_run to force another backfill.",
+        "How far back the FIRST run looks. Later runs only fetch what changed since the last successful sweep. Clear x_nold_secops.cve.last_run to force another backfill.",
     roles: { write: [secopsAdminRole] },
 })
 
 export const cveKeyword = Property({
     $id: Now.ID["prop-cve-keyword"],
-    name: "x_335329_secops.cve.keyword",
+    name: "x_nold_secops.cve.keyword",
     type: "string",
     value: "ServiceNow",
     description: "Keyword searched at NVD. Every ServiceNow CVE to date is published by the vendor CNA and matches this.",
@@ -158,7 +158,7 @@ export const cveKeyword = Property({
 
 export const cveConnector = Property({
     $id: Now.ID["prop-cve-connector"],
-    name: "x_335329_secops.cve.connector",
+    name: "x_nold_secops.cve.connector",
     type: "string",
     value: "CVE Program (NVD + CVE Services)",
     description:
@@ -168,7 +168,7 @@ export const cveConnector = Property({
 
 export const cveIncidentTable = Property({
     $id: Now.ID["prop-cve-incident-table"],
-    name: "x_335329_secops.cve.incident_table",
+    name: "x_nold_secops.cve.incident_table",
     type: "string",
     value: "sn_si_incident",
     description:
@@ -178,7 +178,7 @@ export const cveIncidentTable = Property({
 
 export const cveWatermark = Property({
     $id: Now.ID["prop-cve-watermark"],
-    name: "x_335329_secops.cve.last_run",
+    name: "x_nold_secops.cve.last_run",
     type: "string",
     value: "",
     description:
@@ -188,7 +188,7 @@ export const cveWatermark = Property({
 
 export const cveInitialRunComplete = Property({
     $id: Now.ID["prop-cve-initial-run-complete"],
-    name: "x_335329_secops.cve.initial_run_complete",
+    name: "x_nold_secops.cve.initial_run_complete",
     type: "boolean",
     value: false,
     description:
@@ -198,7 +198,7 @@ export const cveInitialRunComplete = Property({
 
 export const cveFirstRunSirMonths = Property({
     $id: Now.ID["prop-cve-first-run-sir-months"],
-    name: "x_335329_secops.cve.first_run_sir_months",
+    name: "x_nold_secops.cve.first_run_sir_months",
     type: "integer",
     value: 3,
     description:

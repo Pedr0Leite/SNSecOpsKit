@@ -13,12 +13,12 @@ import { secopsAdminRole, secopsOperatorRole, secopsViewerRole } from './roles.n
  * The client-callable script include and the inbound REST endpoint carry their own ACLs too.
  */
 
-const CONNECTOR = 'x_335329_secops_connector'
-const ENDPOINTS = 'x_335329_secops_endpoints'
-const FIELD_MAP = 'x_335329_secops_field_map'
-const TRANSACTION = 'x_335329_secops_transaction'
-const CVE_WATCH = 'x_335329_secops_cve_watch'
-const VULN_STAGE = 'x_335329_secops_vuln_stage'
+const CONNECTOR = 'x_nold_secops_connector'
+const ENDPOINTS = 'x_nold_secops_endpoints'
+const FIELD_MAP = 'x_nold_secops_field_map'
+const TRANSACTION = 'x_nold_secops_transaction'
+const CVE_WATCH = 'x_nold_secops_cve_watch'
+const VULN_STAGE = 'x_nold_secops_vuln_stage'
 
 // --- Connector --------------------------------------------------------------
 Acl({

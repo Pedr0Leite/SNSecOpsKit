@@ -1,5 +1,5 @@
 /**
- * GET /api/x_335329_secops/secops_console/overview
+ * GET /api/x_nold_secops/secops_console/overview
  *
  * Organisation-wide security posture and integration health for the overview page.
  *

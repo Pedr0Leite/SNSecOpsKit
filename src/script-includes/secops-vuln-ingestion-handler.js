@@ -1,7 +1,7 @@
 ﻿/**
  * SecOpsVulnIngestionHandler - third-party vulnerability telemetry ingestion.
  *
- * Inbound data ALWAYS lands in x_335329_secops_vuln_stage first. Promotion into Vulnerability
+ * Inbound data ALWAYS lands in x_nold_secops_vuln_stage first. Promotion into Vulnerability
  * Response is a separate, opt-in step, for three reasons:
  *
  *   1. VR is a separate subscription - the app must install and run without it.
@@ -22,7 +22,7 @@ SecOpsVulnIngestionHandler.prototype = Object.extendsObject(SecOpsUniversalPaylo
     },
 
     CAPABILITY: 'ingest',
-    DEFAULT_TARGET_TABLE: 'x_335329_secops_vuln_stage',
+    DEFAULT_TARGET_TABLE: 'x_nold_secops_vuln_stage',
 
     DEFAULT_ENTRY_TABLE: 'sn_vul_third_party_entry',
     DEFAULT_ITEM_TABLE: 'sn_vul_vulnerable_item',

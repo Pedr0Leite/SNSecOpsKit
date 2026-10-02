@@ -63,7 +63,7 @@ export interface OverviewResponse {
 }
 
 export async function fetchOverview(signal?: AbortSignal): Promise<OverviewResponse> {
-    const response = await fetch('/api/x_335329_secops/secops_console/overview', {
+    const response = await fetch('/api/x_nold_secops/secops_console/overview', {
         headers: { Accept: 'application/json', 'X-UserToken': window.g_ck },
         signal,
     })

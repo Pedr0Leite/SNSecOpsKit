@@ -229,7 +229,7 @@ export default function App() {
                 ) : null}
 
                 <ThemeSwitch theme={theme} onChange={setTheme} />
-                <a className="react-aria-Button" href="/x_335329_secops_security_overview.do">
+                <a className="react-aria-Button" href="/x_nold_secops_security_overview.do">
                     Security overview
                 </a>
                 {work?.user?.name ? <span className="topbar__user">{work.user.name}</span> : null}

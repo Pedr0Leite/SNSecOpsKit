@@ -1,5 +1,5 @@
 /**
- * GET /api/x_335329_secops/secops_console/work
+ * GET /api/x_nold_secops/secops_console/work
  *
  * The unified work queue behind the dashboard: SIR incidents, SIR tasks and vulnerability
  * findings, normalised into one row shape with a severity summary.

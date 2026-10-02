@@ -24,7 +24,7 @@ const FILES = [
 function baseDb(extra) {
     return Object.assign(
         {
-            x_335329_secops_connector: [
+            x_nold_secops_connector: [
                 {
                     sys_id: 'c1',
                     name: 'TestTI',
@@ -36,7 +36,7 @@ function baseDb(extra) {
                     max_retries: '0',
                 },
             ],
-            x_335329_secops_endpoints: [
+            x_nold_secops_endpoints: [
                 {
                     sys_id: 'e1',
                     name: 'Lookup',
@@ -50,9 +50,9 @@ function baseDb(extra) {
                     order: '100',
                 },
             ],
-            x_335329_secops_field_map: [],
-            x_335329_secops_transaction: [],
-            x_335329_secops_vuln_stage: [],
+            x_nold_secops_field_map: [],
+            x_nold_secops_transaction: [],
+            x_nold_secops_vuln_stage: [],
         },
         extra || {}
     )
@@ -156,7 +156,7 @@ test('enrichObservable reports when no endpoint is configured', () => {
         sn_ti_observable_type: [{ sys_id: 'type1', name: 'IP address (V4)' }],
         sn_ti_lookup_result: [],
     })
-    db.x_335329_secops_endpoints = []
+    db.x_nold_secops_endpoints = []
     const sandbox = load({ db })
 
     const result = new sandbox.SecOpsThreatIntelHandler().enrichObservable('obs1')
@@ -222,7 +222,7 @@ test('ingest stages records and redacts the raw payload', () => {
     assert.strictEqual(result.ok, true)
     assert.strictEqual(result.staged, 1)
 
-    const row = sandbox._db.x_335329_secops_vuln_stage[0]
+    const row = sandbox._db.x_nold_secops_vuln_stage[0]
     assert.strictEqual(row.source, 'TestScanner')
     assert.strictEqual(row.external_id, 'V-1')
     assert.strictEqual(row.cve, 'CVE-2026-1111')
@@ -236,13 +236,13 @@ test('ingest skips a record with no usable identifier rather than writing junk',
     const result = new sandbox.SecOpsVulnIngestionHandler().ingest([{ description: 'no id at all' }], { source: 'S' })
     assert.strictEqual(result.staged, 0)
     assert.strictEqual(result.skipped, 1)
-    assert.strictEqual(sandbox._db.x_335329_secops_vuln_stage.length, 0)
+    assert.strictEqual(sandbox._db.x_nold_secops_vuln_stage.length, 0)
 })
 
 test('ingest derives an identifier from cve and host when none is supplied', () => {
     const sandbox = load({ db: baseDb() })
     new sandbox.SecOpsVulnIngestionHandler().ingest([{ cve: 'CVE-2026-2222', host: 'db01' }], { source: 'S' })
-    assert.strictEqual(sandbox._db.x_335329_secops_vuln_stage[0].external_id, 'CVE-2026-2222@db01')
+    assert.strictEqual(sandbox._db.x_nold_secops_vuln_stage[0].external_id, 'CVE-2026-2222@db01')
 })
 
 test('ingest coalesces a repeated finding instead of duplicating it', () => {
@@ -250,7 +250,7 @@ test('ingest coalesces a repeated finding instead of duplicating it', () => {
     const handler = new sandbox.SecOpsVulnIngestionHandler()
     handler.ingest([{ id: 'V-1', cve: 'CVE-1' }], { source: 'S' })
     handler.ingest([{ id: 'V-1', cve: 'CVE-1' }], { source: 'S' })
-    assert.strictEqual(sandbox._db.x_335329_secops_vuln_stage.length, 1)
+    assert.strictEqual(sandbox._db.x_nold_secops_vuln_stage.length, 1)
 })
 
 test('ingest rejects an unparseable payload', () => {
@@ -263,7 +263,7 @@ test('ingest rejects an unparseable payload', () => {
 test('ingest enforces the configured record cap', () => {
     const sandbox = load({
         db: baseDb(),
-        properties: { 'x_335329_secops.ingest.max_records': '2' },
+        properties: { 'x_nold_secops.ingest.max_records': '2' },
     })
     const records = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }]
     const result = new sandbox.SecOpsVulnIngestionHandler().ingest(records, { source: 'S' })
@@ -281,7 +281,7 @@ test('promotion is skipped when disabled', () => {
 test('promotion is skipped with a clear message when VR is not installed', () => {
     const sandbox = load({
         db: baseDb(),
-        properties: { 'x_335329_secops.vr.promotion_enabled': 'true' },
+        properties: { 'x_nold_secops.vr.promotion_enabled': 'true' },
     })
     const result = new sandbox.SecOpsVulnIngestionHandler().promote({})
     assert.strictEqual(result.skipped, true)
@@ -294,7 +294,7 @@ test('promotion writes entry and vulnerable item when VR is present', () => {
             sn_vul_third_party_entry: [],
             sn_vul_vulnerable_item: [],
         }),
-        properties: { 'x_335329_secops.vr.promotion_enabled': 'true' },
+        properties: { 'x_nold_secops.vr.promotion_enabled': 'true' },
     })
 
     const handler = new sandbox.SecOpsVulnIngestionHandler()
@@ -306,7 +306,7 @@ test('promotion writes entry and vulnerable item when VR is present', () => {
     assert.strictEqual(sandbox._db.sn_vul_third_party_entry.length, 1)
     assert.strictEqual(sandbox._db.sn_vul_third_party_entry[0].id, 'CVE-2026-9999')
     assert.strictEqual(sandbox._db.sn_vul_vulnerable_item.length, 1)
-    assert.strictEqual(sandbox._db.x_335329_secops_vuln_stage[0].state, 'promoted')
+    assert.strictEqual(sandbox._db.x_nold_secops_vuln_stage[0].state, 'promoted')
 })
 
 // ------------------------------------------------------------------- phishing
@@ -329,7 +329,7 @@ test('phishing analysis extracts indicators, detonates them and links observable
         sn_ti_m2m_task_observable: [],
         sn_ti_lookup_result: [],
     })
-    db.x_335329_secops_endpoints[0].capability = 'detonate'
+    db.x_nold_secops_endpoints[0].capability = 'detonate'
 
     const sandbox = load({ db, restResponder: () => ({ status: 200, body: '{"verdict":"malicious"}' }) })
 

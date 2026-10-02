@@ -4,8 +4,8 @@ Two React + TypeScript pages, one shared component library, both hosted in Servi
 
 | Page | URL | Answers | Audience |
 |---|---|---|---|
-| **Analyst console** | `/x_335329_secops_analyst_console.do` | What needs *my* attention right now? | Tier 1/2 analysts |
-| **Security overview** | `/x_335329_secops_security_overview.do` | How is the *programme* doing? | Managers, CISO, team leads |
+| **Analyst console** | `/x_nold_secops_analyst_console.do` | What needs *my* attention right now? | Tier 1/2 analysts |
+| **Security overview** | `/x_nold_secops_security_overview.do` | How is the *programme* doing? | Managers, CISO, team leads |
 
 They are separate pages rather than two tabs of one, because the audience differs — and separate
 pages mean separate ACLs, so the overview can later be opened to managers without also handing them
@@ -29,9 +29,9 @@ REST after mount, already ACL-filtered. `direct: true` renders it without platfo
 
 > **The ACL trap.** The SDK derives `sys_ui_page.name` from the endpoint by stripping the scope
 > prefix and `.do`, and a `ui_page` ACL matches on that **name**. An endpoint of
-> `x_335329_secops_dashboard.do` yields the name `dashboard` — generic enough to collide with
+> `x_nold_secops_dashboard.do` yields the name `dashboard` — generic enough to collide with
 > another application's page. Worse, an ACL whose name does not match protects *nothing*, silently.
-> The endpoint is therefore `x_335329_secops_analyst_console.do`, giving the name `analyst_console`,
+> The endpoint is therefore `x_nold_secops_analyst_console.do`, giving the name `analyst_console`,
 > and the ACL matches it exactly.
 
 ## How it gets its data
@@ -40,7 +40,7 @@ Two different paths, chosen deliberately:
 
 ```
                      ┌──────────────────────────────────────────┐
-  aggregated reads   │  GET /api/x_335329_secops/secops_console │
+  aggregated reads   │  GET /api/x_nold_secops/secops_console │
   ─────────────────▶ │      /work        /connectors            │
                      │  scoped app · GlideRecordSecure          │
                      └──────────────────────────────────────────┘
@@ -191,7 +191,7 @@ since users write their own preferences constantly. Two things to know:
 > `/overview` and `/work` APIs return for exactly this purpose. `user=javascript:gs.getUserID()` in
 > the query does **not** work here either — it matches nothing, so the layout would never load back.
 
-Each page stores its own row (`x_335329_secops.console.layout`, `x_335329_secops.overview.layout`),
+Each page stores its own row (`x_nold_secops.console.layout`, `x_nold_secops.overview.layout`),
 so the two never overwrite each other. A stored layout is reconciled against the panels the app
 currently defines: a panel added in a later release appears for users who already have a saved
 layout, and a panel that no longer exists is dropped rather than rendering blank.

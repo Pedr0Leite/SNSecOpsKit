@@ -1,7 +1,7 @@
 # BUGS.md
 
 Generated: 2026-09-11
-App scope: `x_335329_secops` (SecOps Universal Connector Framework)
+App scope: `x_nold_secops` (SecOps Universal Connector Framework)
 
 ---
 
@@ -38,7 +38,7 @@ double that is more capable than the platform is worse than no double at all.
   actionable, auth-type-specific diagnostic. Retrying a dead grant can lock out a service account,
   so the framework reports instead of guessing.
 - **BUG-019** Redaction now fails **closed** at the recursion limit (`***DEPTH_LIMIT***`).
-- **BUG-011** New `x_335329_secops.detonate.max_indicators` property (default 15) replaces the
+- **BUG-011** New `x_nold_secops.detonate.max_indicators` property (default 15) replaces the
   misused bulk-ingestion cap of 500 synchronous calls.
 
 ### Deliberate deviation from a suggested fix
@@ -85,7 +85,7 @@ rules) were treated as out of scope and are not reported.
 
 - **Severity:** CRITICAL
 - **File:** `src/script-includes/secops-rest-client.js`
-- **Table:** `x_335329_secops_connector` (`auth_type = 'alias'`, `connection_alias`)
+- **Table:** `x_nold_secops_connector` (`auth_type = 'alias'`, `connection_alias`)
 - **Line / section:** `resolveConnection`, lines 286-305 (call at line 296)
 - **Description:** The scoped `sn_cc` ConnectionInfo API exposes only `getAttribute(String)`,
   `getCredentialAttribute(String)`, `getDataMap()` and `getExtendedAttributes()`. There is no
@@ -114,7 +114,7 @@ rules) were treated as out of scope and are not reported.
 
 - **Severity:** HIGH
 - **File:** `src/script-includes/secops-rest-client.js`
-- **Table:** `x_335329_secops_connector.mid_server`
+- **Table:** `x_nold_secops_connector.mid_server`
 - **Line / section:** `attempt`, lines 147-149; value produced by
   `SecOpsRegistry.connectorToObject` line 94 (`gr.getValue('mid_server')`)
 - **Description:** `mid_server` is a `ReferenceColumn` to `ecc_agent`
@@ -242,7 +242,7 @@ rules) were treated as out of scope and are not reported.
 
 - **Severity:** MEDIUM
 - **File:** `src/script-includes/secops-rest-client.js`
-- **Table:** `x_335329_secops_connector.max_retries`
+- **Table:** `x_nold_secops_connector.max_retries`
 - **Line / section:** `send` lines 95-124 (crash at line 118)
 - **Description:** `maxAttempts = connector.max_retries + 1`. With `max_retries = -1` the `for` loop
   body never executes, `last` stays `null`, and line 118 (`last.duration_ms = ...`) throws
@@ -266,12 +266,12 @@ rules) were treated as out of scope and are not reported.
 
 - **Severity:** MEDIUM
 - **File:** `src/script-includes/secops-health-checker.js`, `src/script-includes/secops-transaction-logger.js`
-- **Table:** `x_335329_secops_transaction.endpoint`
+- **Table:** `x_nold_secops_transaction.endpoint`
 - **Line / section:** `resolveHealthEndpoint` line 90; `open` lines 33-35
 - **Description:** When no active `health` endpoint exists, the checker fabricates an endpoint whose
   `sys_id` is `'synthetic-health-' + connector.sys_id` — 17 + 32 = 49 characters. That value flows
   into `SecOpsRestClient.execute` (line 68) and is written by `TransactionLogger.open` into
-  `endpoint`, a `ReferenceColumn` to `x_335329_secops_endpoints` (max length 32). The stored value is
+  `endpoint`, a `ReferenceColumn` to `x_nold_secops_endpoints` (max length 32). The stored value is
   truncated to a garbage 32-character string, producing a dangling reference on every fall-back
   health probe: the console's `getDisplayValue('endpoint')` (widget server line 79,
   `secops-console-ajax.js:86`) renders an unresolvable reference, and the transaction cannot be
@@ -351,7 +351,7 @@ rules) were treated as out of scope and are not reported.
 - **File:** `src/script-includes/secops-phishing-handler.js`
 - **Line / section:** `analyzeIncident` lines 54-66
 - **Description:** `opts.maxIndicators || this.registry.getInt(this.registry.PROP_INGEST_MAX, 500)`
-  caps indicators at the value of `x_335329_secops.ingest.max_records`, whose Fluent definition
+  caps indicators at the value of `x_nold_secops.ingest.max_records`, whose Fluent definition
   describes it as *"Maximum records accepted from a single ingestion payload"*
   (`src/fluent/properties.now.ts:60-67`). Nothing about detonation is bounded by that number. Each
   surviving indicator then drives one **synchronous** outbound HTTP call plus an observable upsert
@@ -362,7 +362,7 @@ rules) were treated as out of scope and are not reported.
 - **Evidence:** Property semantics mismatch between `src/fluent/properties.now.ts:60-67` and
   `secops-phishing-handler.js:54`; the outbound path is `rest.execute` → `message.execute()`
   (`secops-rest-client.js:156`), which is blocking.
-- **Fix:** Introduce a dedicated property (e.g. `x_335329_secops.detonate.max_indicators`) with a
+- **Fix:** Introduce a dedicated property (e.g. `x_nold_secops.detonate.max_indicators`) with a
   small default (10-25) and cap `maxIndicators` with it; document that `analyzeIncident` must be
   called from an async/scheduled context.
 - **Reproducible when:** An incident description contains more than a handful of URLs/hashes and a
@@ -374,7 +374,7 @@ rules) were treated as out of scope and are not reported.
 
 - **Severity:** MEDIUM
 - **File:** `src/script-includes/secops-registry.js`
-- **Table:** `x_335329_secops_endpoints`, `x_335329_secops_connector`
+- **Table:** `x_nold_secops_endpoints`, `x_nold_secops_connector`
 - **Line / section:** `findEndpointForCapability` lines 138-143; `listEndpointsForCapability`
   lines 162-167
 - **Description:** Both loops call `this.getConnector(gr.getValue('connector'))` per endpoint row,
@@ -401,7 +401,7 @@ rules) were treated as out of scope and are not reported.
 - **Line / section:** `stageOne` line 132 calling `matchCi` lines 214-245
 - **Description:** `matchCi` is called once per staged record inside the `ingest` loop (lines 63-72)
   and issues a `cmdb_ci` query on `name`, then a second on `ip_address` when the first does not match
-  exactly one row. With the default `x_335329_secops.ingest.max_records = 500`, one REST ingestion
+  exactly one row. With the default `x_nold_secops.ingest.max_records = 500`, one REST ingestion
   call performs up to 1000 `cmdb_ci` queries — on the largest table on most instances — on top of the
   coalesce lookup and insert per record. The queries are also unrestricted by `sys_class_name`, so
   each one scans the full CI hierarchy.
@@ -430,7 +430,7 @@ rules) were treated as out of scope and are not reported.
   `338-350` (re-query of the current row).
 - **Fix:** Have `promoteOne` set `state`/`promotion_message` on the passed-in `stageGr` and call
   `stageGr.update()` directly, removing `markStage`'s re-query.
-- **Reproducible when:** `x_335329_secops.vr.promotion_enabled` is true and a batch is promoted.
+- **Reproducible when:** `x_nold_secops.vr.promotion_enabled` is true and a batch is promoted.
 
 ---
 
@@ -494,7 +494,7 @@ rules) were treated as out of scope and are not reported.
 
 - **Severity:** MEDIUM
 - **File:** `src/script-includes/secops-vuln-ingestion-handler.js`
-- **Table:** `x_335329_secops_vuln_stage.transaction`
+- **Table:** `x_nold_secops_vuln_stage.transaction`
 - **Line / section:** `pull` lines 84-110 (call at 102-107); `stageOne` lines 113-140
 - **Description:** Two options are silently lost on the way from `pull()` to `stageOne()`:
   1. `secure` — `pull()` forwards it to `run()` (line 93), where it has no effect because
@@ -507,7 +507,7 @@ rules) were treated as out of scope and are not reported.
   2. `transaction` — `pull()` holds `response.transaction` (it assigns it to `result.transaction` at
      line 108) but never passes it into `ingest()`/`stageOne()`, which look for `opts.transaction`
      (lines 128-130). The REST route does not pass it either
-     (`src/rest/ingest-vulnerability.js:63-67`). So `x_335329_secops_vuln_stage.transaction`
+     (`src/rest/ingest-vulnerability.js:63-67`). So `x_nold_secops_vuln_stage.transaction`
      (`src/fluent/tables/vuln-stage.now.ts:67-71`) is empty on every row this application creates,
      and a staged record cannot be traced to the call that produced it.
 - **Evidence:** `secops-vuln-ingestion-handler.js:102-107` (option set forwarded) vs
@@ -523,7 +523,7 @@ rules) were treated as out of scope and are not reported.
 
 - **Severity:** MEDIUM
 - **File:** `src/fluent/demo-data.now.ts`, `src/script-includes/secops-threat-intel-handler.js`
-- **Table:** `x_335329_secops_field_map`, `sn_ti_lookup_result`
+- **Table:** `x_nold_secops_field_map`, `sn_ti_lookup_result`
 - **Line / section:** `demoMapScore` lines 88-101; `enrichObservable` lines 71-79;
   `findingFrom` lines 144-153; `recordLookupResult` lines 217-233
 - **Description:** The demo data teaches the onboarding pattern "endpoint + field mappings", but for
@@ -551,15 +551,15 @@ rules) were treated as out of scope and are not reported.
 
 - **Severity:** LOW
 - **File:** `src/script-includes/secops-json.js`
-- **Table:** `x_335329_secops_transaction` (`request_summary`, `response_summary`),
-  `x_335329_secops_vuln_stage.raw_payload`, system log
+- **Table:** `x_nold_secops_transaction` (`request_summary`, `response_summary`),
+  `x_nold_secops_vuln_stage.raw_payload`, system log
 - **Line / section:** `redactValue` lines 137-140
 - **Description:** `if (depth > 12 ...) return value` returns the **entire remaining subtree
   unmodified**, so any credential-shaped key nested more than 12 levels deep is written to the
   transaction log and the system log in clear text. The guard exists to bound recursion, but it
   fails open rather than closed — the whole point of the function is that "the transaction table can
   be exposed to analysts without exposing credentials" (file header), and the transaction read ACL
-  is granted to `x_335329_secops.viewer` (`src/fluent/security/acls.now.ts:135-143`).
+  is granted to `x_nold_secops.viewer` (`src/fluent/security/acls.now.ts:135-143`).
 - **Evidence:** `secops-json.js:138` returns `value` (not a placeholder) once the depth limit is hit;
   `secops-transaction-logger.js:96-97` feeds every request/response body through it.
 - **Fix:** Return a marker instead of the subtree at the depth limit, e.g.
@@ -569,11 +569,11 @@ rules) were treated as out of scope and are not reported.
 
 ---
 
-### BUG-020 — `x_335329_secops_vuln_stage.first_seen` is defined but never written
+### BUG-020 — `x_nold_secops_vuln_stage.first_seen` is defined but never written
 
 - **Severity:** LOW
 - **File:** `src/fluent/tables/vuln-stage.now.ts`, `src/script-includes/secops-vuln-ingestion-handler.js`
-- **Table:** `x_335329_secops_vuln_stage`
+- **Table:** `x_nold_secops_vuln_stage`
 - **Line / section:** column at `vuln-stage.now.ts:72`; `stageOne` lines 125-127
 - **Description:** `stageOne` sets `last_seen` on every insert *and* every coalesced update, but no
   code path ever sets `first_seen`. The column is therefore always empty, and the "first seen /

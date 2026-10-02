@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "SecOps Universal Connector Framework",
-    "description": "Every inbound API of the x_335329_secops scoped application, plus a credential-free loopback connector you can create, exercise and delete entirely from Postman.\n\nSETUP\n1. Create an environment with base_url, sn_user, sn_password.\n2. Run the folders in order. Folder 0 stores sys_ids in collection variables that later folders reuse.\n3. Folder 5 removes everything the collection created.\n\nThe ingestion API requires the x_335329_secops.admin role. The console API requires x_335329_secops.viewer.\n\nAll test data uses hostnames prefixed 'postman-test-' and IPs inside 192.0.2.0/24 (RFC 5737, reserved for documentation).",
+    "description": "Every inbound API of the x_nold_secops scoped application, plus a credential-free loopback connector you can create, exercise and delete entirely from Postman.\n\nSETUP\n1. Create an environment with base_url, sn_user, sn_password.\n2. Run the folders in order. Folder 0 stores sys_ids in collection variables that later folders reuse.\n3. Folder 5 removes everything the collection created.\n\nThe ingestion API requires the x_nold_secops.admin role. The console API requires x_nold_secops.viewer.\n\nAll test data uses hostnames prefixed 'postman-test-' and IPs inside 192.0.2.0/24 (RFC 5737, reserved for documentation).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -44,7 +44,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "url": { "raw": "{{base_url}}/api/now/table/x_335329_secops_connector", "host": ["{{base_url}}"], "path": ["api", "now", "table", "x_335329_secops_connector"] },
+            "url": { "raw": "{{base_url}}/api/now/table/x_nold_secops_connector", "host": ["{{base_url}}"], "path": ["api", "now", "table", "x_nold_secops_connector"] },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Postman Echo (test)\",\n  \"vendor\": \"Postman\",\n  \"category\": \"other\",\n  \"active\": \"true\",\n  \"base_url\": \"https://postman-echo.com\",\n  \"auth_type\": \"none\",\n  \"http_timeout_ms\": \"20000\",\n  \"max_retries\": \"1\",\n  \"health_endpoint_path\": \"/status/200\",\n  \"description\": \"Postman loopback connector - safe to delete\"\n}"
@@ -68,7 +68,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "url": { "raw": "{{base_url}}/api/now/table/x_335329_secops_endpoints", "host": ["{{base_url}}"], "path": ["api", "now", "table", "x_335329_secops_endpoints"] },
+            "url": { "raw": "{{base_url}}/api/now/table/x_nold_secops_endpoints", "host": ["{{base_url}}"], "path": ["api", "now", "table", "x_nold_secops_endpoints"] },
             "description": "postman-echo.com/post returns the posted JSON under 'json', so response_root='json' hands the handler back exactly what was sent. Set verdict to 'malicious' here and the enrichment will resolve to Malicious - that is the whole verdict pipeline proven without a vendor.",
             "body": {
               "mode": "raw",
@@ -93,7 +93,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "url": { "raw": "{{base_url}}/api/now/table/x_335329_secops_endpoints", "host": ["{{base_url}}"], "path": ["api", "now", "table", "x_335329_secops_endpoints"] },
+            "url": { "raw": "{{base_url}}/api/now/table/x_nold_secops_endpoints", "host": ["{{base_url}}"], "path": ["api", "now", "table", "x_nold_secops_endpoints"] },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Echo status probe\",\n  \"connector\": \"{{connector_sys_id}}\",\n  \"capability\": \"health\",\n  \"active\": \"true\",\n  \"http_method\": \"get\",\n  \"path\": \"/status/200\",\n  \"success_codes\": \"200\",\n  \"description\": \"Postman loopback endpoint - safe to delete\"\n}"
@@ -111,7 +111,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "url": { "raw": "{{base_url}}/api/now/table/x_335329_secops_field_map", "host": ["{{base_url}}"], "path": ["api", "now", "table", "x_335329_secops_field_map"] },
+            "url": { "raw": "{{base_url}}/api/now/table/x_nold_secops_field_map", "host": ["{{base_url}}"], "path": ["api", "now", "table", "x_nold_secops_field_map"] },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"endpoint\": \"{{enrich_endpoint_sys_id}}\",\n  \"source_path\": \"verdict\",\n  \"target_table\": \"sn_ti_lookup_result\",\n  \"target_field\": \"finding\",\n  \"transform\": \"none\",\n  \"order\": \"100\"\n}"
@@ -143,9 +143,9 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_connector/vulnerability?source={{source}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "path": ["api", "x_nold_secops", "secops_connector", "vulnerability"],
               "query": [{ "key": "source", "value": "{{source}}" }]
             },
             "body": {
@@ -173,9 +173,9 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_connector/vulnerability?source={{source}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "path": ["api", "x_nold_secops", "secops_connector", "vulnerability"],
               "query": [{ "key": "source", "value": "{{source}}" }]
             },
             "body": {
@@ -206,9 +206,9 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/now/table/x_335329_secops_vuln_stage?sysparm_query=source%3D{{source}}%5Eexternal_idSTARTSWITHPT-100&sysparm_fields=external_id,cve,severity,state,first_seen,last_seen,ci_identifier",
+              "raw": "{{base_url}}/api/now/table/x_nold_secops_vuln_stage?sysparm_query=source%3D{{source}}%5Eexternal_idSTARTSWITHPT-100&sysparm_fields=external_id,cve,severity,state,first_seen,last_seen,ci_identifier",
               "host": ["{{base_url}}"],
-              "path": ["api", "now", "table", "x_335329_secops_vuln_stage"],
+              "path": ["api", "now", "table", "x_nold_secops_vuln_stage"],
               "query": [
                 { "key": "sysparm_query", "value": "source%3D{{source}}%5Eexternal_idSTARTSWITHPT-100" },
                 { "key": "sysparm_fields", "value": "external_id,cve,severity,state,first_seen,last_seen,ci_identifier" }
@@ -234,9 +234,9 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_connector/vulnerability?source={{source}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "path": ["api", "x_nold_secops", "secops_connector", "vulnerability"],
               "query": [{ "key": "source", "value": "{{source}}" }]
             },
             "description": "records, results, items, data, vulnerabilities and findings are recognised wrappers. No records_path needed.",
@@ -261,9 +261,9 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}&records_path=report.sections.vulnerabilities",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_connector/vulnerability?source={{source}}&records_path=report.sections.vulnerabilities",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "path": ["api", "x_nold_secops", "secops_connector", "vulnerability"],
               "query": [
                 { "key": "source", "value": "{{source}}" },
                 { "key": "records_path", "value": "report.sections.vulnerabilities" }
@@ -296,9 +296,9 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_connector/vulnerability?source={{source}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "path": ["api", "x_nold_secops", "secops_connector", "vulnerability"],
               "query": [{ "key": "source", "value": "{{source}}" }]
             },
             "body": {
@@ -326,9 +326,9 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_connector/vulnerability?source={{source}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "path": ["api", "x_nold_secops", "secops_connector", "vulnerability"],
               "query": [{ "key": "source", "value": "{{source}}" }]
             },
             "body": {
@@ -349,9 +349,9 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_connector/vulnerability?source={{source}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "path": ["api", "x_nold_secops", "secops_connector", "vulnerability"],
               "query": [{ "key": "source", "value": "{{source}}" }]
             },
             "body": {
@@ -381,9 +381,9 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/now/table/x_335329_secops_vuln_stage?sysparm_query=source%3D{{source}}%5Eexternal_id%3DPT-5001&sysparm_fields=external_id,raw_payload",
+              "raw": "{{base_url}}/api/now/table/x_nold_secops_vuln_stage?sysparm_query=source%3D{{source}}%5Eexternal_id%3DPT-5001&sysparm_fields=external_id,raw_payload",
               "host": ["{{base_url}}"],
-              "path": ["api", "now", "table", "x_335329_secops_vuln_stage"],
+              "path": ["api", "now", "table", "x_nold_secops_vuln_stage"],
               "query": [
                 { "key": "sysparm_query", "value": "source%3D{{source}}%5Eexternal_id%3DPT-5001" },
                 { "key": "sysparm_fields", "value": "external_id,raw_payload" }
@@ -411,9 +411,9 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_connector/vulnerability?source={{source}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "path": ["api", "x_nold_secops", "secops_connector", "vulnerability"],
               "query": [{ "key": "source", "value": "{{source}}" }]
             },
             "body": {
@@ -460,9 +460,9 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_connector/vulnerability?source={{source}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "path": ["api", "x_nold_secops", "secops_connector", "vulnerability"],
               "query": [{ "key": "source", "value": "{{source}}" }]
             },
             "body": { "mode": "raw", "raw": "{{bulk_payload}}" }
@@ -488,9 +488,9 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}&promote=true",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_connector/vulnerability?source={{source}}&promote=true",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "path": ["api", "x_nold_secops", "secops_connector", "vulnerability"],
               "query": [
                 { "key": "source", "value": "{{source}}" },
                 { "key": "promote", "value": "true" }
@@ -525,7 +525,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "url": { "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability", "host": ["{{base_url}}"], "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"] },
+            "url": { "raw": "{{base_url}}/api/x_nold_secops/secops_connector/vulnerability", "host": ["{{base_url}}"], "path": ["api", "x_nold_secops", "secops_connector", "vulnerability"] },
             "body": { "mode": "raw", "raw": "[]" }
           }
         },
@@ -541,9 +541,9 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_connector/vulnerability?source={{source}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "path": ["api", "x_nold_secops", "secops_connector", "vulnerability"],
               "query": [{ "key": "source", "value": "{{source}}" }]
             },
             "body": { "mode": "raw", "raw": "" }
@@ -569,9 +569,9 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_connector/vulnerability?source={{source}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "path": ["api", "x_nold_secops", "secops_connector", "vulnerability"],
               "query": [{ "key": "source", "value": "{{source}}" }]
             },
             "body": { "mode": "raw", "raw": "{ this is not json" }
@@ -595,9 +595,9 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source={{source}}",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_connector/vulnerability?source={{source}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_connector", "vulnerability"],
+              "path": ["api", "x_nold_secops", "secops_connector", "vulnerability"],
               "query": [{ "key": "source", "value": "{{source}}" }]
             },
             "body": { "mode": "raw", "raw": "[]" }
@@ -630,7 +630,7 @@
           ],
           "request": {
             "method": "GET",
-            "url": { "raw": "{{base_url}}/api/x_335329_secops/secops_connector/health", "host": ["{{base_url}}"], "path": ["api", "x_335329_secops", "secops_connector", "health"] }
+            "url": { "raw": "{{base_url}}/api/x_nold_secops/secops_connector/health", "host": ["{{base_url}}"], "path": ["api", "x_nold_secops", "secops_connector", "health"] }
           }
         },
         {
@@ -652,9 +652,9 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_console/work?scope=me&sources=sir,findings&limit=50",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_console/work?scope=me&sources=sir,findings&limit=50",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_console", "work"],
+              "path": ["api", "x_nold_secops", "secops_console", "work"],
               "query": [
                 { "key": "scope", "value": "me" },
                 { "key": "sources", "value": "sir,findings" },
@@ -681,9 +681,9 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/x_335329_secops/secops_console/work?scope=team&severities=critical,high",
+              "raw": "{{base_url}}/api/x_nold_secops/secops_console/work?scope=team&severities=critical,high",
               "host": ["{{base_url}}"],
-              "path": ["api", "x_335329_secops", "secops_console", "work"],
+              "path": ["api", "x_nold_secops", "secops_console", "work"],
               "query": [
                 { "key": "scope", "value": "team" },
                 { "key": "severities", "value": "critical,high" }
@@ -715,14 +715,14 @@
           ],
           "request": {
             "method": "GET",
-            "url": { "raw": "{{base_url}}/api/x_335329_secops/secops_console/overview", "host": ["{{base_url}}"], "path": ["api", "x_335329_secops", "secops_console", "overview"] }
+            "url": { "raw": "{{base_url}}/api/x_nold_secops/secops_console/overview", "host": ["{{base_url}}"], "path": ["api", "x_nold_secops", "secops_console", "overview"] }
           }
         },
         {
           "name": "3.5 Console connector health",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{base_url}}/api/x_335329_secops/secops_console/connectors", "host": ["{{base_url}}"], "path": ["api", "x_335329_secops", "secops_console", "connectors"] }
+            "url": { "raw": "{{base_url}}/api/x_nold_secops/secops_console/connectors", "host": ["{{base_url}}"], "path": ["api", "x_nold_secops", "secops_console", "connectors"] }
           }
         }
       ]
@@ -735,9 +735,9 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/now/table/x_335329_secops_vuln_stage?sysparm_query=source%3D{{source}}%5EORDERBYDESCsys_created_on&sysparm_fields=external_id,cve,title,severity,cvss_score,ci_identifier,ci,state,first_seen,last_seen&sysparm_limit=50",
+              "raw": "{{base_url}}/api/now/table/x_nold_secops_vuln_stage?sysparm_query=source%3D{{source}}%5EORDERBYDESCsys_created_on&sysparm_fields=external_id,cve,title,severity,cvss_score,ci_identifier,ci,state,first_seen,last_seen&sysparm_limit=50",
               "host": ["{{base_url}}"],
-              "path": ["api", "now", "table", "x_335329_secops_vuln_stage"],
+              "path": ["api", "now", "table", "x_nold_secops_vuln_stage"],
               "query": [
                 { "key": "sysparm_query", "value": "source%3D{{source}}%5EORDERBYDESCsys_created_on" },
                 { "key": "sysparm_fields", "value": "external_id,cve,title,severity,cvss_score,ci_identifier,ci,state,first_seen,last_seen" },
@@ -766,9 +766,9 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/now/table/x_335329_secops_transaction?sysparm_query=ORDERBYDESCsys_created_on&sysparm_fields=correlation_id,capability,state,http_status,duration_ms,retry_count,next_retry,error_message,request_summary,response_summary&sysparm_limit=25",
+              "raw": "{{base_url}}/api/now/table/x_nold_secops_transaction?sysparm_query=ORDERBYDESCsys_created_on&sysparm_fields=correlation_id,capability,state,http_status,duration_ms,retry_count,next_retry,error_message,request_summary,response_summary&sysparm_limit=25",
               "host": ["{{base_url}}"],
-              "path": ["api", "now", "table", "x_335329_secops_transaction"],
+              "path": ["api", "now", "table", "x_nold_secops_transaction"],
               "query": [
                 { "key": "sysparm_query", "value": "ORDERBYDESCsys_created_on" },
                 { "key": "sysparm_fields", "value": "correlation_id,capability,state,http_status,duration_ms,retry_count,next_retry,error_message,request_summary,response_summary" },
@@ -802,9 +802,9 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/now/table/x_335329_secops_vuln_stage?sysparm_query=source%3D{{source}}&sysparm_fields=sys_id&sysparm_limit=1000",
+              "raw": "{{base_url}}/api/now/table/x_nold_secops_vuln_stage?sysparm_query=source%3D{{source}}&sysparm_fields=sys_id&sysparm_limit=1000",
               "host": ["{{base_url}}"],
-              "path": ["api", "now", "table", "x_335329_secops_vuln_stage"],
+              "path": ["api", "now", "table", "x_nold_secops_vuln_stage"],
               "query": [
                 { "key": "sysparm_query", "value": "source%3D{{source}}" },
                 { "key": "sysparm_fields", "value": "sys_id" },
@@ -841,9 +841,9 @@
           "request": {
             "method": "DELETE",
             "url": {
-              "raw": "{{base_url}}/api/now/table/x_335329_secops_vuln_stage/{{cleanup_id}}",
+              "raw": "{{base_url}}/api/now/table/x_nold_secops_vuln_stage/{{cleanup_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "now", "table", "x_335329_secops_vuln_stage", "{{cleanup_id}}"]
+              "path": ["api", "now", "table", "x_nold_secops_vuln_stage", "{{cleanup_id}}"]
             }
           }
         },
@@ -865,9 +865,9 @@
           "request": {
             "method": "DELETE",
             "url": {
-              "raw": "{{base_url}}/api/now/table/x_335329_secops_connector/{{connector_sys_id}}",
+              "raw": "{{base_url}}/api/now/table/x_nold_secops_connector/{{connector_sys_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "now", "table", "x_335329_secops_connector", "{{connector_sys_id}}"]
+              "path": ["api", "now", "table", "x_nold_secops_connector", "{{connector_sys_id}}"]
             }
           }
         }

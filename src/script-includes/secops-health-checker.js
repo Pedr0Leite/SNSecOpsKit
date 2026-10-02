@@ -14,7 +14,7 @@ SecOpsHealthChecker.prototype = {
     },
 
     /**
-     * @param connectorId sys_id on x_335329_secops_connector
+     * @param connectorId sys_id on x_nold_secops_connector
      * @returns { ok, status, health, message, connector, duration_ms }
      */
     check: function (connectorId) {

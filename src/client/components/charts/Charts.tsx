@@ -198,10 +198,12 @@ export function Trend({
     values,
     labels,
     color = 'var(--accent)',
+    unit = '',
 }: {
     values: number[]
     labels: string[]
     color?: string
+    unit?: string
 }) {
     if (values.length < 2) {
         return <NoData message="Not enough history yet — this fills in as data arrives." />
@@ -209,7 +211,7 @@ export function Trend({
 
     const width = 320
     const height = 72
-    const { line, area } = trendPaths(values, width, height)
+    const { line, area, points } = trendPaths(values, width, height)
     const total = values.reduce((sum, value) => sum + value, 0)
     const summary = `${total} over ${values.length} days. ${labels[0]} to ${labels[labels.length - 1]}.`
 
@@ -217,7 +219,30 @@ export function Trend({
         <div className="trend" role="img" aria-label={summary}>
             <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="trend__svg">
                 <path d={area} fill={color} opacity="0.16" />
-                <path d={line} fill="none" stroke={color} strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                <path
+                    d={line}
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                    vectorEffect="non-scaling-stroke"
+                />
+                {points.map((point, index) => (
+                    <circle
+                        key={index}
+                        className="trend__point"
+                        cx={point.x}
+                        cy={point.y}
+                        r="7"
+                        fill={color}
+                        vectorEffect="non-scaling-stroke"
+                    >
+                        <title>
+                            {labels[index]}: {values[index]}
+                            {unit}
+                        </title>
+                    </circle>
+                ))}
             </svg>
             <div className="trend__axis">
                 <span>{labels[0]}</span>

@@ -1,6 +1,6 @@
 {
     "name": "secops-universal-connector",
-    "version": "1.0.0",
+    "version": "1.1.1",
     "description": "Universal, extensible middleware between ServiceNow Security Operations and any third-party security tool.",
     "license": "UNLICENSED",
     "imports": {

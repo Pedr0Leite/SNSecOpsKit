@@ -1,5 +1,5 @@
 ﻿/**
- * GET /api/x_335329_secops/secops_connector/health
+ * GET /api/x_nold_secops/secops_connector/health
  *
  * Current health of every active connector. Intended for the console and for external monitoring,
  * so it reports stored health rather than making live outbound calls - polling this endpoint must

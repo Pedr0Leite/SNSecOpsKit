@@ -66,11 +66,11 @@ function endpoint(overrides) {
 function baseDb(extra, overrides) {
     return Object.assign(
         {
-            x_335329_secops_connector: [connector((overrides || {}).connector)],
-            x_335329_secops_endpoints: [endpoint((overrides || {}).endpoint)],
-            x_335329_secops_field_map: [],
-            x_335329_secops_transaction: [],
-            x_335329_secops_vuln_stage: [],
+            x_nold_secops_connector: [connector((overrides || {}).connector)],
+            x_nold_secops_endpoints: [endpoint((overrides || {}).endpoint)],
+            x_nold_secops_field_map: [],
+            x_nold_secops_transaction: [],
+            x_nold_secops_vuln_stage: [],
         },
         extra || {}
     )
@@ -121,7 +121,7 @@ test('BUG-003: a refused write downgrades ok - a 200 with rejected records is no
         schema: { __denyCreate: ['target_table'] },
         restResponder: () => ({ status: 200, body: '{"result":"ok"}' }),
     })
-    sandbox._db.x_335329_secops_field_map.push({
+    sandbox._db.x_nold_secops_field_map.push({
         sys_id: 'm1',
         endpoint: 'e1',
         source_path: 'result',
@@ -275,7 +275,7 @@ test('BUG-006: an incident whose detonations all failed reports ok:false', () =>
         sn_ti_observable_type: [{ sys_id: 't_url', name: 'URL' }],
         sn_ti_m2m_task_observable: [],
     })
-    db.x_335329_secops_endpoints = [] // no detonate endpoint configured at all
+    db.x_nold_secops_endpoints = [] // no detonate endpoint configured at all
 
     const sandbox = loadScriptIncludes(ALL, { db })
     const result = new sandbox.SecOpsPhishingHandler().analyzeIncident('inc1')
@@ -311,7 +311,7 @@ test('BUG-007: a negative max_retries still makes exactly one attempt and does n
 
     assert.strictEqual(result.ok, true)
     assert.strictEqual(sandbox._restCalls.length, 1)
-    const txn = sandbox._db.x_335329_secops_transaction[0]
+    const txn = sandbox._db.x_nold_secops_transaction[0]
     assert.notStrictEqual(txn.state, 'pending', 'the transaction must never be abandoned in pending')
 })
 
@@ -371,13 +371,13 @@ test('BUG-009: Content-Type is set for a JSON template', () => {
 test('BUG-012: endpoint resolution filters inactive connectors in the query, not per row', () => {
     const sandbox = loadScriptIncludes(ALL, {
         db: {
-            x_335329_secops_connector: [connector({ sys_id: 'c1', active: 'false' }), connector({ sys_id: 'c2', name: 'Live' })],
-            x_335329_secops_endpoints: [
+            x_nold_secops_connector: [connector({ sys_id: 'c1', active: 'false' }), connector({ sys_id: 'c2', name: 'Live' })],
+            x_nold_secops_endpoints: [
                 endpoint({ sys_id: 'e1', connector: 'c1', order: '1' }),
                 endpoint({ sys_id: 'e2', connector: 'c2', order: '2' }),
             ],
-            x_335329_secops_field_map: [],
-            x_335329_secops_transaction: [],
+            x_nold_secops_field_map: [],
+            x_nold_secops_transaction: [],
         },
     })
 
@@ -420,7 +420,7 @@ test('BUG-017: a staged row records the transaction that produced it', () => {
     const result = new sandbox.SecOpsVulnIngestionHandler().pull({ source: 'Feed' })
 
     assert.strictEqual(result.staged, 1)
-    const row = sandbox._db.x_335329_secops_vuln_stage[0]
+    const row = sandbox._db.x_nold_secops_vuln_stage[0]
     assert.ok(row.transaction, 'a staged row must be traceable to its call')
     assert.strictEqual(row.transaction, result.transaction)
 })
@@ -432,19 +432,19 @@ test('BUG-020: first_seen is set on insert and preserved on re-ingestion', () =>
     const handler = new sandbox.SecOpsVulnIngestionHandler()
 
     handler.ingest([{ id: 'V-1', cve: 'CVE-1', host: 'h1' }], { source: 'Feed' })
-    const firstSeen = sandbox._db.x_335329_secops_vuln_stage[0].first_seen
+    const firstSeen = sandbox._db.x_nold_secops_vuln_stage[0].first_seen
     assert.ok(firstSeen, 'first_seen must be populated')
 
-    sandbox._db.x_335329_secops_vuln_stage[0].first_seen = '2020-01-01 00:00:00'
+    sandbox._db.x_nold_secops_vuln_stage[0].first_seen = '2020-01-01 00:00:00'
     handler.ingest([{ id: 'V-1', cve: 'CVE-1', host: 'h1' }], { source: 'Feed' })
 
-    assert.strictEqual(sandbox._db.x_335329_secops_vuln_stage.length, 1)
+    assert.strictEqual(sandbox._db.x_nold_secops_vuln_stage.length, 1)
     assert.strictEqual(
-        sandbox._db.x_335329_secops_vuln_stage[0].first_seen,
+        sandbox._db.x_nold_secops_vuln_stage[0].first_seen,
         '2020-01-01 00:00:00',
         're-ingestion must not reset first_seen'
     )
-    assert.ok(sandbox._db.x_335329_secops_vuln_stage[0].last_seen, 'last_seen still refreshes')
+    assert.ok(sandbox._db.x_nold_secops_vuln_stage[0].last_seen, 'last_seen still refreshes')
 })
 
 // ---------------------------------------------------------------------- BUG-018
@@ -458,7 +458,7 @@ test('BUG-018: a non-finding field mapping on an enrich endpoint is applied', ()
         }),
         restResponder: () => ({ status: 200, body: '{"verdict":"malicious","engine_version":"7.2.1"}' }),
     })
-    sandbox._db.x_335329_secops_field_map.push({
+    sandbox._db.x_nold_secops_field_map.push({
         sys_id: 'm1',
         endpoint: 'e1',
         source_path: 'engine_version',

@@ -187,18 +187,18 @@ far more dangerous than an honest "I don't know".
 
 ## "What are the 'vulnerability findings' on the security overview? Are they Vulnerability Response records?"
 
-**No.** They are rows in this application's own staging table, `x_335329_secops_vuln_stage`.
+**No.** They are rows in this application's own staging table, `x_nold_secops_vuln_stage`.
 
 The distinction matters, because the words look the same and the tables are not:
 
 | | Vulnerability findings (this app) | Vulnerable items (ServiceNow VR) |
 |---|---|---|
-| Table | `x_335329_secops_vuln_stage` | `sn_vul_vulnerable_item` |
+| Table | `x_nold_secops_vuln_stage` | `sn_vul_vulnerable_item` |
 | Needs a subscription | no | **yes** |
 | Written by | the `ingest` capability, from scanner telemetry | Vulnerability Response |
 | Deduplicated on | `source` + `external_id` | VR's own rules |
 
-Everything a scanner pushes to `/api/x_335329_secops/secops_connector/vulnerability`, or that the app
+Everything a scanner pushes to `/api/x_nold_secops/secops_connector/vulnerability`, or that the app
 pulls from an `ingest` endpoint, lands here first — **always**, and never straight into VR. Promotion
 into Vulnerability Response is a separate, opt-in, runtime-guarded step, so that the application
 installs and runs on an instance where VR does not exist. See

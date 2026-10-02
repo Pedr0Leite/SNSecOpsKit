@@ -133,8 +133,12 @@ export function ring(slices: Slice[]): Array<Slice & { start: number; end: numbe
  * Smoothed area + line path for a trend. Returns empty strings for fewer than two points, which
  * the component renders as an explicit "not enough data" rather than a misleading flat line.
  */
-export function trendPaths(values: number[], width: number, height: number): { line: string; area: string } {
-    if (values.length < 2) return { line: '', area: '' }
+export function trendPaths(
+    values: number[],
+    width: number,
+    height: number
+): { line: string; area: string; points: Array<{ x: number; y: number }> } {
+    if (values.length < 2) return { line: '', area: '', points: [] }
 
     const max = maxValue(values)
     const step = width / (values.length - 1)
@@ -145,7 +149,7 @@ export function trendPaths(values: number[], width: number, height: number): { l
 
     const line = points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ')
     const area = `${line} L ${round(width)} ${height} L 0 ${height} Z`
-    return { line, area }
+    return { line, area, points }
 }
 
 /** Two decimals is plenty for path data and keeps the emitted markup small. */

@@ -16,7 +16,7 @@ import { Record } from '@servicenow/sdk/core'
 export const demoConnector = Record({
     $id: Now.ID['demo-connector-threat-intel'],
     $meta: { installMethod: 'demo' },
-    table: 'x_335329_secops_connector',
+    table: 'x_nold_secops_connector',
     data: {
         name: 'Example Threat Intelligence (sample)',
         vendor: 'Example Security',
@@ -36,7 +36,7 @@ export const demoConnector = Record({
 export const demoEnrichEndpoint = Record({
     $id: Now.ID['demo-endpoint-enrich'],
     $meta: { installMethod: 'demo' },
-    table: 'x_335329_secops_endpoints',
+    table: 'x_nold_secops_endpoints',
     data: {
         name: 'Look up indicator',
         connector: demoConnector,
@@ -56,7 +56,7 @@ export const demoEnrichEndpoint = Record({
 export const demoHealthEndpoint = Record({
     $id: Now.ID['demo-endpoint-health'],
     $meta: { installMethod: 'demo' },
-    table: 'x_335329_secops_endpoints',
+    table: 'x_nold_secops_endpoints',
     data: {
         name: 'Service status',
         connector: demoConnector,
@@ -73,7 +73,7 @@ export const demoHealthEndpoint = Record({
 export const demoMapFinding = Record({
     $id: Now.ID['demo-map-finding'],
     $meta: { installMethod: 'demo' },
-    table: 'x_335329_secops_field_map',
+    table: 'x_nold_secops_field_map',
     data: {
         endpoint: demoEnrichEndpoint,
         source_path: 'attributes.verdict',
@@ -93,7 +93,7 @@ export const demoMapFinding = Record({
 export const demoMapDetails = Record({
     $id: Now.ID['demo-map-details'],
     $meta: { installMethod: 'demo' },
-    table: 'x_335329_secops_field_map',
+    table: 'x_nold_secops_field_map',
     data: {
         endpoint: demoEnrichEndpoint,
         source_path: 'attributes.score',

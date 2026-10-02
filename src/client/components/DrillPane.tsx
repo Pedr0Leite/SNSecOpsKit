@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Button } from 'react-aria-components'
-import { fetchDrill, listUrl, type DrillDatum, type DrillResult } from '../lib/drill'
+import { Button, Checkbox, CheckboxGroup, Label, Popover, Dialog, DialogTrigger } from 'react-aria-components'
+import { fetchDrill, listUrl, loadColumnPrefs, saveColumnPrefs, type DrillDatum, type DrillResult } from '../lib/drill'
 import { recordUrl } from '../lib/api'
 
 export function DrillPane({ datum, onClose }: { datum: DrillDatum; onClose: () => void }) {
     const [result, setResult] = useState<DrillResult | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
+    const [columns, setColumns] = useState<string[]>([])
 
     useEffect(() => {
         const controller = new AbortController()
@@ -15,7 +16,10 @@ export function DrillPane({ datum, onClose }: { datum: DrillDatum; onClose: () =
         setResult(null)
 
         fetchDrill(datum, controller.signal)
-            .then(setResult)
+            .then((loaded) => {
+                setResult(loaded)
+                setColumns(loadColumnPrefs(loaded.table, loaded.defaultColumns))
+            })
             .catch((cause: Error) => {
                 if (cause.name !== 'AbortError') setError(cause.message)
             })
@@ -26,6 +30,16 @@ export function DrillPane({ datum, onClose }: { datum: DrillDatum; onClose: () =
         return () => controller.abort()
     }, [datum])
 
+    function updateColumns(next: string[]) {
+        // CheckboxGroup reports check order, not field order — re-sort to the table's fixed
+        // priority so toggling a box never reshuffles the columns already on screen.
+        const ordered = result ? result.columns.filter((field) => next.includes(field)) : next
+        // At least one column — an empty row grid is a broken pane, not a valid preference.
+        const safe = ordered.length > 0 ? ordered : columns
+        setColumns(safe)
+        if (result) saveColumnPrefs(result.table, safe)
+    }
+
     return (
         <aside className="pane" aria-label={`Records behind ${datum.label}`}>
             <header className="pane__head">
@@ -34,6 +48,23 @@ export function DrillPane({ datum, onClose }: { datum: DrillDatum; onClose: () =
                     <span className="footnote">{datum.count} total</span>
                 </div>
                 <div className="pane__actions">
+                    {result && result.columns.length > 1 ? (
+                        <DialogTrigger>
+                            <Button className="react-aria-Button">Columns</Button>
+                            <Popover placement="bottom end">
+                                <Dialog className="column-picker">
+                                    <CheckboxGroup value={columns} onChange={updateColumns}>
+                                        <Label>Show columns</Label>
+                                        {result.columns.map((field) => (
+                                            <Checkbox key={field} value={field}>
+                                                {result.labels[field] || field}
+                                            </Checkbox>
+                                        ))}
+                                    </CheckboxGroup>
+                                </Dialog>
+                            </Popover>
+                        </DialogTrigger>
+                    ) : null}
                     {datum.query ? (
                         <Button
                             className="react-aria-Button"
@@ -71,13 +102,20 @@ export function DrillPane({ datum, onClose }: { datum: DrillDatum; onClose: () =
                                         <button
                                             type="button"
                                             className="drill__row"
+                                            style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}
                                             onClick={() =>
                                                 window.open(recordUrl(result.table, row.sys_id), '_blank', 'noopener')
                                             }
                                         >
-                                            <span className="drill__primary mono">{row.primary || '—'}</span>
-                                            <span className="drill__secondary">{row.secondary || ''}</span>
-                                            <span className="footnote">{row.tertiary || ''}</span>
+                                            {columns.map((field, index) => (
+                                                <span
+                                                    key={field}
+                                                    className={index === 0 ? 'drill__primary mono' : 'drill__secondary'}
+                                                    title={row.values[field] || ''}
+                                                >
+                                                    {row.values[field] || (index === 0 ? '—' : '')}
+                                                </span>
+                                            ))}
                                         </button>
                                     </li>
                                 ))}

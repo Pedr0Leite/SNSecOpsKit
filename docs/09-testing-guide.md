@@ -6,7 +6,7 @@ statement is about a **third-party vendor's** API rather than this application, 
 before wiring production credentials.
 
 - **Instance**: `https://dev296062.service-now.com`
-- **Scope**: `x_335329_secops`
+- **Scope**: `x_nold_secops`
 - **Postman collection**: `test/postman/SecOps-Universal-Connector.postman_collection.json`
 - **Self-test script**: `test/manual/loopback-selftest.js`
 
@@ -30,7 +30,7 @@ a new tool is data entry, not code.
 |---|---|---|---|---|
 | 1 | **Threat intel enrichment** | `SecOpsThreatIntelHandler` | script / Flow / business rule | `sn_ti_lookup_result`, rolls a verdict up to `sn_ti_observable` |
 | 2 | **Phishing response** | `SecOpsPhishingHandler` | script / Flow | `sn_ti_observable`, `sn_ti_m2m_task_observable` |
-| 3 | **Vulnerability ingestion** | `SecOpsVulnIngestionHandler` | inbound REST, or scheduled pull | `x_335329_secops_vuln_stage`, optionally VR |
+| 3 | **Vulnerability ingestion** | `SecOpsVulnIngestionHandler` | inbound REST, or scheduled pull | `x_nold_secops_vuln_stage`, optionally VR |
 | 4 | **Containment** | `SecOpsContainmentHandler` | script / Flow | nothing by default — it asks a third party to act |
 | 5 | **Connection health** | `SecOpsHealthChecker` | hourly job, UI button, REST | `health_status` on the connector |
 
@@ -68,7 +68,7 @@ and it is the behaviour you should try to break when testing.
    (journal fields via `getJournalEntry(-1)`, not `getValue` — the latter returns nothing)
 2. Extracts indicators, **re-fanging** defanged notation first: `hxxp://` → `http://`,
    `1.1.1[.]1` → `1.1.1.1`, `[at]` → `@`, `(.)` → `.`
-3. Caps at `x_335329_secops.detonate.max_indicators` (default 15) — each one is a synchronous call
+3. Caps at `x_nold_secops.detonate.max_indicators` (default 15) — each one is a synchronous call
 4. Sends each to the `detonate` endpoint
 5. Optionally creates an `sn_ti_observable` per indicator and links it to the incident
 6. Returns the **worst** disposition across all indicators
@@ -83,10 +83,10 @@ and "the sandbox is down" deliberately do not look alike.
 
 Two directions:
 
-- **Push** — a scanner POSTs to `/api/x_335329_secops/secops_connector/vulnerability`
+- **Push** — a scanner POSTs to `/api/x_nold_secops/secops_connector/vulnerability`
 - **Pull** — `new SecOpsVulnIngestionHandler().pull({connector: id})` calls a configured `ingest` endpoint
 
-Both land in `x_335329_secops_vuln_stage`. **Never** straight into Vulnerability Response.
+Both land in `x_nold_secops_vuln_stage`. **Never** straight into Vulnerability Response.
 
 If the endpoint has no field mappings, records are mapped **by convention** — this is why most
 scanner payloads work with zero configuration:
@@ -109,8 +109,8 @@ Other behaviour to test:
 - **De-duplication** — coalesced on `source` + `external_id`. Re-sending updates `last_seen` and keeps the original `first_seen`.
 - **No identifier** — falls back to `cve@ci_identifier`, then `cve`, then the record is skipped with an error rather than staged as a duplicate of nothing.
 - **CI matching** — two queries for the whole batch (by `name`, then by `ip_address` for whatever did not resolve). An identifier matching **more than one** CI is left unresolved on purpose.
-- **Batch cap** — `x_335329_secops.ingest.max_records`, default 500. Over that, the first 500 are staged and the response says so.
-- **Promotion into VR** — off by default (`x_335329_secops.vr.promotion_enabled`), and skipped entirely if the VR tables are absent.
+- **Batch cap** — `x_nold_secops.ingest.max_records`, default 500. Over that, the first 500 are staged and the response says so.
+- **Promotion into VR** — off by default (`x_nold_secops.vr.promotion_enabled`), and skipped entirely if the VR tables are absent.
 
 ### 1.6 Capability 4 — Containment
 
@@ -158,7 +158,7 @@ GET against `health_endpoint_path` so a connector can be tested before any endpo
 
 ### 1.10 Business rules
 
-Both ship **inactive** *and* are gated by `x_335329_secops.enrichment.auto_enabled` (false). Two
+Both ship **inactive** *and* are gated by `x_nold_secops.enrichment.auto_enabled` (false). Two
 independent switches, because enabling automation that spends a customer's API quota should never
 be a side effect of installing an app.
 
@@ -171,9 +171,9 @@ be a side effect of installing an app.
 
 | Role | Can |
 |---|---|
-| `x_335329_secops.viewer` | Read all config, transactions, staging; open both dashboards |
-| `x_335329_secops.operator` | viewer + execute the console's client-callable script include |
-| `x_335329_secops.admin` | operator + create/update/delete all config; **required for the inbound ingestion API** |
+| `x_nold_secops.viewer` | Read all config, transactions, staging; open both dashboards |
+| `x_nold_secops.operator` | viewer + execute the console's client-callable script include |
+| `x_nold_secops.admin` | operator + create/update/delete all config; **required for the inbound ingestion API** |
 
 ### 1.12 What it deliberately does not do
 
@@ -197,8 +197,8 @@ Basic auth with a user holding the right role. In the collection, set the enviro
 
 | API | Path | Role required |
 |---|---|---|
-| Ingestion | `/api/x_335329_secops/secops_connector/*` | `x_335329_secops.admin` |
-| Console | `/api/x_335329_secops/secops_console/*` | `x_335329_secops.viewer` (or operator/admin) |
+| Ingestion | `/api/x_nold_secops/secops_connector/*` | `x_nold_secops.admin` |
+| Console | `/api/x_nold_secops/secops_console/*` | `x_nold_secops.viewer` (or operator/admin) |
 | Table API | `/api/now/table/*` | per-table ACLs |
 
 > Test the ACL itself: call the ingestion API as a user with only `viewer` and you should get
@@ -207,7 +207,7 @@ Basic auth with a user holding the right role. In the collection, set the enviro
 ### 2.1 Ingest vulnerabilities — the normal case
 
 ```
-POST {{base_url}}/api/x_335329_secops/secops_connector/vulnerability?source=PostmanTest
+POST {{base_url}}/api/x_nold_secops/secops_connector/vulnerability?source=PostmanTest
 Content-Type: application/json
 ```
 
@@ -246,7 +246,7 @@ Expect **201**:
 { "ok": true, "staged": 3, "skipped": 0, "errors": [], "promoted": null }
 ```
 
-Verify: `x_335329_secops_vuln_stage` has three rows with `source=PostmanTest`, `state=new`,
+Verify: `x_nold_secops_vuln_stage` has three rows with `source=PostmanTest`, `state=new`,
 `first_seen` and `last_seen` set. `ci` is empty unless a CI named `postman-test-host-01` exists.
 
 ### 2.2 De-duplication
@@ -339,7 +339,7 @@ Then open the staged row and read `raw_payload`. Every one of those three values
 the pass condition.
 
 Redacted key names include `password`, `secret`, `client_secret`, `api_key`, `apikey`, `token`,
-`authorization`, `x-api-key` and whatever you add to `x_335329_secops.redact.extra_keys`.
+`authorization`, `x-api-key` and whatever you add to `x_nold_secops.redact.extra_keys`.
 
 ### 2.6 A record with no usable identifier
 
@@ -389,7 +389,7 @@ On an instance without VR you get an honest refusal rather than a failure:
 
 ```json
 { "promoted": { "ok": true, "promoted": 0, "skipped": true,
-  "errors": ["Promotion is disabled (x_335329_secops.vr.promotion_enabled is false)"] } }
+  "errors": ["Promotion is disabled (x_nold_secops.vr.promotion_enabled is false)"] } }
 ```
 
 Set the property to `true` and re-send: the message changes to name the missing VR tables. Both are
@@ -398,7 +398,7 @@ Set the property to `true` and re-send: the message changes to name the missing 
 ### 2.9 Connector health
 
 ```
-GET {{base_url}}/api/x_335329_secops/secops_connector/health
+GET {{base_url}}/api/x_nold_secops/secops_connector/health
 ```
 
 ```json
@@ -413,9 +413,9 @@ system. Confirm that: poll it ten times and check no new transactions appear.
 ### 2.10 The console APIs
 
 ```
-GET {{base_url}}/api/x_335329_secops/secops_console/work?scope=me&sources=sir,findings&severities=critical,high&q=test&limit=50
-GET {{base_url}}/api/x_335329_secops/secops_console/overview
-GET {{base_url}}/api/x_335329_secops/secops_console/connectors
+GET {{base_url}}/api/x_nold_secops/secops_console/work?scope=me&sources=sir,findings&severities=critical,high&q=test&limit=50
+GET {{base_url}}/api/x_nold_secops/secops_console/overview
+GET {{base_url}}/api/x_nold_secops/secops_console/connectors
 ```
 
 `/work` parameters: `scope` (`me`|`team`|`all`), `sources` (`sir`,`findings`), `severities`, `q`,
@@ -437,7 +437,7 @@ ACL-filtered. The dashboard states that gap out loud rather than hiding it.
 You never need the UI. Create a connector:
 
 ```
-POST {{base_url}}/api/now/table/x_335329_secops_connector
+POST {{base_url}}/api/now/table/x_nold_secops_connector
 ```
 
 ```json
@@ -642,7 +642,7 @@ trivy image --format json myapp:latest \
         title:.Title, severity:(.Severity|ascii_downcase), cvss_score:.CVSS.nvd.V3Score,
         host:"myapp:latest"}]' \
   | curl -s -u "$SN_USER:$SN_PASS" -H 'Content-Type: application/json' -d @- \
-    "$SN_INSTANCE/api/x_335329_secops/secops_connector/vulnerability?source=Trivy"
+    "$SN_INSTANCE/api/x_nold_secops/secops_connector/vulnerability?source=Trivy"
 ```
 
 #### SIEM — capability `custom` (or `ingest`)
@@ -688,7 +688,7 @@ Connector Framework** first.
 
 > **Why the scope matters.** The infrastructure script includes are `package_private`. In global
 > scope `new SecOpsJson()` fails with "SecOpsJson is not defined". Only the five handlers are
-> `public` (callable cross-scope as `x_335329_secops.SecOpsPhishingHandler`).
+> `public` (callable cross-scope as `x_nold_secops.SecOpsPhishingHandler`).
 
 Everything below is read-only or creates records you can delete. Nothing calls a third party unless
 it says so.
@@ -767,18 +767,18 @@ deeper than the limit is replaced wholesale rather than passed through unredacte
 
 ```javascript
 var maps = [
-    { source_path: 'name',      target_table: 'x_335329_secops_vuln_stage', target_field: 'title',       transform: 'trim',   order: 100 },
-    { source_path: 'sev',       target_table: 'x_335329_secops_vuln_stage', target_field: 'severity',    transform: 'lower',  order: 200 },
-    { source_path: 'cvss.base', target_table: 'x_335329_secops_vuln_stage', target_field: 'cvss_score',  transform: 'number', order: 300 },
-    { source_path: 'asset.fqdn',target_table: 'x_335329_secops_vuln_stage', target_field: 'ci_identifier', transform: 'lower', order: 400 },
-    { source_path: 'nothing.here', target_table: 'x_335329_secops_vuln_stage', target_field: 'external_id',
+    { source_path: 'name',      target_table: 'x_nold_secops_vuln_stage', target_field: 'title',       transform: 'trim',   order: 100 },
+    { source_path: 'sev',       target_table: 'x_nold_secops_vuln_stage', target_field: 'severity',    transform: 'lower',  order: 200 },
+    { source_path: 'cvss.base', target_table: 'x_nold_secops_vuln_stage', target_field: 'cvss_score',  transform: 'number', order: 300 },
+    { source_path: 'asset.fqdn',target_table: 'x_nold_secops_vuln_stage', target_field: 'ci_identifier', transform: 'lower', order: 400 },
+    { source_path: 'nothing.here', target_table: 'x_nold_secops_vuln_stage', target_field: 'external_id',
       transform: 'none', default_value: 'FALLBACK-1', order: 500 }
 ]
 
 var result = new SecOpsFieldMapper().apply(
     { name: '  Padded title  ', sev: 'HIGH', cvss: { base: '7.5' }, asset: { fqdn: 'HOST-A.example.test' } },
     maps,
-    'x_335329_secops_vuln_stage'
+    'x_nold_secops_vuln_stage'
 )
 gs.info(JSON.stringify(result, null, 2))
 ```
@@ -791,7 +791,7 @@ default, and confirm it comes back in `errors` instead of writing a partial reco
 
 ```javascript
 var w = new SecOpsTargetWriter()
-var T = 'x_335329_secops_vuln_stage'
+var T = 'x_nold_secops_vuln_stage'
 
 var a = w.write(T, { source: 'BgScriptTest', external_id: 'BG-1', title: 'First write',
                      severity: 'low', first_seen: new GlideDateTime().getValue() },
@@ -896,7 +896,7 @@ immediately with no `next_retry`. Confirm both.
 | Job | How to test |
 |---|---|
 | Health sweep | Activate a connector, `Execute Now`, confirm `last_health_check` moved on every active connector and none on inactive ones |
-| Transaction cleanup | Set `x_335329_secops.log.retention_days` to `0` → the job logs "disabled" and deletes nothing. Set it to `1`, back-date a transaction's `sys_created_on`, `Execute Now`, confirm it is gone — and confirm a back-dated `retry_pending` row **survives** |
+| Transaction cleanup | Set `x_nold_secops.log.retention_days` to `0` → the job logs "disabled" and deletes nothing. Set it to `1`, back-date a transaction's `sys_created_on`, `Execute Now`, confirm it is gone — and confirm a back-dated `retry_pending` row **survives** |
 | Expire deferred retries | See §4.8 |
 
 The `retry_pending` exclusion is the one worth verifying: the cleanup job must never delete a
@@ -906,7 +906,7 @@ transaction that is still waiting.
 
 Both are inactive. To test:
 
-1. Set `x_335329_secops.enrichment.auto_enabled` to `true`
+1. Set `x_nold_secops.enrichment.auto_enabled` to `true`
 2. Activate **SecOps Universal - Enrich observable on link to incident**
 3. Link an observable to a security incident
 4. Confirm a transaction appears — and that it appears **asynchronously**, i.e. the form saves

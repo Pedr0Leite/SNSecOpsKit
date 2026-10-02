@@ -13,7 +13,7 @@ const OTHER_GROUP = 'grp_network'
 function db(extra) {
     return Object.assign(
         {
-            x_335329_secops_vuln_stage: [],
+            x_nold_secops_vuln_stage: [],
             sys_user_grmember: [{ sys_id: 'm1', user: ME, group: MY_GROUP }],
             sn_si_incident: [],
             sn_si_task: [],
@@ -181,7 +181,7 @@ test('severity and text filters narrow the queue', () => {
 test('findings are included for "all" and carry their own severity', () => {
     const { wq } = queue({
         db: db({
-            x_335329_secops_vuln_stage: [
+            x_nold_secops_vuln_stage: [
                 {
                     sys_id: 'f1',
                     source: 'AcmeScanner',
@@ -208,7 +208,7 @@ test('findings are included for "all" and carry their own severity', () => {
 test('promoted findings drop out of the queue', () => {
     const { wq } = queue({
         db: db({
-            x_335329_secops_vuln_stage: [
+            x_nold_secops_vuln_stage: [
                 { sys_id: 'f1', source: 'S', external_id: 'V-1', severity: 'high', state: 'promoted', last_seen: '2026-09-12 08:00:00' },
                 { sys_id: 'f2', source: 'S', external_id: 'V-2', severity: 'high', state: 'new', last_seen: '2026-09-12 08:00:00' },
             ],
@@ -221,7 +221,7 @@ test('a source that is not installed is skipped, not fatal', () => {
     // No sn_si_incident / sn_si_task tables at all - an instance without SIR.
     const { wq } = queue({
         db: {
-            x_335329_secops_vuln_stage: [
+            x_nold_secops_vuln_stage: [
                 { sys_id: 'f1', source: 'S', external_id: 'V-1', severity: 'low', state: 'new', last_seen: '2026-09-12 08:00:00' },
             ],
             sys_user_grmember: [],

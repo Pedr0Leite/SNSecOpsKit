@@ -3,13 +3,13 @@
  *
  * Shipped INACTIVE on purpose. Automatic enrichment spends third-party API quota on every
  * observable an analyst touches; that has to be a deliberate decision, not a surprise after
- * install. Enable it here AND set x_335329_secops.enrichment.auto_enabled to true.
+ * install. Enable it here AND set x_nold_secops.enrichment.auto_enabled to true.
  *
  * Table:  sn_ti_m2m_task_observable
  * When:   after insert, async
  */
 ;(function executeRule(current, previous) {
-    if (gs.getProperty('x_335329_secops.enrichment.auto_enabled', 'false') !== 'true') {
+    if (gs.getProperty('x_nold_secops.enrichment.auto_enabled', 'false') !== 'true') {
         return
     }
 

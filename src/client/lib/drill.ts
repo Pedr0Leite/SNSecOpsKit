@@ -17,11 +17,10 @@ export interface DrillDatum {
     query: string | null
 }
 
+/** One record's field values, keyed by field name. Column choice decides which of these render. */
 export interface DrillRow {
     sys_id: string
-    primary: string
-    secondary: string
-    tertiary: string
+    values: Record<string, string>
 }
 
 export interface DrillResult {
@@ -30,45 +29,74 @@ export interface DrillResult {
     total: number
     table: string
     query: string
+    /** Every field available to show as a column, most identifying first. */
+    columns: string[]
+    /** Human-readable label per field in `columns`. */
+    labels: Record<string, string>
+    /** Sane starting column set — what the pane shows before a user customises it. */
+    defaultColumns: string[]
 }
 
 const MAX_ROWS = 50
 
-/** Fields worth showing per table, most identifying first. */
-function fieldsFor(table: string): { fields: string[]; primary: string; secondary: string; tertiary: string } {
+/** Fields worth showing per table, most identifying first. Same list is fetched and offered as columns. */
+function fieldsFor(table: string): { fields: string[]; labels: Record<string, string>; defaultColumns: string[] } {
     if (table.startsWith('sn_si_')) {
         return {
-            fields: ['sys_id', 'number', 'short_description', 'state', 'assigned_to', 'opened_at'],
-            primary: 'number',
-            secondary: 'short_description',
-            tertiary: 'state',
+            fields: ['number', 'short_description', 'state', 'priority', 'assigned_to', 'opened_at'],
+            labels: {
+                number: 'Number',
+                short_description: 'Short description',
+                state: 'State',
+                priority: 'Priority',
+                assigned_to: 'Assigned to',
+                opened_at: 'Opened',
+            },
+            defaultColumns: ['number', 'short_description', 'state'],
         }
     }
     if (table.endsWith('_vuln_stage')) {
         return {
-            fields: ['sys_id', 'cve', 'title', 'severity', 'ci_identifier', 'source'],
-            primary: 'cve',
-            secondary: 'title',
-            tertiary: 'ci_identifier',
+            fields: ['cve', 'title', 'severity', 'ci_identifier', 'source', 'first_seen'],
+            labels: {
+                cve: 'CVE',
+                title: 'Title',
+                severity: 'Severity',
+                ci_identifier: 'CI',
+                source: 'Source',
+                first_seen: 'First seen',
+            },
+            defaultColumns: ['cve', 'title', 'ci_identifier'],
         }
     }
     if (table.endsWith('_transaction')) {
         return {
-            fields: ['sys_id', 'correlation_id', 'capability', 'state', 'http_status', 'error_message'],
-            primary: 'capability',
-            secondary: 'error_message',
-            tertiary: 'state',
+            fields: ['correlation_id', 'capability', 'state', 'http_status', 'error_message', 'duration_ms'],
+            labels: {
+                correlation_id: 'Correlation ID',
+                capability: 'Capability',
+                state: 'State',
+                http_status: 'HTTP status',
+                error_message: 'Error',
+                duration_ms: 'Duration (ms)',
+            },
+            defaultColumns: ['capability', 'error_message', 'state'],
         }
     }
     if (table.endsWith('_connector')) {
         return {
-            fields: ['sys_id', 'name', 'vendor', 'health_status', 'last_health_message'],
-            primary: 'name',
-            secondary: 'last_health_message',
-            tertiary: 'health_status',
+            fields: ['name', 'vendor', 'health_status', 'last_health_message', 'active'],
+            labels: {
+                name: 'Name',
+                vendor: 'Vendor',
+                health_status: 'Health',
+                last_health_message: 'Last message',
+                active: 'Active',
+            },
+            defaultColumns: ['name', 'last_health_message', 'health_status'],
         }
     }
-    return { fields: ['sys_id'], primary: 'sys_id', secondary: '', tertiary: '' }
+    return { fields: ['sys_id'], labels: { sys_id: 'ID' }, defaultColumns: ['sys_id'] }
 }
 
 function displayOf(record: Record<string, unknown>, field: string): string {
@@ -92,7 +120,7 @@ export async function fetchDrill(datum: DrillDatum, signal?: AbortSignal): Promi
     const spec = fieldsFor(datum.table)
     const params = new URLSearchParams({
         sysparm_query: datum.query,
-        sysparm_fields: spec.fields.join(','),
+        sysparm_fields: ['sys_id', ...spec.fields].join(','),
         sysparm_display_value: 'all',
         sysparm_limit: String(MAX_ROWS),
     })
@@ -117,14 +145,37 @@ export async function fetchDrill(datum: DrillDatum, signal?: AbortSignal): Promi
     return {
         rows: records.map((record) => ({
             sys_id: displayOf(record, 'sys_id'),
-            primary: displayOf(record, spec.primary),
-            secondary: displayOf(record, spec.secondary),
-            tertiary: displayOf(record, spec.tertiary),
+            values: Object.fromEntries(spec.fields.map((field) => [field, displayOf(record, field)])),
         })),
         visible: Number.isFinite(headerCount) ? headerCount : records.length,
         total: datum.count,
         table: datum.table,
         query: datum.query,
+        columns: spec.fields,
+        labels: spec.labels,
+        defaultColumns: spec.defaultColumns,
+    }
+}
+
+const COLUMN_PREF_PREFIX = 'secops.drill.columns.'
+
+/** Per-viewer column choice for one table's drill list. Falls back silently — this is a display convenience, not state that must persist. */
+export function loadColumnPrefs(table: string, fallback: string[]): string[] {
+    try {
+        const raw = window.localStorage.getItem(COLUMN_PREF_PREFIX + table)
+        if (!raw) return fallback
+        const parsed = JSON.parse(raw)
+        return Array.isArray(parsed) && parsed.every((item) => typeof item === 'string') ? parsed : fallback
+    } catch {
+        return fallback
+    }
+}
+
+export function saveColumnPrefs(table: string, columns: string[]): void {
+    try {
+        window.localStorage.setItem(COLUMN_PREF_PREFIX + table, JSON.stringify(columns))
+    } catch {
+        // Private browsing / storage disabled — the picker still works for this session.
     }
 }
 

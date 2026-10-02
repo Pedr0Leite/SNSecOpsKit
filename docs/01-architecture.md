@@ -70,11 +70,11 @@ the response. Adding a vendor is data entry. Adding a *capability* is a new hand
 
 | Table | Purpose |
 |---|---|
-| `x_335329_secops_connector` | A third-party system: category, base URL, auth mode, credential alias, MID server, timeout, retry budget, health. |
-| `x_335329_secops_endpoints` | One callable operation: capability, method, path, request template, headers, response root, success codes. |
-| `x_335329_secops_field_map` | A mapping rule: source JSON path → target table/field, with a transform. |
-| `x_335329_secops_transaction` | Redacted audit record per call: state, HTTP status, duration, request/response, error, retry count. |
-| `x_335329_secops_vuln_stage` | Staging for inbound vulnerability telemetry, before any VR promotion. |
+| `x_nold_secops_connector` | A third-party system: category, base URL, auth mode, credential alias, MID server, timeout, retry budget, health. |
+| `x_nold_secops_endpoints` | One callable operation: capability, method, path, request template, headers, response root, success codes. |
+| `x_nold_secops_field_map` | A mapping rule: source JSON path → target table/field, with a transform. |
+| `x_nold_secops_transaction` | Redacted audit record per call: state, HTTP status, duration, request/response, error, retry count. |
+| `x_nold_secops_vuln_stage` | Staging for inbound vulnerability telemetry, before any VR promotion. |
 
 **Why credentials are not on the connector.** `connection_alias` references `sys_alias`. The secret
 stays in the platform credential store, supports per-environment values, participates in scope

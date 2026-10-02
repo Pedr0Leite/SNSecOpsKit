@@ -9,8 +9,8 @@
     var json = new SecOpsJson()
 
     data.canView =
-        gs.hasRole('x_335329_secops.viewer') || gs.hasRole('x_335329_secops.operator') || gs.hasRole('x_335329_secops.admin')
-    data.canOperate = gs.hasRole('x_335329_secops.operator') || gs.hasRole('x_335329_secops.admin')
+        gs.hasRole('x_nold_secops.viewer') || gs.hasRole('x_nold_secops.operator') || gs.hasRole('x_nold_secops.admin')
+    data.canOperate = gs.hasRole('x_nold_secops.operator') || gs.hasRole('x_nold_secops.admin')
     data.connectors = []
     data.transactions = []
     data.summary = { healthy: 0, degraded: 0, down: 0, unknown: 0 }

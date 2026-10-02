@@ -9,8 +9,8 @@
 var SecOpsConsoleAjax = Class.create()
 
 SecOpsConsoleAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
-    ROLE_VIEWER: 'x_335329_secops.viewer',
-    ROLE_OPERATOR: 'x_335329_secops.operator',
+    ROLE_VIEWER: 'x_nold_secops.viewer',
+    ROLE_OPERATOR: 'x_nold_secops.operator',
 
     /** Connector health plus recent transactions, for the console landing view. */
     getConsole: function () {
@@ -96,11 +96,11 @@ SecOpsConsoleAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor,
     },
 
     _canView: function () {
-        return gs.hasRole(this.ROLE_VIEWER) || gs.hasRole(this.ROLE_OPERATOR) || gs.hasRole('x_335329_secops.admin')
+        return gs.hasRole(this.ROLE_VIEWER) || gs.hasRole(this.ROLE_OPERATOR) || gs.hasRole('x_nold_secops.admin')
     },
 
     _canOperate: function () {
-        return gs.hasRole(this.ROLE_OPERATOR) || gs.hasRole('x_335329_secops.admin')
+        return gs.hasRole(this.ROLE_OPERATOR) || gs.hasRole('x_nold_secops.admin')
     },
 
     _denied: function () {

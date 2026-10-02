@@ -41,7 +41,7 @@ var result = new SecOpsThreatIntelHandler().enrichObservable(observableSysId, {
 ### Automatic enrichment
 
 Two async business rules ship **inactive** and are additionally gated by
-`x_335329_secops.enrichment.auto_enabled`:
+`x_nold_secops.enrichment.auto_enabled`:
 
 | Rule | Table | Trigger |
 |---|---|---|
@@ -59,7 +59,7 @@ should not be a side effect of installing an application. The second rule only f
 ```javascript
 var result = new SecOpsPhishingHandler().analyzeIncident(incidentSysId, {
     createObservables: true,   // default true
-    maxIndicators: 25,         // default: x_335329_secops.detonate.max_indicators (15)
+    maxIndicators: 25,         // default: x_nold_secops.detonate.max_indicators (15)
 });
 
 // result.ok          → false if NO indicator could be analysed (outage / not configured)
@@ -105,7 +105,7 @@ Push (a scanner calls ServiceNow):
 ```bash
 curl -X POST -u "$USER:$PASS" -H 'Content-Type: application/json' \
   --data '{"results":[{"id":"V-1","cve":"CVE-2026-0001","severity":"high","host":"web01"}]}' \
-  "https://<instance>.service-now.com/api/x_335329_secops/secops_connector/vulnerability?source=AcmeScanner"
+  "https://<instance>.service-now.com/api/x_nold_secops/secops_connector/vulnerability?source=AcmeScanner"
 
 # 201 {"result":{"ok":true,"staged":1,"skipped":0,"errors":[],"promoted":null}}
 ```
@@ -180,4 +180,4 @@ SecOpsMyHandler.prototype = Object.extendsObject(SecOpsUniversalPayloadHandler, 
 
 Then add a `ScriptInclude` record in `src/fluent/script-includes/handlers.now.ts` and, if the
 capability needs its own choice value, extend the `capability` choice list on
-`x_335329_secops_endpoints`. Do not re-implement transport, retry, logging or mapping.
+`x_nold_secops_endpoints`. Do not re-implement transport, retry, logging or mapping.

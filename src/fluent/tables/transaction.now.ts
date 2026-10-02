@@ -14,8 +14,8 @@ import {
  * Execution log for every outbound call and inbound ingestion. Request and response bodies are
  * redacted before they are written here - see SecOpsJson.redact.
  */
-export const x_335329_secops_transaction = Table({
-    name: 'x_335329_secops_transaction',
+export const x_nold_secops_transaction = Table({
+    name: 'x_nold_secops_transaction',
     label: 'SecOps Connector Transaction',
     display: 'correlation_id',
     audit: false,
@@ -30,12 +30,12 @@ export const x_335329_secops_transaction = Table({
         correlation_id: StringColumn({ label: 'Correlation ID', maxLength: 64, readOnly: true }),
         connector: ReferenceColumn({
             label: 'Connector',
-            referenceTable: 'x_335329_secops_connector',
+            referenceTable: 'x_nold_secops_connector',
             cascadeRule: 'none',
         }),
         endpoint: ReferenceColumn({
             label: 'Endpoint',
-            referenceTable: 'x_335329_secops_endpoints',
+            referenceTable: 'x_nold_secops_endpoints',
             cascadeRule: 'none',
         }),
         capability: StringColumn({ label: 'Capability', maxLength: 40, readOnly: true }),

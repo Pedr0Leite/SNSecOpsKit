@@ -52,10 +52,10 @@ function endpoint(overrides) {
 function makeClient(options) {
     const opts = options || {}
     const db = {
-        x_335329_secops_connector: [connector(opts.connector)],
-        x_335329_secops_endpoints: [endpoint(opts.endpoint)],
-        x_335329_secops_field_map: [],
-        x_335329_secops_transaction: [],
+        x_nold_secops_connector: [connector(opts.connector)],
+        x_nold_secops_endpoints: [endpoint(opts.endpoint)],
+        x_nold_secops_field_map: [],
+        x_nold_secops_transaction: [],
     }
     const sandbox = loadScriptIncludes(FILES, {
         db: db,
@@ -152,7 +152,7 @@ test('parks a 429 for deferred retry instead of hammering the third party', () =
 
     assert.strictEqual(result.ok, false)
     assert.ok(result.next_retry, 'a back-pressure response must schedule a later retry')
-    const txn = sandbox._db.x_335329_secops_transaction[0]
+    const txn = sandbox._db.x_nold_secops_transaction[0]
     assert.strictEqual(txn.state, 'retry_pending')
 })
 
@@ -175,7 +175,7 @@ test('writes a transaction with redacted request and response bodies', () => {
 
     client.execute(resolveEndpoint(registry), { secret: 'hunter2', ioc: '1.1.1.1' })
 
-    const txn = sandbox._db.x_335329_secops_transaction[0]
+    const txn = sandbox._db.x_nold_secops_transaction[0]
     assert.strictEqual(txn.state, 'success')
     assert.ok(txn.request_summary.indexOf('hunter2') === -1, 'a secret in the request body must not be logged')
     assert.ok(txn.response_summary.indexOf('super-secret') === -1, 'a token in the response must not be logged')

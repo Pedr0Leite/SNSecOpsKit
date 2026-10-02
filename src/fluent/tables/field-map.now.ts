@@ -14,8 +14,8 @@ import {
  * to `target_field` on `target_table`. Target table/field are data, not code, so the framework
  * adapts to SecOps schema differences between releases without a new app version.
  */
-export const x_335329_secops_field_map = Table({
-    name: 'x_335329_secops_field_map',
+export const x_nold_secops_field_map = Table({
+    name: 'x_nold_secops_field_map',
     label: 'SecOps Field Mapping',
     display: 'source_path',
     audit: true,
@@ -25,7 +25,7 @@ export const x_335329_secops_field_map = Table({
     schema: {
         endpoint: ReferenceColumn({
             label: 'Endpoint',
-            referenceTable: 'x_335329_secops_endpoints',
+            referenceTable: 'x_nold_secops_endpoints',
             mandatory: true,
             cascadeRule: 'delete',
         }),

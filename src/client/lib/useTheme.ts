@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 export const THEMES = ['daylight', 'night', 'matrix'] as const
 export type Theme = (typeof THEMES)[number]
 
-const STORAGE_KEY = 'x_335329_secops.theme'
+const STORAGE_KEY = 'x_nold_secops.theme'
 
 function isTheme(value: unknown): value is Theme {
     return typeof value === 'string' && (THEMES as readonly string[]).includes(value)

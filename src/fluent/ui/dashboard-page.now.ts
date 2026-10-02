@@ -13,7 +13,7 @@ import overviewHtml from '../../client/overview.html'
  * `direct: true` renders without the standard ServiceNow chrome, so the React app owns the full
  * viewport and nothing of the platform's CSS leaks into the themes.
  *
- * Reachable at /x_335329_secops_analyst_console.do, gated by the ui_page ACL in
+ * Reachable at /x_nold_secops_analyst_console.do, gated by the ui_page ACL in
  * security/acls.now.ts.
  *
  * The endpoint matters more than it looks: the SDK derives sys_ui_page.name by stripping the scope
@@ -24,7 +24,7 @@ import overviewHtml from '../../client/overview.html'
  */
 export const dashboardPage = UiPage({
     $id: Now.ID['ui-page-secops-dashboard'],
-    endpoint: 'x_335329_secops_analyst_console.do',
+    endpoint: 'x_nold_secops_analyst_console.do',
     description: 'SecOps analyst console - work queue, findings and connector health.',
     category: 'general',
     html: dashboardHtml,
@@ -46,7 +46,7 @@ export const dashboardPage = UiPage({
  */
 export const overviewPage = UiPage({
     $id: Now.ID['ui-page-secops-overview'],
-    endpoint: 'x_335329_secops_security_overview.do',
+    endpoint: 'x_nold_secops_security_overview.do',
     description: 'SecOps security overview - organisation-wide posture, findings and integration health.',
     category: 'general',
     html: overviewHtml,

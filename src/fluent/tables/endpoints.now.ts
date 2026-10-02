@@ -13,8 +13,8 @@ import {
  * One callable operation on a connector. The `capability` decides which handler drives it, so a
  * new third-party tool is onboarded by adding records here - not by writing code.
  */
-export const x_335329_secops_endpoints = Table({
-    name: 'x_335329_secops_endpoints',
+export const x_nold_secops_endpoints = Table({
+    name: 'x_nold_secops_endpoints',
     label: 'SecOps Connector Endpoint',
     display: 'name',
     audit: true,
@@ -26,7 +26,7 @@ export const x_335329_secops_endpoints = Table({
         name: StringColumn({ label: 'Name', maxLength: 100, mandatory: true }),
         connector: ReferenceColumn({
             label: 'Connector',
-            referenceTable: 'x_335329_secops_connector',
+            referenceTable: 'x_nold_secops_connector',
             mandatory: true,
             cascadeRule: 'delete',
         }),

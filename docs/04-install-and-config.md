@@ -33,9 +33,9 @@ verified the install.
 
 | Role | For | Grants |
 |---|---|---|
-| `x_335329_secops.viewer` | Security managers, anyone needing visibility | Read connectors, endpoints, mappings, transaction log, staging |
-| `x_335329_secops.operator` | Tier 1/2 analysts | Viewer + run connectors and test reachability |
-| `x_335329_secops.admin` | Low-code administrators | Full configuration |
+| `x_nold_secops.viewer` | Security managers, anyone needing visibility | Read connectors, endpoints, mappings, transaction log, staging |
+| `x_nold_secops.operator` | Tier 1/2 analysts | Viewer + run connectors and test reachability |
+| `x_nold_secops.admin` | Low-code administrators | Full configuration |
 
 Roles nest: `admin` contains `operator` contains `viewer`.
 
@@ -117,17 +117,17 @@ connector table with a per-connector **Test** button (operators only) and the re
 
 | Property | Default | Purpose |
 |---|---|---|
-| `x_335329_secops.log.level` | `warn` | GSLog verbosity (`debug`/`info`/`warn`/`error`) |
-| `x_335329_secops.http.timeout_ms` | `30000` | Default outbound timeout |
-| `x_335329_secops.http.max_retries` | `2` | Default immediate retries |
-| `x_335329_secops.log.retention_days` | `30` | Transaction retention; `0` disables cleanup |
-| `x_335329_secops.redact.extra_keys` | *(empty)* | Extra payload keys to redact, comma separated |
-| `x_335329_secops.ingest.max_records` | `500` | Cap per bulk ingestion payload |
-| `x_335329_secops.detonate.max_indicators` | `15` | Cap per security incident. Each indicator is one **synchronous** outbound call, so raising this risks exhausting the transaction quota and leaving an incident half-processed |
-| `x_335329_secops.enrichment.auto_enabled` | `false` | Master switch for the automatic enrichment business rules |
-| `x_335329_secops.vr.promotion_enabled` | `false` | Master switch for VR promotion |
-| `x_335329_secops.vr.entry_table` | `sn_vul_third_party_entry` | VR vulnerability table |
-| `x_335329_secops.vr.item_table` | `sn_vul_vulnerable_item` | VR vulnerable item table |
+| `x_nold_secops.log.level` | `warn` | GSLog verbosity (`debug`/`info`/`warn`/`error`) |
+| `x_nold_secops.http.timeout_ms` | `30000` | Default outbound timeout |
+| `x_nold_secops.http.max_retries` | `2` | Default immediate retries |
+| `x_nold_secops.log.retention_days` | `30` | Transaction retention; `0` disables cleanup |
+| `x_nold_secops.redact.extra_keys` | *(empty)* | Extra payload keys to redact, comma separated |
+| `x_nold_secops.ingest.max_records` | `500` | Cap per bulk ingestion payload |
+| `x_nold_secops.detonate.max_indicators` | `15` | Cap per security incident. Each indicator is one **synchronous** outbound call, so raising this risks exhausting the transaction quota and leaving an incident half-processed |
+| `x_nold_secops.enrichment.auto_enabled` | `false` | Master switch for the automatic enrichment business rules |
+| `x_nold_secops.vr.promotion_enabled` | `false` | Master switch for VR promotion |
+| `x_nold_secops.vr.entry_table` | `sn_vul_third_party_entry` | VR vulnerability table |
+| `x_nold_secops.vr.item_table` | `sn_vul_vulnerable_item` | VR vulnerable item table |
 
 ## Scheduled jobs
 
@@ -141,16 +141,16 @@ connector table with a per-connector **Test** button (operators only) and the re
 
 | Route | Method | Auth |
 |---|---|---|
-| `/api/x_335329_secops/secops_connector/vulnerability` | POST | Authenticated + `x_335329_secops.admin` |
-| `/api/x_335329_secops/secops_connector/health` | GET | Authenticated + `x_335329_secops.admin` |
+| `/api/x_nold_secops/secops_connector/vulnerability` | POST | Authenticated + `x_nold_secops.admin` |
+| `/api/x_nold_secops/secops_connector/health` | GET | Authenticated + `x_nold_secops.admin` |
 
-Create a dedicated integration user holding `x_335329_secops.admin` for scanner push. The health
+Create a dedicated integration user holding `x_nold_secops.admin` for scanner push. The health
 route reports stored health and makes no outbound calls, so it is safe to poll.
 
 ## Smoke test
 
 ```bash
-BASE="https://<instance>.service-now.com/api/x_335329_secops/secops_connector"
+BASE="https://<instance>.service-now.com/api/x_nold_secops/secops_connector"
 
 curl -s -u "$USER:$PASS" "$BASE/health"
 

@@ -23,7 +23,7 @@ Name: `SecOps - Enrich Observable`.
 | Label | Name | Type | Mandatory | Notes |
 |---|---|---|---|---|
 | Observable | `observable` | Reference · `sn_ti_observable` | Yes | |
-| Connector | `connector` | Reference · `x_335329_secops_connector` | No | Empty = fan out to every active enrich endpoint |
+| Connector | `connector` | Reference · `x_nold_secops_connector` | No | Empty = fan out to every active enrich endpoint |
 | Roll up finding | `rollup` | True/False | No | Default `true` |
 
 ### Outputs
@@ -78,7 +78,7 @@ Name: `SecOps - Contain Endpoint`.
 | Action | `action` | Choice (`isolate`, `release`, `block`, `unblock`) | Yes |
 | Reason | `reason` | String | Yes |
 | Security incident | `incident` | Reference · `sn_si_incident` | No |
-| Connector | `connector` | Reference · `x_335329_secops_connector` | No |
+| Connector | `connector` | Reference · `x_nold_secops_connector` | No |
 
 ### Outputs
 
@@ -86,7 +86,7 @@ Name: `SecOps - Contain Endpoint`.
 |---|---|---|
 | Success | `success` | True/False |
 | HTTP status | `http_status` | Integer |
-| Transaction | `transaction` | Reference · `x_335329_secops_transaction` |
+| Transaction | `transaction` | Reference · `x_nold_secops_transaction` |
 | Error message | `error_message` | String |
 
 ### Script step

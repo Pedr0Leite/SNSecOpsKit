@@ -34,12 +34,12 @@ Demo data lands separately in `dist/app/unload.demo/` so it installs only with `
 
 Tables are emitted in the dictionary bootstrap form (`dist/app/dictionary/<table>.xml`), one file
 per table with columns and choices nested. Excerpt from
-`dist/app/dictionary/x_335329_secops_connector.xml`:
+`dist/app/dictionary/x_nold_secops_connector.xml`:
 
 ```xml
 <?xml version="1.0"?>
 <database>
-  <element name="x_335329_secops_connector" type="collection" label="SecOps Connector"
+  <element name="x_nold_secops_connector" type="collection" label="SecOps Connector"
            is_extendable="false" text_index="false" read_only="false" audit="true"
            display="name" access="public" caller_access="0" ws_access="true"
            read_access="true" create_access="true" update_access="true" delete_access="true"
@@ -88,7 +88,7 @@ The attributes that matter for cross-scope behaviour and for certification:
 | `read/create/update/delete_access` | `true` | Cross-scope operations permitted on our own tables |
 | `audit` | `true` on configuration tables, `false` on `transaction` and `vuln_stage` | Auditing high-volume log/staging tables would double their storage for no investigative value |
 
-The five tables: `x_335329_secops_connector`, `_endpoints`, `_field_map`, `_transaction`,
+The five tables: `x_nold_secops_connector`, `_endpoints`, `_field_map`, `_transaction`,
 `_vuln_stage`. Field-level detail is in [01-architecture.md](01-architecture.md#3-data-model).
 
 ## Cross-scope privilege XML
@@ -101,7 +101,7 @@ One `sys_scope_privilege` record per operation per target. Real output from
 <record_update table="sys_scope_privilege">
   <sys_scope_privilege action="INSERT_OR_UPDATE" apply_defaults="true">
     <sys_id>19bd31847a3d4f15b9d78fc04acb106e</sys_id>
-    <sys_scope display_value="x_335329_secops">299d8aa83da2430497b6334a51359205</sys_scope>
+    <sys_scope display_value="x_nold_secops">299d8aa83da2430497b6334a51359205</sys_scope>
     <sys_update_name>sys_scope_privilege_19bd31847a3d4f15b9d78fc04acb106e</sys_update_name>
     <operation>execute</operation>
     <source_scope>299d8aa83da2430497b6334a51359205</source_scope>
@@ -152,15 +152,15 @@ Real output from `dist/app/update/sys_security_acl_*.xml`:
 <record_update table="sys_security_acl">
   <sys_security_acl action="INSERT_OR_UPDATE" apply_defaults="true">
     <sys_id>09b7ca102ca14cc3a2992cbbb110f863</sys_id>
-    <sys_scope display_value="x_335329_secops">299d8aa83da2430497b6334a51359205</sys_scope>
+    <sys_scope display_value="x_nold_secops">299d8aa83da2430497b6334a51359205</sys_scope>
     <sys_update_name>sys_security_acl_09b7ca102ca14cc3a2992cbbb110f863</sys_update_name>
     <active>true</active>
     <admin_overrides>true</admin_overrides>
     <advanced>false</advanced>
     <decision_type>allow</decision_type>
-    <name>x_335329_secops_vuln_stage</name>
+    <name>x_nold_secops_vuln_stage</name>
     <operation display_value="delete">delete</operation>
-    <sys_name>x_335329_secops_vuln_stage</sys_name>
+    <sys_name>x_nold_secops_vuln_stage</sys_name>
     <type>record</type>
   </sys_security_acl>
 </record_update>

@@ -72,7 +72,7 @@ chunk so the second page hits browser cache instead of re-downloading React.
 These are blocking and cannot be resolved from this repo — full detail in
 `docs/06-store-certification.md`.
 
-1. **Vendor prefix.** The scope is `x_335329_secops`, which is this *development instance's* prefix.
+1. **Vendor prefix.** The scope is `x_nold_secops`, which is this *development instance's* prefix.
    Rename to your ServiceNow-assigned publisher prefix. This changes every table, role and property
    name — do it before accumulating customer data.
 2. **Contact Support module** — replace the placeholder `mailto:` in `src/fluent/ui/navigation.now.ts`.

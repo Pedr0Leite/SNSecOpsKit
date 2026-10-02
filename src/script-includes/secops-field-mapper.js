@@ -1,6 +1,6 @@
 ﻿/**
  * SecOpsFieldMapper - turns a third-party JSON response into ServiceNow field values using the
- * declarative rules in x_335329_secops_field_map.
+ * declarative rules in x_nold_secops_field_map.
  *
  * This is what makes the framework universal: onboarding a new vendor is mapping rows, not code.
  */

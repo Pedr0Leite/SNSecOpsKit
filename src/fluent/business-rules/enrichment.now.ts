@@ -4,7 +4,7 @@ import { BusinessRule } from '@servicenow/sdk/core'
 /**
  * Automatic enrichment triggers.
  *
- * Both rules ship INACTIVE and are additionally gated by x_335329_secops.enrichment.auto_enabled.
+ * Both rules ship INACTIVE and are additionally gated by x_nold_secops.enrichment.auto_enabled.
  * Two independent switches is deliberate: enabling automation that spends a customer's third-party
  * API quota should never happen as a side effect of installing an application.
  *

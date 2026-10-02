@@ -27,8 +27,8 @@ export interface PanelState {
 export type Layout = PanelState[]
 
 /** One preference row per page, so the console and the overview never overwrite each other. */
-export const OVERVIEW_LAYOUT = 'x_335329_secops.overview.layout'
-export const CONSOLE_LAYOUT = 'x_335329_secops.console.layout'
+export const OVERVIEW_LAYOUT = 'x_nold_secops.overview.layout'
+export const CONSOLE_LAYOUT = 'x_nold_secops.console.layout'
 
 function headers(extra?: HeadersInit): HeadersInit {
     return { Accept: 'application/json', 'X-UserToken': window.g_ck, ...(extra || {}) }

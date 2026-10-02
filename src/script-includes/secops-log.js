@@ -2,7 +2,7 @@
  * SecOpsLog - level-aware logging that never leaks credentials.
  *
  * Delegates to GSLog so administrators can tune verbosity through the standard
- * x_335329_secops.log.level property. GSLog lives in the global scope, so the lookup is guarded:
+ * x_nold_secops.log.level property. GSLog lives in the global scope, so the lookup is guarded:
  * if cross-scope access to it is denied the logger silently falls back to gs.* rather than taking
  * the whole integration down.
  */
@@ -16,7 +16,7 @@ SecOpsLog.prototype = {
 
         try {
             if (typeof global !== 'undefined' && global && global.GSLog) {
-                this.delegate = new global.GSLog('x_335329_secops.log.level', this.source)
+                this.delegate = new global.GSLog('x_nold_secops.log.level', this.source)
             }
         } catch (e) {
             this.delegate = null
@@ -65,7 +65,7 @@ SecOpsLog.prototype = {
         if (context === null || context === undefined) {
             return base
         }
-        var extraKeys = gs.getProperty('x_335329_secops.redact.extra_keys', '')
+        var extraKeys = gs.getProperty('x_nold_secops.redact.extra_keys', '')
         return base + ' | ' + this.json.forLog(context, 2000, extraKeys)
     },
 

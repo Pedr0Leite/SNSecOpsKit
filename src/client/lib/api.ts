@@ -1,6 +1,6 @@
 import type { ConnectorResponse, WorkQuery, WorkResponse } from './types'
 
-const BASE = '/api/x_335329_secops/secops_console'
+const BASE = '/api/x_nold_secops/secops_console'
 
 /**
  * Every call carries the session token ServiceNow injects as window.g_ck. Without it the platform

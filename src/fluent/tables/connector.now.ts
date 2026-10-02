@@ -16,8 +16,8 @@ import {
  * Credentials are never stored here - they resolve at runtime through the Connection & Credential
  * Alias referenced by `connection_alias`.
  */
-export const x_335329_secops_connector = Table({
-    name: 'x_335329_secops_connector',
+export const x_nold_secops_connector = Table({
+    name: 'x_nold_secops_connector',
     label: 'SecOps Connector',
     display: 'name',
     audit: true,

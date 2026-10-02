@@ -15,7 +15,7 @@ Mapped against the published App Review criteria and the "top ten failed certifi
 | 7 | Client-callable Script Include without an ACL | **Done** — `client_callable_script_include` execute ACL on `SecOpsConsoleAjax`, and the script include re-checks `gs.hasRole` server-side |
 | 8 | UI Pages without ACLs | **N/A** — no UI Pages. The REST endpoint has a `rest_endpoint` execute ACL |
 | 9 | Dot-walking to `sys_id` | **Clean** — every read uses `getValue()` / `getUniqueValue()` |
-| 10 | Modules without roles | **Done** — all 8 modules carry `x_335329_secops.viewer`. *This was caught by post-install verification: the Record API wrote `[object Object]` when passed Role objects, so module roles are set by role name* |
+| 10 | Modules without roles | **Done** — all 8 modules carry `x_nold_secops.viewer`. *This was caught by post-install verification: the Record API wrote `[object Object]` when passed Role objects, so module roles are set by role name* |
 
 ## Scoped coding rules
 
@@ -26,7 +26,7 @@ Mapped against the published App Review criteria and the "top ten failed certifi
 | No `gs.nowDateTime()` | **Clean** — `GlideDateTime` used throughout |
 | `GlideRecordSecure` where data reaches a user | **Done** — widget server script, `SecOpsConsoleAjax`, and all SecOps-table writes. Framework-internal config reads and audit writes use `GlideRecord` deliberately |
 | No `eval` | **Clean** — template and JSON-path engines are pure string/structure operations |
-| No global-scope shim to reach blocked APIs | **Clean** — everything lives in `x_335329_secops`. Global APIs are only *called* (`GSLog`, `AbstractAjaxProcessor`) under declared privileges |
+| No global-scope shim to reach blocked APIs | **Clean** — everything lives in `x_nold_secops`. Global APIs are only *called* (`GSLog`, `AbstractAjaxProcessor`) under declared privileges |
 | No GlideRecord in client scripts | **Clean** — client controller only calls `c.server.update()` |
 | No hardcoded instance URLs, credentials or customer data | **Clean** — verified by inspection; demo data uses `example.com` |
 | Bounded queries | **Done** — `setLimit` on every list/loop query; ingestion and indicator batches capped by property |
@@ -72,7 +72,7 @@ submission. Established Store SIR integrations declare `com.snc.si_dep` as a pre
 
 These are genuinely blocking a real submission and cannot be resolved from this repo:
 
-1. **Vendor prefix.** The scope is `x_335329_secops`, which is *this development instance's*
+1. **Vendor prefix.** The scope is `x_nold_secops`, which is *this development instance's*
    prefix, not a publisher prefix. Rename to your ServiceNow-assigned vendor prefix. This changes
    every table, role and property name — do it before accumulating data. (The originally specified
    `x_snc_secops_uni` is not usable: `snc` is ServiceNow's own prefix and the instance rejects it.)

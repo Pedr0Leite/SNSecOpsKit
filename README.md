@@ -9,7 +9,7 @@ trail are already built.
 
 | | |
 |---|---|
-| **Scope** | `x_335329_secops` |
+| **Scope** | `x_nold_secops` |
 | **Application** | SecOps Universal Connector Framework |
 | **Built with** | ServiceNow SDK (Fluent) 4.12.1 |
 | **Verified on** | dev296062.service-now.com — installed, REST ingestion smoke-tested end to end |
@@ -18,7 +18,7 @@ trail are already built.
 
 > **Scope naming — read before Store submission.** The specified scope was `x_snc_secops_uni`, but a
 > ServiceNow instance only accepts applications carrying **its own** vendor prefix, and this
-> instance's prefix is `x_335329_`. A real Store submission must use *your publisher-assigned*
+> instance's prefix is `x_nold_`. A real Store submission must use *your publisher-assigned*
 > vendor prefix, which means renaming the scope once more. Renaming changes every table, role and
 > property name, so do it before you accumulate customer data. See
 > [docs/06-store-certification.md](docs/06-store-certification.md).
@@ -82,8 +82,8 @@ Plus two React + TypeScript UI Pages sharing one component library, with light/d
 
 | Page | URL | For |
 |---|---|---|
-| **Analyst console** | `/x_335329_secops_analyst_console.do` | Unified work queue (SIR incidents, SIR tasks, findings), inline record pane with editing, and a personal metrics tab |
-| **Security overview** | `/x_335329_secops_security_overview.do` | Organisation-wide posture, findings by source and asset, and integration health — the question only this app can answer |
+| **Analyst console** | `/x_nold_secops_analyst_console.do` | Unified work queue (SIR incidents, SIR tasks, findings), inline record pane with editing, and a personal metrics tab |
+| **Security overview** | `/x_nold_secops_security_overview.do` | Organisation-wide posture, findings by source and asset, and integration health — the question only this app can answer |
 
 See [docs/08-analyst-console.md](docs/08-analyst-console.md).
 
@@ -110,6 +110,34 @@ empty parameter.
 Scanners push to a REST endpoint, or the app pulls on a schedule. Data lands in the application's
 **own staging table** first, de-duplicated on source + external ID and CI-matched against the CMDB.
 Promotion into Vulnerability Response is a separate, opt-in step.
+
+**Nothing happens automatically after a record lands in staging** — that is deliberate, not an
+unfinished piece. A staged row (`x_nold_secops_vuln_stage`, `state = new`) is a valid end state on
+its own: the analyst console and the security overview both read this table directly, so if the
+goal is visibility rather than Vulnerability Response, staging *is* the finish line.
+
+Getting data in, without a working pull connector:
+
+- **Push, no connector needed.** `POST /api/x_nold_secops/secops_connector/vulnerability?source=<name>`
+  with a JSON array (or an object — pass `&records_path=<dotted.path>` to point at the array inside
+  it, e.g. a raw `snyk test --json` file via `records_path=remediation.unresolved`). Records are
+  matched by convention (`id`→`external_id`, `title`, `severity`, `cve`, `host`/`ci`→`ci_identifier`)
+  when no field mappings exist on an endpoint — this is the fastest way to try the pipe with a real
+  scanner's output before configuring anything in *SecOps Universal Connector*.
+- **Pull, via a connector/endpoint** — only useful if the vendor's API is actually reachable with
+  your credentials and plan. (Not every vendor plan includes API access — Snyk's Free tier, for
+  example, returns `403` / "not entitled for api access" on every REST call regardless of token or
+  org, which no amount of connector configuration fixes. Confirm API access works — `curl` the
+  vendor's own documented example — before wiring a connector to it.)
+
+Promotion into Vulnerability Response, once you want it:
+
+1. Have VR installed (`com.snc.vulnerability`) — promotion silently no-ops with `skipped: true` if
+   its tables (`sn_vul_third_party_entry` / `sn_vul_vulnerable_item`) aren't found.
+2. Set `x_nold_secops.vr.promotion_enabled` to `true` (default `false`).
+3. Trigger it — either pass `&promote=true` on the same ingest POST, or call
+   `new SecOpsVulnIngestionHandler().promote({ source: '<name>' })` yourself (there is no shipped
+   scheduled job for this; add one if you want it recurring).
 
 **5. Health (`health`)**
 Hourly sweep plus an on-demand **Test** button in the Service Portal console, so a credential that

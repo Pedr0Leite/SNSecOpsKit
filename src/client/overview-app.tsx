@@ -121,7 +121,7 @@ export default function OverviewApp() {
                 ) : null}
 
                 <ThemeSwitch theme={theme} onChange={setTheme} />
-                <a className="react-aria-Button" href="/x_335329_secops_analyst_console.do">
+                <a className="react-aria-Button" href="/x_nold_secops_analyst_console.do">
                     Open console
                 </a>
             </header>
@@ -366,12 +366,18 @@ function buildPanels(data: Overview, onDrill: (datum: DrillDatum) => void): Pane
             defaultWidth: 'half',
             render: () => (
                 <>
-                    <Trend values={integration.trend.ok} labels={integration.trend.labels} color="var(--sev-low)" />
+                    <Trend
+                        values={integration.trend.ok}
+                        labels={integration.trend.labels}
+                        color="var(--sev-low)"
+                        unit=" successful"
+                    />
                     {integration.trend.failed.some((value) => value > 0) ? (
                         <Trend
                             values={integration.trend.failed}
                             labels={integration.trend.labels}
                             color="var(--sev-critical)"
+                            unit=" failed"
                         />
                     ) : (
                         <p className="footnote">No failed calls in this window.</p>

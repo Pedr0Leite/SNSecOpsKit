@@ -4,7 +4,7 @@
  * Merges three sources into one normalised row shape:
  *   - Security Incidents      sn_si_incident
  *   - Security Incident Tasks sn_si_task
- *   - Vulnerability findings  x_335329_secops_vuln_stage
+ *   - Vulnerability findings  x_nold_secops_vuln_stage
  *
  * Everything is read with GlideRecordSecure: this is user-facing data, and an analyst must see
  * exactly what their ACLs allow and nothing more. A source that is absent (SIR not installed) is

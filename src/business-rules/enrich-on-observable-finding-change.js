@@ -11,7 +11,7 @@
  * without it this rule would re-trigger itself forever.
  */
 ;(function executeRule(current, previous) {
-    if (gs.getProperty('x_335329_secops.enrichment.auto_enabled', 'false') !== 'true') {
+    if (gs.getProperty('x_nold_secops.enrichment.auto_enabled', 'false') !== 'true') {
         return
     }
 

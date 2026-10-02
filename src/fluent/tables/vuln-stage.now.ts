@@ -17,8 +17,8 @@ import {
  * / sn_vul_vulnerable_item) only when VR is actually installed on the instance. That keeps the app
  * installable on instances without VR and keeps ingestion auditable.
  */
-export const x_335329_secops_vuln_stage = Table({
-    name: 'x_335329_secops_vuln_stage',
+export const x_nold_secops_vuln_stage = Table({
+    name: 'x_nold_secops_vuln_stage',
     label: 'SecOps Vulnerability Staging',
     display: 'external_id',
     audit: false,
@@ -66,7 +66,7 @@ export const x_335329_secops_vuln_stage = Table({
         promotion_message: StringColumn({ label: 'Promotion message', maxLength: 1000 }),
         transaction: ReferenceColumn({
             label: 'Transaction',
-            referenceTable: 'x_335329_secops_transaction',
+            referenceTable: 'x_nold_secops_transaction',
             cascadeRule: 'none',
         }),
         first_seen: DateTimeColumn({ label: 'First seen' }),

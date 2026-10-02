@@ -1,5 +1,5 @@
 /**
- * GET /api/x_335329_secops/secops_console/connectors
+ * GET /api/x_nold_secops/secops_console/connectors
  *
  * Connector health for the dashboard's status strip. Reports STORED health only - polling this
  * must never generate third-party traffic. Reads are ACL-enforced, so a viewer sees exactly the
